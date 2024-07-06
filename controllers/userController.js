@@ -5,18 +5,17 @@ const bcrypt = require('bcrypt');
 const Product = require('../models/productmodel')
 
 
-
+//Get Home with newly arrived products ,category ,brand
 const getHomePage = async (req, res) => {
  const user = req.session.user;
-
  const products = await Product.find({is_deleted:false })
-                                .sort({ created_at: -1 }) 
-                                .limit(5); 
- console.log(products)
-  console.log(user)
-    res.render('user/home', { user,products}); 
-  
+                                .sort({ createdAt: -1 }) 
+                                .limit(4); 
+res.render('user/home', { user,products});   
 };
+
+
+//get login page
   const getLogin = (req,res) =>{
     try {
       res.render("user/login",{ error: req.flash('error')});
@@ -26,10 +25,14 @@ const getHomePage = async (req, res) => {
     }
   }
 
+
+//get signup page
   const getSignupPage = (req,res) => {
     res.render('user/signup',{ error: req.flash('error')})
   }
 
+
+  //mail function
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -38,28 +41,27 @@ const getHomePage = async (req, res) => {
     },
   });
 
+//otp generating function
   const generateOTP = () => {
     return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
   
+//post signup function
 const postSignup = async (req, res) => {
   const { name, email, number, password } = req.body;
-
   try {
-    // Check if user exists with the provided email or number
     const existingUser = await User.findOne({ $or: [{ email }, { number }] });
+
     if (existingUser) {
       req.flash('error', 'Email or phone number already exists.');
       return res.redirect('/signup');
     }
 
-    // Generate OTP and hash password
     const otp = generateOTP();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user in database
     const newUser = new User({
       name,
       email,
@@ -69,22 +71,17 @@ const postSignup = async (req, res) => {
       otpExpiresAt,
       isVerified: false,
     });
-
-    // Save the new user
     await newUser.save();
 
-    // Set req.user with the newly created user's information
     req.user = {
       id: newUser._id,
       name: newUser.name,
       email: newUser.email,
-      // Add any other relevant user properties here
+      
     };
 
-    // Set session user as well
     req.session.user = req.user;
 
-    // Send OTP email and redirect to OTP verification page
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -101,67 +98,60 @@ const postSignup = async (req, res) => {
   }
 };
 
+//get otp verifying page
 const getVerifyOtpPage = (req, res) => {
   const { email } = req.query;
   res.render('user/validateOtp', { email, error: req.flash('error') });
 };
 
+
+//checking otp 
 const postVerifyOtp = async (req, res) => {
   const { email, otp } = req.body;
-  
   try {
-    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       req.flash('error', 'User not found.');
       return res.redirect(`/verify-otp?email=${email}`);
     }
     
-    // Check if OTP matches
     if (user.otp !== otp) {
       req.flash('error', 'Invalid OTP. Please try again.');
       return res.redirect(`/verify-otp?email=${email}`);
     }
     
-    // Check if OTP has expired
     if (user.otpExpiresAt < Date.now()) {
       req.flash('error', 'OTP has expired. Please request a new OTP.');
       return res.redirect(`/verify-otp?email=${email}`);
     }
     
-    // Mark user as verified and clear OTP fields
     user.is_verified = true;
     user.otp = undefined;
     user.otpExpiresAt = undefined;
     await user.save();
 
-    // Set req.user with the verified user's information
     req.user = {
       id: user._id,
       name: user.name,
       email: user.email,
-      // Add any other relevant user properties here
+      
     };
 
-    // Set session user as well
     req.session.user = req.user;
 
-    // Redirect to home page or any desired location
     res.redirect('/');
   } catch (error) {
-    console.error('Error verifying OTP:', error);
+    console.error( error);
     req.flash('error', 'An error occurred during OTP verification. Please try again.');
     res.redirect(`/verify-otp?email=${email}`);
   }
 };
 
 
-
+//resend Otp function
 const resendOTP = async (req, res) => {
   const { email } = req.query; 
-
   try {
-      
       const user = await User.findOne({ email });
 
       if (!user) {
@@ -169,16 +159,13 @@ const resendOTP = async (req, res) => {
           return res.redirect('/verify-otp');
       }
 
-     
       const otp = generateOTP();
       const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); 
 
-     
       user.otp = otp;
       user.otpExpiresAt = otpExpiresAt;
       await user.save();
 
-      
       const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
@@ -188,14 +175,15 @@ const resendOTP = async (req, res) => {
 
       await transporter.sendMail(mailOptions);
 
-      req.flash('success', 'New OTP sent successfully.');
       return res.redirect(`/verify-otp?email=${email}`);
   } catch (error) {
-     
-      req.flash('error', 'Failed to resend OTP. Please try again.');
-      return res.redirect('/verify-otp');
+        req.flash('error', 'Failed to resend OTP. Please try again.');
+        return res.redirect('/verify-otp');
   }
 };
+
+
+//post login page and checking if the email and password is correct or not
 const postLogin = async (req, res) => {
   const { email, password } = req.body;
 
@@ -203,7 +191,6 @@ const postLogin = async (req, res) => {
     req.flash('error', 'Please enter valid email and password.');
     return res.redirect('/login');
   }
-
   try {
     const user = await User.findOne({ email });
 
@@ -224,44 +211,43 @@ const postLogin = async (req, res) => {
       return res.redirect('/login');
     }
 
-    // Set req.session.user with user information
+   
     req.session.user = {
       _id: user._id,
       name: user.name,
       email: user.email,
-      // Add any other relevant user properties
+      
     };
 
     res.redirect('/');
   } catch (error) {
-    console.error(error);
-    req.flash('error', 'Something went wrong. Please try again.');
-    res.redirect('/login');
+        console.error(error);
+        req.flash('error', 'Something went wrong. Please try again.');
+        res.redirect('/login');
   }
 };
 
+//logout user
 const logout = (req, res) => {
- 
       req.session.destroy();
+     
         res.redirect('/'); 
+
 }
  
-
-      const otpPage = (req,res) => {
+//rendering otp page 
+const otpPage = (req,res) => {
         res.render('user/generateOtp')
       }
-     
-
-      const postGenerateOtp = async (req, res) => {
-        const { email } = req.body;
+     const postGenerateOtp = async (req, res) => {
+      const { email } = req.body;
         try {
-          const user = await User.findOne({ email });
+        const user = await User.findOne({ email });
           if (!user) {
             req.flash('error', 'User not found.');
             return res.redirect('/otp');
           }
-      
-         
+    
           const otp = generateOTP()
           const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); 
       
@@ -285,71 +271,76 @@ const logout = (req, res) => {
           res.redirect('/otp');
         }
       }
-      
+
+
+     //googlr authendication 
       const googleAuth = (req, res) => {
         try {
           req.session.user = req.user
           res.redirect("/");
         } catch (error) {
           console.log(error.message);
-         
-        }
-
-        
+        }  
       };
 
-      const getAllProducts = async(req,res) => {
-        const page = parseInt(req.query.page) || 1; 
-    const limit = 10; 
-    const skip = (page - 1) * limit;
+//get all products in product page
+  const getAllProducts = async(req,res) => {
+  const user = req.session.user;
+  const page = parseInt(req.query.page) || 1; 
+  const limit = 8; 
+  const skip = (page - 1) * limit;
 
     try {
-        const products = await Product.find({}).skip(skip).limit(limit);
+        const products = await Product.find({is_deleted:false}).skip(skip).limit(limit);
         const count = await Product.countDocuments({}); 
         const totalPages = Math.ceil(count / limit);
 
         res.render('user/view-products', {
+          user,
             products,
             currentPage: page,
             totalPages
         });
     } catch (error) {
-        console.error( error);
-       
+        console.error( error);  
     }
-     
       }
 
+      //get each product details
       const productdetails = async(req,res) => {
         const productId = req.params.id;
         const user = req.session.user
-       console.log(productId)
-       const product = await Product.findById(productId).lean()
-       console.log(product)
-       res.render('user/product-details', {  product ,user});
+        console.log(productId)
+        const product = await Product.findById(productId).lean()
+        const { avgRating } = product;
+        console.log(product)
+        res.render('user/product-details', {  product ,user,avgRating});
        }
 
 
+       //rating submision
        const submitRating = async (req, res) => {
         const { productId, rating, comment } = req.body;
+    
+        if (!req.session.user) {
+            return res.json({ notLoggedIn: true });
+        }
+    
         const userId = req.session.user._id;
     
         try {
             const product = await Product.findById(productId);
             if (!product) {
-                return res.status(404).json({ error: 'Product not found' });
+                return res.json({ error: 'Product not found' });
             }
     
-            // Check if the user has already rated the product
             const existingRating = product.ratings.find(r => r.user.toString() === userId.toString());
             if (existingRating) {
-                return res.status(400).json({ error: 'You have already rated this product.' });
+                return res.json({ alreadyExist: true });
             }
     
-            // Add new rating
             product.ratings.push({ user: userId, rating, comment });
     
-            // Calculate new average rating
             const totalRating = product.ratings.reduce((sum, r) => sum + r.rating, 0);
             product.avgRating = totalRating / product.ratings.length;
     
@@ -358,33 +349,33 @@ const logout = (req, res) => {
             res.json({ success: true });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.json({ error: 'Internal server error' });
         }
     };
     
     
    
-
+//fetching review 
     const fetchReviews = async (req, res) => {
       try {
-          const productId = req.query.productId; // Assuming this is how productId is passed in the query string
+          const productId = req.query.productId; 
           
           const product = await Product.findById(productId).populate('ratings.user');
           if (!product) {
-              return res.status(404).json({ success: false, message: 'Product not found' });
+              return res.json({ success: false, message: 'Product not found' });
           }
   
           const reviews = product.ratings.map(review => ({
               rating: review.rating,
               comment: review.comment,
-              userId: review.user, // Assuming _id is the identifier for userId
+              userId: review.user, 
              
           }));
   
-          res.status(200).json({ success: true, reviews });
+          res.json({ success: true, reviews });
       } catch (error) {
-          console.error('Error fetching reviews:', error);
-          res.status(500).json({ success: false, message: 'Error fetching reviews' });
+          console.error( error);
+          res.json({ success: false, message: 'Error fetching reviews' });
       }
   };
   

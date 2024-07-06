@@ -8,10 +8,45 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+  <style>
+     .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            background-color: #f1f1f1;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+
+        .pagination a.active {
+            background-color: #333;
+            color: white;
+            border: 1px solid #333;
+        }
+
+        .pagination a.prev, .pagination a.next {
+            font-weight: bold;
+        }
+  </style>
+  <main id="main" class="main">
   <section>
+
     <div class="container">
-      <div class="row mt-5">
-        <a href="/admin/add-product"><button class="btn btn-success">Add Product</button></a>
+      <div class="row ">
+        <h2 class="text-center " style="font-style: italic;">Product Management</h2>
+        <a href="/admin/add-product"><button class="btn btn-success  btn-lg float-right m-3">Add Product</button></a>
       </div>
       <table class="table text-center">
         <thead>
@@ -30,7 +65,7 @@
         <tbody>
           {{#each products}}
           <tr>
-            <th scope="row">{{@index}}</th>
+            <th scope="row">{{indexPlusOne @index}}</th>
             <td>{{this.name}}</td>
             <td>{{this.category}}</td>
             <td>{{this.price}}</td>
@@ -58,7 +93,24 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination -->
+ <div class="pagination">
+    {{#if (gt currentPage 1)}}
+        <a href="/admin/viewproducts?page={{subtract currentPage 1}}" class="prev">Previous</a>
+    {{/if}}
+    
+    {{#each (range 1 totalPages)}}
+        <a href="/admin/viewproducts?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
+    {{/each}}
+    
+    {{#if (lt currentPage totalPages)}}
+        <a href="/admin/viewproducts?page={{add currentPage 1}}" class="next">Next</a>
+    {{/if}}
+</div>
+   
   </section>
+  </main>
 
   <script>
       function deleteProduct(id, name) {

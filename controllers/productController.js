@@ -5,20 +5,26 @@ const path = require('path');
 module.exports ={
  adminProduct : async (req, res) => {
     try {
-      const products = await Product.find();
+      const page = parseInt(req.query.page) || 1; 
+      const products = await Product.find()
+      .skip((page - 1) * 5)
+            .limit(5)
+            .exec();
       const categories = await Category.find();
       
       const plainProducts = products.map(product => {
         const plainProduct = product.toObject();
        
         const category = categories.find(cat => cat._id.toString() === plainProduct.category.toString());
-       
-        plainProduct.category = category ? category.name : 'N/A';
+       //category ? category.name : 'N/A';
+        plainProduct.category =  category.name 
         
         return plainProduct;
       });
       res.render("admin/view-products", {admin:true,
          products:plainProducts,
+         currentPage: page,
+         totalPages: Math.ceil(await Product.countDocuments() / 5)
         
          });
     } catch {
@@ -26,11 +32,14 @@ module.exports ={
       res.redirect("/admin/error");
     }
   },
+
+
   addProduct : async (req,res )=> {
     const categories = await Category.find().lean();
-   
    res.render('admin/add-product',{admin:true,categories, error: req.flash('error')})
   },
+
+
   updateProduct : async (req, res) => {
     try {
       const { name,description, price, discount,stock, category } = req.body;
@@ -71,7 +80,7 @@ module.exports ={
       req.flash('success', 'Product added successfully');
       res.redirect('/admin/viewproducts');
     } catch (err) {
-      console.error('Error adding product:', err);
+      console.error( err);
       req.flash('error', 'Failed to add product');
       res.redirect('/admin/add-product');
     }
@@ -79,21 +88,25 @@ module.exports ={
 
   editProductPage :async (req,res) =>{
     const productId = req.params.id;
-    const product = await Product.findById(productId)
-    .populate('category')
+    const product = await Product.findById(productId).populate('category')
       
     if (!product) {
       return res.status(404).send('Product not found');
   }
   const categories = await Category.find({}); 
-        
+        console.log(product.category)
+        console.log(product.category._id)
+       
     res.render('admin/edit-products',{admin:true , product: product,
       categories: categories
      })
   },
+
+
+
   editproduct : async(req,res) => {
     const proId = req.params.id
-    const { name, category, description, price, discount, stock } = req.body;
+    const { name, category, description, price, discount, stock, deletedImages } = req.body;
         const newImages = req.files; 
         console.log(newImages)
 
@@ -104,6 +117,24 @@ module.exports ={
 
         
         let updatedImages = product.images;
+        if (deletedImages) {
+        const imagesToDelete = JSON.parse(deletedImages);
+      const imagesFolderPath = path.join(__dirname, '../public');
+
+      imagesToDelete.forEach(image => {
+        const imagePath = path.join(imagesFolderPath, image);
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error(`Failed to delete image: ${imagePath}`, err);
+          } else {
+            console.log(`Deleted image: ${imagePath}`);
+          }
+        });
+      });
+      updatedImages = updatedImages.filter(img => !imagesToDelete.includes(img));
+    }
+
+
         if (newImages && newImages.length > 0) {
             const imagePaths = newImages.map(image => image.path.replace(/^public[\/\\]/, ''));
             updatedImages = updatedImages.concat(imagePaths);
@@ -119,7 +150,7 @@ module.exports ={
 
         await product.save();
 
-        req.flash('success', 'Product updated successfully');
+        
         res.redirect('/admin/viewproducts');
   },
   deleteProduct: async (req, res) => {

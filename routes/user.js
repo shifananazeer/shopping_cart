@@ -35,8 +35,8 @@ router.get('/products',userController.getAllProducts)
 
 router.get('/product-details/:id',userController.productdetails)
 
-router.post('/rate' ,userController.submitRating);
+router.post('/rate' ,middleware.userLoggerIn,userController.submitRating);
 
-router.get('/reviews', userController.fetchReviews);
+router.get('/reviews',middleware.userLoggerIn, userController.fetchReviews);
 
 module.exports = router;

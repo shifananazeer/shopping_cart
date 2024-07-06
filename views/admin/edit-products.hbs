@@ -13,9 +13,10 @@
       padding: 20px;
     }
 
-    .container {
+    .main {
       max-width: 600px;
       margin: 0 auto;
+      margin-top: 80px;
       background-color: #fff;
       padding: 30px;
       border-radius: 8px;
@@ -103,65 +104,82 @@
   </style>
 </head>
 <body>
-  <h2>Edit Product</h2>
-  <div class="container">
-    {{#if error}}
-    <p class="error">{{error}}</p>
-    {{/if}}
-    <form id="productForm" action="/admin/update-product/{{product._id}}" method="post" enctype="multipart/form-data">
-      <label for="name">Product Name:</label>
-      <input type="text" id="name" name="name" value="{{product.name}}" required>
-      <span class="error" id="nameError"></span>
+  <header>
+    <!-- Your header content here -->
+  </header>
 
-      <label for="category">Category:</label>
-      <select id="category" name="category" required>
-        <option value="" disabled>Choose Category</option>
-        {{#each categories}}
-        <option value="{{this._id}}" {{#ifCond this._id ../product.category._id}}selected{{/ifCond}}>{{this.name}}</option>
-        {{/each}}
-      </select>
-      <span class="error" id="categoryError"></span>
+  <section>
+    <div class="container main">
+      <h2 style="font-style: italic;">Edit Product</h2>
+      {{#if error}}
+      <p class="error">{{error}}</p>
+      {{/if}}
+      <div class="row">
+        <form id="productForm" action="/admin/update-product/{{product._id}}" method="post" enctype="multipart/form-data">
+          <label for="name">Product Name:</label>
+          <input type="text" id="name" name="name" value="{{product.name}}" required>
+          <span class="error" id="nameError"></span>
 
-     
+          <label for="category">Category:</label>
+          <select id="category" name="category" required>
+            <option value="" disabled>Choose Category</option>
+            {{#each categories}}
+            <option value="{{this._id}}" {{#ifCond this._id ../product.category._id}}selected{{/ifCond}}>
+              {{this.name}}
+            </option>
+            {{/each}}
+          </select>
+          <span class="error" id="categoryError"></span>
 
-      <label for="price">Price ($):</label>
-      <input type="number" id="price" name="price" value="{{product.price}}" required>
-      <span class="error" id="priceError"></span>
+          <label for="price">Price ($):</label>
+          <input type="number" id="price" name="price" value="{{product.price}}" required>
+          <span class="error" id="priceError"></span>
 
-      <label for="discount">Discount (%):</label>
-      <input type="number" id="discount" name="discount" step="1" value="{{product.discount}}">
-      <span class="error" id="discountError"></span>
+          <label for="discount">Discount (%):</label>
+          <input type="number" id="discount" name="discount" step="1" value="{{product.discount}}">
+          <span class="error" id="discountError"></span>
 
-      <label for="description">Description:</label>
-      <textarea id="description" name="description" rows="4" required>{{product.description}}</textarea>
-      <span class="error" id="descriptionError"></span>
+          <label for="description">Description:</label>
+          <textarea id="description" name="description" rows="4" required>{{product.description}}</textarea>
+          <span class="error" id="descriptionError"></span>
 
-      <label for="stock">Stock:</label>
-      <input type="number" id="stock" name="stock" value="{{product.stock}}" required>
-      <span class="error" id="stockError"></span>
+          <label for="stock">Stock:</label>
+          <input type="number" id="stock" name="stock" value="{{product.stock}}" required>
+          <span class="error" id="stockError"></span>
 
-      <label for="images">Select Images:</label>
-      <input type="file" name="image" id="img" multiple>
-      <span class="error" id="imgError"></span>
-      <div class="image-preview" id="imagePreview">
-        {{#each product.images}}
-        <img src="/{{this}}" class="preview-image" alt="Product Image">
-        {{/each}}
+          <label for="images">Select Images:</label>
+          <input type="file" name="image" id="img" multiple>
+          <span class="error" id="imgError"></span>
+
+          <div class="image-preview" id="imagePreview">
+            {{#each product.images}}
+            <div class="image-container">
+              <img src="/{{this}}" class="preview-image" alt="Product Image">
+              <button type="button" class="delete-image-btn" data-image="{{this}}">Delete</button>
+            </div>
+            {{/each}}
+          </div>
+
+          <input type="hidden" name="deletedImages" id="deletedImages">
+          <button type="submit">Update Product</button>
+        </form>
       </div>
-
-      <button type="submit">Update Product</button>
-    </form>
-  </div>
-
-  <div id="myModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <div>
-        <img id="image" style="max-width: 100%;">
-      </div>
-      <button id="cropBtn">Crop</button>
     </div>
-  </div>
+
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div>
+          <img id="image" style="max-width: 100%;">
+        </div>
+        <button id="cropBtn">Crop</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <!-- Your footer content here -->
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
@@ -235,6 +253,56 @@
       };
       reader.readAsDataURL(fileList[currentIndex]);
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const deletedImagesInput = document.getElementById('deletedImages');
+      let deletedImages = [];
+
+      document.querySelectorAll('.delete-image-btn').forEach(button => {
+        button.addEventListener('click', function () {
+          const imageSrc = this.getAttribute('data-image');
+          
+          if (confirm('Do you want to delete this image?')) {
+            deletedImages.push(imageSrc);
+            this.parentElement.remove();
+            deletedImagesInput.value = JSON.stringify(deletedImages);
+          }
+        });
+      });
+
+      document.getElementById('productForm').addEventListener('submit', function(event) {
+        var isValid = true;
+        var price = document.getElementById('price');
+        var discount = document.getElementById('discount');
+        var stock = document.getElementById('stock');
+
+        document.getElementById('priceError').textContent = '';
+        document.getElementById('discountError').textContent = '';
+        document.getElementById('stockError').textContent = '';
+
+        if (!price.value.trim()) {
+          document.getElementById('priceError').textContent = 'Price is required.';
+          isValid = false;
+        } else if (parseFloat(price.value) < 0.01) {
+          document.getElementById('priceError').textContent = 'Price must be greater than or equal to $0.01.';
+          isValid = false;
+        }
+
+        if (discount.value.trim() && (parseInt(discount.value) < 0 || parseInt(discount.value) > 90)) {
+          document.getElementById('discountError').textContent = 'Discount must be between 0 and 90%.';
+          isValid = false;
+        }
+
+        if (!stock.value.trim() || parseInt(stock.value) < 0) {
+          document.getElementById('stockError').textContent = 'Stock is required and must be a non-negative number.';
+          isValid = false;
+        }
+
+        if (!isValid) {
+          event.preventDefault();
+        }
+      });
+    });
   </script>
 </body>
 </html>

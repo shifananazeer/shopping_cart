@@ -22,5 +22,6 @@ const checkSession = (req, res, next) => {
  
   module.exports ={
     checkSession,
-    adminsessionHandler
+    adminsessionHandler,
+    userLoggerIn
   }

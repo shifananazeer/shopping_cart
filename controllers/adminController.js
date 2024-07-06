@@ -28,36 +28,51 @@ const loginLoad = async(req,res) => {
 }
 
 const getAllUsers = async (req,res) => {
+  const page = parseInt(req.query.page) || 1; 
   const user = await User. find({})
-  res.render('admin/viewusers',{admin:true,user})
+  .skip((page - 1) * 5)
+            .limit(5)
+            .exec();
+  res.render('admin/viewusers',{admin:true,
+    user,
+    currentPage: page,
+   totalPages: Math.ceil(await User.countDocuments() / 5)
+  })
 }
 
 const blockUser = async (req,res) => {
   const userId = req.params.id;
 
   try {
-    // Find the user by ID and update the status to blocked
+    
     await User.findByIdAndUpdate(userId, { status: false });
 
     res.redirect('/admin/allUsers')
   } catch (err) {
-    console.error('Error blocking user:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error( err);
+    
   }
 }
+
 
 const unblockUser = async(req,res) =>  {
   const userId = req.params.id;
 
   try {
-    // Find the user by ID and update the status to active (or true)
+  
     await User.findByIdAndUpdate(userId, { status: true });
 
     res.redirect('/admin/allUsers')
   } catch (err) {
     console.error('Error unblocking user:', err);
-    res.status(500).json({ error: 'Internal server error' });
+   
   }
+}
+
+const logout = (req,res) => {
+  req.session.destroy();
+     
+  res.redirect('/admin'); 
 }
 module.exports ={
   getDashboard,
@@ -66,4 +81,5 @@ module.exports ={
   getAllUsers,
   blockUser,
   unblockUser,
+  logout,
 }

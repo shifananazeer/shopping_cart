@@ -1,6 +1,6 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/usermodel'); // Adjust path as per your project structure
+const User = require('../models/usermodel'); 
 require('dotenv').config();
 
 passport.use(new GoogleStrategy({
@@ -10,23 +10,23 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      // Find user by googleId or email
+      
       let user = await User.findOne({ googleId: profile.id });
       
       if (!user) {
         user = await User.findOne({ email: profile.emails[0].value });
 
         if (user) {
-          // Update existing user with googleId
+          
           user.googleId = profile.id;
           await user.save();
         } else {
-          // Create new user if not found
+          
           user = new User({
             googleId: profile.id,
             name: profile.displayName,
             email: profile.emails[0].value,
-            is_verified: true // Adjust as per your application's logic
+            is_verified: true 
           });
           await user.save();
         }
@@ -34,20 +34,20 @@ passport.use(new GoogleStrategy({
 
       return done(null, user);
     } catch (error) {
-      console.error('Error in Google OAuth strategy:', error);
+      console.error( error);
       return done(error, false);
     }
   }
 ));
 
 passport.serializeUser((user, done) => {
-  done(null, user.id); // Serialize user.id into session
+  done(null, user.id); 
 });
 
 passport.deserializeUser((id, done) => {
   User.findById(id)
     .then(user => {
-      done(null, user); // Deserialize user from id
+      done(null, user); 
     })
     .catch(err => {
       done(err, null);
