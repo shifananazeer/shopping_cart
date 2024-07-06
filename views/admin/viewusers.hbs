@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management</title>
+  <link rel="stylesheet" href="path/to/your/css/file.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <section>
+    <div class="container">
+      
+      <table class="table text-center">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Number</th>
+            <th scope="col">Status</th>
+            <th scope="col">Block/Unblock</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each user}}
+          <tr>
+            <th scope="row">{{@index}}</th>
+            <td>{{this.name}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.number}}</td>
+            <td>
+              {{#if this.status}}
+                <p style="color: green;">Active</p>
+              {{else}}
+                <p style="color: red;">Blocked</p>
+              {{/if}}
+            </td>
+            <td>
+              {{#if this.status}}
+                <button class="btn btn-danger" onclick="blockUser('{{this._id}}', '{{this.name}}')">Block</button>
+              {{else}}
+                <button class="btn btn-success" onclick="unblockUser('{{this._id}}', '{{this.name}}')">Unblock</button>
+              {{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</body>
+</html>
+<script>
+  function blockUser(id, name) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to block ${name}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, block it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/blockuser/${id}`;
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+
+  function unblockUser(id, name) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to unblock ${name}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, unblock it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/unblockuser/${id}`;
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+</script>

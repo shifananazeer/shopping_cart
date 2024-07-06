@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <section class="mt-5">
+          <h2 class="text-center">Generate OTP</h2>
+          <form action="/generate-otp" method="post">
+            <div class="form-group">
+              <label for="email">Email address</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block mt-3">Generate OTP</button>
+          </form>
+          
+          {{#if userblock}}
+            <p class="mt-3 text-danger text-center">{{userblock}}</p>
+          {{/if}}
+        </section>
+      </div>
+    </div>
+  </div>

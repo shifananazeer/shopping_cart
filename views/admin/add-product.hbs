@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Product</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f0f0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      margin-top: 5px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+
+    .image-preview {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .preview-container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .preview-image {
+      max-width: 100%;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+     .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 700px;
+    }
+    .error {
+    color: red;
+    font-size: 14px;
+}
+  </style>
+</head>
+<body>
+ 
+    <h2>Add Product</h2>
+     <div class="container">
+    {{#if error}}
+    <p style="color: red;">{{error}}</p>
+    {{/if}}
+    <form id="productForm" action="/admin/add-product" method="post" enctype="multipart/form-data">
+      <label for="name">Product Name:</label>
+      <input type="text" id="name" name="name" required>
+      <span class="error" id="nameError"></span>
+
+    
+      <label for="category">Category:</label>
+      <select id="category" name="category" required>
+        <option value="" disabled selected>Choose Category</option>
+        {{#each categories}}
+        <option value="{{this._id}}">{{this.name}}</option>
+       {{/each}}
+        
+        <!-- Add more options as needed -->
+      </select>
+      <span class="error" id="categoryError"></span>
+      
+
+      <label for="price">Price ($):</label>
+      <input type="number" id="price" name="price"  required>
+      <span class="error" id="priceError"></span>
+
+      <label for="discount">Discount (%):</label>
+      <input type="number" id="discount" name="discount"  step="1">
+      <span class="error" id="discountError"></span>
+
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" rows="4" required></textarea>
+      <span class="error" id="descriptionError"></span>
+        
+       <label for="stock">Stock:</label>
+      <input type="number" id="stock" name="stock"  required>
+      <span class="error" id="stockError"></span>
+
+
+      <label for="images">Select Images:</label>
+     <input type="file" name="image" id="img" multiple>
+    <span id="imgError" class="error-message"></span>
+      <div class="image-preview" id="imagePreview"></div>
+
+      <button type="submit">Add Product</button>
+    </form>
+  </div>
+
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div>
+        <img id="image" style="max-width: 100%;">
+      </div>
+      <button id="cropBtn">Crop</button>
+    </div>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <script>
+    
+
+   
+    
+    
+
+ 
+    document.getElementById('productForm').addEventListener('submit', function(event) {
+    var isValid = true;
+
+    // Reset errors
+    document.querySelectorAll('.error').forEach(function(error) {
+        error.textContent = '';
+    });
+
+    var name = document.getElementById('name');
+    
+    var category = document.getElementById('category');
+    var price = document.getElementById('price');
+    var discount = document.getElementById('discount');
+    var description = document.getElementById('description');
+    var stock = document.getElementById('stock');
+    var img = document.getElementById('img');
+
+    // Validate each field
+    if (!name.value.trim()) {
+        document.getElementById('nameError').textContent = 'Product Name is required.';
+        isValid = false;
+    }
+
+   
+
+    if (!category.value.trim()) {
+        document.getElementById('categoryError').textContent = 'Category is required.';
+        isValid = false;
+    }
+
+   if (!price.value.trim()) {
+        document.getElementById('priceError').textContent = 'Price is required.';
+        isValid = false;
+    } else if (parseFloat(price.value) < 0.01) {
+        document.getElementById('priceError').textContent = 'Price must be greater than or equal to $0.01.';
+        isValid = false;
+    }
+
+    if (discount.value.trim() && (parseInt(discount.value) < 0 || parseInt(discount.value) > 90)) {
+        document.getElementById('discountError').textContent = 'Discount must be between 0 and 90%.';
+        isValid = false;
+    }
+
+    if (!description.value.trim()) {
+        document.getElementById('descriptionError').textContent = 'Description is required.';
+        isValid = false;
+    }
+
+    if (!stock.value.trim() || parseInt(stock.value) < 0) {
+        document.getElementById('stockError').textContent = 'Stock is required and must be a non-negative number.';
+        isValid = false;
+    }
+
+    if (img.files.length === 0) {
+        document.getElementById('imgError').textContent = 'Please select at least one image.';
+        isValid = false;
+    }
+
+    
+    if (!isValid) {
+        event.preventDefault();
+    }
+});
+  </script>
+  <script>
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var cropper;
+    var image = document.getElementById('image');
+    var input = document.getElementById('img');
+    var cropBtn = document.getElementById('cropBtn');
+
+    var currentIndex = 0;
+    var fileList;
+    var croppedFiles = [];
+
+    input.addEventListener('change', function (e) {
+      fileList = e.target.files;
+      currentIndex = 0;
+      croppedFiles = [];
+      showNextImage();
+    });
+
+    span.onclick = function () {
+      modal.style.display = "none";
+      if (cropper) {
+        cropper.destroy();
+      }
+    };
+
+    cropBtn.addEventListener('click', function () {
+      var canvas = cropper.getCroppedCanvas({
+        width: 400,
+        height: 400,
+      });
+      canvas.toBlob(function (blob) {
+        var file = new File([blob], 'cropped_image_' + currentIndex + '.png', { type: 'image/png' });
+        croppedFiles.push(file);
+
+        currentIndex++;
+        if (currentIndex < fileList.length) {
+          showNextImage();
+        } else {
+          modal.style.display = "none";
+          var dataTransfer = new DataTransfer();
+          croppedFiles.forEach(function (file) {
+            dataTransfer.items.add(file);
+          });
+          input.files = dataTransfer.files;
+          if (cropper) {
+            cropper.destroy();
+          }
+        }
+      });
+    });
+
+    function showNextImage() {
+      if (currentIndex >= fileList.length) {
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        image.src = event.target.result;
+        modal.style.display = "block";
+        if (cropper) {
+          cropper.destroy();
+        }
+        cropper = new Cropper(image, {
+          aspectRatio: 1,
+          viewMode: 1,
+        });
+      };
+      reader.readAsDataURL(fileList[currentIndex]);
+    }
+  </script>
+
+</body>
+</html>

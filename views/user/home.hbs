@@ -1,0 +1,339 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- molla/index-4.html  22 Nov 2019 09:53:08 GMT -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Molla - Bootstrap eCommerce Template</title>
+    <meta name="keywords" content="HTML5 Template">
+    <meta name="description" content="Molla - Bootstrap eCommerce Template">
+    <meta name="author" content="p-themes">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
+    <link rel="manifest" href="assets/images/icons/site.html">
+    <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666">
+    <link rel="shortcut icon" href="assets/images/icons/favicon.ico">
+    <meta name="apple-mobile-web-app-title" content="Molla">
+    <meta name="application-name" content="Molla">
+    <meta name="msapplication-TileColor" content="#cc9966">
+    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/plugins/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="assets/css/plugins/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" href="assets/css/plugins/jquery.countdown.css">
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/skins/skin-demo-4.css">
+    <link rel="stylesheet" href="assets/css/demos/demo-4.css">
+</head>
+
+<body>
+    <style>
+        .product-listing {
+    display: flex;
+    flex-wrap: wrap; /* This allows items to wrap to the next line if they overflow */
+    gap: 20px; /* Adjust the gap between items as needed */
+    justify-content: center; /* Center the items horizontally */
+}
+
+.product-item {
+    flex: 0 1 calc(25% - 20px); /* Adjust the width and spacing */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.product-details {
+    text-align: center;
+}
+
+.product-prices {
+    margin-top: 10px;
+}
+
+.product-discounted-price {
+    color: #e74c3c; 
+}
+
+.product-original-price {
+    color: #7f8c8d; 
+    margin-left: 5px;
+}
+
+.product-discount {
+    color: #27ae60; 
+    margin-left: 5px;
+}
+    </style>
+    <div class="page-wrapper">
+
+
+        <main class="main">
+            <div class="intro-slider-container mb-5">
+                <div class="intro-slider owl-carousel owl-theme owl-nav-inside owl-light" data-toggle="owl"
+                    data-owl-options='{
+                        "dots": true,
+                        "nav": false, 
+                        "responsive": {
+                            "1200": {
+                                "nav": true,
+                                "dots": false
+                            }
+                        }
+                    }'>
+                    <div class="intro-slide"
+                        style="background-image: url(assets/images/demos/demo-4/slider/slide-1.png);">
+                        <div class="container intro-content">
+                            <div class="row justify-content-end">
+                                <div class="col-auto col-sm-7 col-md-6 col-lg-5">
+                                    <h3 class="intro-subtitle text-third">Deals and Promotions</h3>
+                                    <!-- End .h3 intro-subtitle -->
+                                    <h1 class="intro-title">Beats by</h1>
+                                    <h1 class="intro-title">Dre Studio 3</h1><!-- End .intro-title -->
+
+                                    <div class="intro-price">
+                                        <sup class="intro-old-price">Rs349,95</sup>
+                                        <span class="text-third">
+                                            Rs279<sup>.99</sup>
+                                        </span>
+                                    </div><!-- End .intro-price -->
+
+                                    <a href="category.html" class="btn btn-primary btn-round">
+                                        <span>Shop More</span>
+                                        <i class="icon-long-arrow-right"></i>
+                                    </a>
+                                </div><!-- End .col-lg-11 offset-lg-1 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .intro-content -->
+                    </div><!-- End .intro-slide -->
+
+                    <div class="intro-slide"
+                        style="background-image: url(assets/images/demos/demo-4/slider/slide-2.png);">
+                        <div class="container intro-content">
+                            <div class="row justify-content-end">
+                                <div class="col-auto col-sm-7 col-md-6 col-lg-5">
+                                    <h3 class="intro-subtitle text-primary">New Arrivals</h3>
+                                    <!-- End .h3 intro-subtitle -->
+                                    <h1 class="intro-title">Apple iPad Pro <br>12.9 Inch, 64GB </h1>
+                                    <!-- End .intro-title -->
+
+                                    <div class="intro-price">
+                                        <sup>Today:</sup>
+                                        <span class="text-primary">
+                                            $999<sup>.99</sup>
+                                        </span>
+                                    </div><!-- End .intro-price -->
+
+                                    <a href="category.html" class="btn btn-primary btn-round">
+                                        <span>Shop More</span>
+                                        <i class="icon-long-arrow-right"></i>
+                                    </a>
+                                </div><!-- End .col-md-6 offset-md-6 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .intro-content -->
+                    </div><!-- End .intro-slide -->
+                </div><!-- End .intro-slider owl-carousel owl-simple -->
+
+                <span class="slider-loader"></span><!-- End .slider-loader -->
+            </div><!-- End .intro-slider-container -->
+
+
+
+
+
+            <div class="container">
+                <h2 class="title text-center mb-4">Explore Popular Brands</h2><!-- End .title text-center -->
+
+              
+            </div><!-- End .container -->
+
+
+
+
+         <div class="pt-5 pb-10 mb-3 mt-2">
+    <div class="container">
+        <div class="heading heading-center mb-3">
+            <h2 class="title-lg">New Arrivals</h2><!-- End .title -->
+        </div><!-- End .heading -->
+         {{#each products}}
+         <a href="/product-details/{{this._id}}">
+        <div class="row">
+            <div class="product-listing">
+               
+                
+                <div class="product-item">
+                    <div class="product-image">
+                        <img src="/{{this.images.[0]}}" alt="Product Image">
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-name">{{this.name}}</h3>
+                        <div class="product-prices">
+                            {{#if this.discount}}
+                            <span class="product-discounted-price">
+                                Rs {{calcDiscountedPrice this.price this.discount}}
+                            </span>
+                            <span class="product-original-price">
+                                <del>Rs {{this.price}}</del>
+                            </span>
+                            <span class="product-discount">({{this.discount}}% Off)</span>
+                            {{else}}
+                            <span class="product-price">Rs {{this.price}}</span>
+                            {{/if}}
+                            <button style="background-color: black; color: #ffff;">Add To Cart</button>
+                        </div>
+                    </div>
+                </div>
+              
+            </div>
+        </div>
+         </a>
+         {{/each}}
+    </div>
+</div>
+
+    </div><!-- End .page-wrapper -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</body>
+<footer>
+    <div class="w-100 ft-main">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="widget widget-about">
+                        <a href="#" style="max-width: 11.0rem;display: block;">
+                            <img class="footer-logo" src="assets/images/logo-2.webp" alt="">
+                        </a>
+                        <p class="ft-info">Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</p>
+                        <div class="widget-info">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-4">
+                                    <span class="widget-about-title">Got Question? Call us 24/7</span>
+                                    <a class="cnt-number" href="tel:+98765432">+98 765 432</a>
+                                </div>
+                                <div class="col-sm-6 col-md-8">
+                                    <span class="widget-about-title">Payment Method</span>
+                                    <a class="payment_image" href="#">
+                                        <img src="assets/images/resources/pay.webp" width="272" height="20">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-6">
+                    <div class="widget">
+                        <h4 class="widget-title">Useful Links</h4>
+                        <ul class="widget-list list-unstyled">
+                            <li>
+                            <a href="about.html">About Midas</a>
+                        </li>
+                        <li>
+                            <a href="#">How to shop on Molla</a>
+                        </li>
+                        <li>
+                            <a href="faq.html">FAQ</a>
+                        </li>
+                        <li>
+                            <a href="contact-us.html">Contact us</a>
+                        </li>
+                        <li>
+                            <a href="#">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-6">
+                    <div class="widget">
+                        <h4 class="widget-title">Customer Service</h4>
+                        <ul class="widget-list list-unstyled">
+                            <li>
+                                <a href="#">Payment Methods</a>
+                            </li>
+                            <li>
+                                <a href="#">Money-back</a>
+                            </li>
+                            <li>
+                                <a href="#">Returns</a>
+                            </li>
+                            <li>
+                                <a href="#">Shipping</a>
+                            </li>
+                            <li>
+                                <a href="#">Terms and conditions</a>
+                            </li>
+                            <li>
+                                <a href="#">Privacy Policy</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-6">
+                    <div class="widget">
+                        <h4 class="widget-title">My Account</h4>
+                        <ul class="widget-list list-unstyled">
+                            <li>
+                                <a href="#">Sign In</a>
+                            </li>
+                            <li>
+                                <a href="#">View Cart</a>
+                            </li>
+                            <li>
+                                <a href="#">My Wishlist</a>
+                            </li>
+                            <li>
+                                <a href="#">Track My Order</a>
+                            </li>
+                            <li><a href="#">Help</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row justify-content-between">
+                    <div class="col-12 col-md-auto py-1">
+                        <p class="footer-copyright m-0">Copyright © 2019 Molla Store. All Rights Reserved.</p>
+                        <ul class="footer-menu list-unstyled">
+                            <li>
+                                <a href="#">Terms / Privacy Policy</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-auto py-1">
+                        <div class="socials d-flex align-items-center gap-3">
+                            <span class="social-label">Social Media</span>
+                            <ul class="list-unstyled d-flex align-items-center flex-wrap gap-3">
+                                <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fa-brands fa-google-plus-g"></i></a></li>
+                                <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
+                                <li><a href="#"><i class="fa-brands fa-youtube"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+        <script src="assets/js/bootstrap.bundle.min.js"></script>
+   
+</html>

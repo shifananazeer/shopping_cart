@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .main-img img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s;
+        }
+        .main-img:hover img {
+            transform: scale(1.20);
+        }
+        .thumbnail-image {
+            cursor: pointer;
+        }
+        .rate {
+            display: flex;
+            cursor: pointer;
+        }
+        .rate .fa-star {
+            font-size: 2em;
+            color: grey;
+        }
+        .rate .fa-star.on {
+            color: gold;
+        }
+        .comment-section {
+            margin-top: 10px;
+            width: 100%;
+        }
+        .comment-section textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+        .comment-section button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .comment-section button:hover {
+            background-color: #0056b3;
+        }
+        .product-price {
+            font-size: 1.5rem;
+            color: #000;
+        }
+        .product-original-price {
+            font-size: 1rem;
+            color: #888;
+        }
+        .product-discount {
+            font-size: 1rem;
+            color: green;
+        }
+        .product-discounted-price {
+            font-size: 2rem;
+            color: red;
+        }
+        .details{
+            padding: 100px;
+
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="breadcrumbs row align-items-center justify-content-between d-flex">
+        <div class="col-12">
+            <ul class="breadcrumbs_content list-unstyled d-flex justify-content-center">
+                <li class="home">
+                    <a title="Home" href="/" itemprop="url">
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <span><i class="fa-solid fa-angle-right"></i> shop</span>
+                </li>
+                <li>
+                    <span><i class="fa-solid fa-angle-right"></i> Product-Detail</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Left Side: Images -->
+        <div class="col-md-6">
+            <div class="main-img mb-3">
+                <img class="img-fluid" src="/{{product.images.[0]}}" alt="{{product.name}}">
+            </div>
+            <div class="row my-3 previews">
+                {{#each product.images}}
+                    <div class="col-3">
+                        <img class="img-thumbnail thumbnail-image" src="/{{this}}" alt="Thumbnail" data-src="/{{this}}">
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Right Side: Product Details -->
+        <div class="col-md-6 mt-5 details">
+            <h2 class="mb-0"><b>{{product.name}}</b></h2>
+            <div class="product-prices mt-3">
+                {{#if product.discount}}
+                    <span class="product-original-price">
+                        <del>Rs {{product.price}}</del>
+                    </span>
+                    <span class="product-discount">( {{product.discount}}% Off )</span>
+                    <h2><span class="product-discounted-price">
+                        Rs {{calcDiscountedPrice product.price product.discount}}
+                    </span></h2>
+                {{else}}
+                    <span class="product-price">Rs {{product.price}}</span>
+                {{/if}}
+            </div>
+            <p class="mt-4" style="color: black;"><b>Description:</b> {{product.description}}</p>
+            <div class="product-bottom d-flex flex-wrap align-items-center w-100 mt-3">
+                <button class="btn btn-success" onclick="addToCart(event, '{{product._id}}')">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Section -->
+    <section style="margin-top:70px;margin-bottom:40px;">
+        <div class="w-100 position-relative bg-color5 pt-70 pb-120">
+            <div class="container">
+                <div class="product-tabs position-relative w-100">
+                    <h1 style="text-decoration: underline;">Reviews</h1>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                            <h5 style="margin-top: 1%;">Give Your Rating</h5>
+                            <div class="product-rate-review d-flex flex-wrap align-items-center">
+                                <div class="rate" id="rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <div class="comment-section" style="display: flex; flex-direction: column;">
+                                    <textarea id="comment" style="background-color: burlywood;" placeholder="Write your comment here..."></textarea>
+                                    <button id="submit-review">Submit</button>
+                                </div>
+                            </div>
+                            <h5 style="margin-top: 1%; text-decoration: underline;">Other's Rating</h5>
+                            <div id="reviews-container">
+                                <!-- Reviews will be appended here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+    // Thumbnail click to change main image
+    $('.thumbnail-image').on('click', function() {
+        var newImageSrc = $(this).data('src');
+        $('.main-img img').attr('src', newImageSrc);
+    });
+
+    // Star rating system
+    const stars = document.querySelectorAll('.rate .fa-star');
+    const submitButton = document.getElementById('submit-review');
+    let selectedRating = 0;
+
+    stars.forEach(star => {
+        star.addEventListener('click', setRating);
+        star.addEventListener('mouseover', addHover);
+        star.addEventListener('mouseout', removeHover);
+    });
+
+    submitButton.addEventListener('click', submitReview);
+
+    function setRating(event) {
+        const value = event.target.getAttribute('data-value');
+        selectedRating = value;
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= value) {
+                star.classList.add('on');
+            } else {
+                star.classList.remove('on');
+            }
+        });
+    }
+
+    function addHover(event) {
+        const value = event.target.getAttribute('data-value');
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= value) {
+                star.classList.add('on');
+            } else {
+                star.classList.remove('on');
+            }
+        });
+    }
+
+    function removeHover(event) {
+        stars.forEach(star => {
+            star.classList.remove('on');
+        });
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= selectedRating) {
+                star.classList.add('on');
+            }
+        });
+    }
+
+    function submitReview() {
+        const comment = document.getElementById('comment').value;
+        if (selectedRating > 0 && comment) {
+            // Send the rating and comment to the backend
+            fetch('/rate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    rating: selectedRating,
+                    comment: comment,
+                    productId: '{{product._id}}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thank you!',
+                        text: 'Thank you for your review!',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                } else if (data.notLoggedIn) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Not Logged In',
+                        text: 'You need to be logged in to submit a review.',
+                    });
+                } else if (data.alreadyExist) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Already Rated',
+                        text: 'You have already rated this product.',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong. Please try again.',
+                    });
+                }
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while submitting your review. Please try again.',
+                });
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete',
+                text: 'Please select a rating and write a comment.',
+            });
+        }
+    }
+
+    // Fetch reviews on page load
+    fetchReviews();
+
+    function fetchReviews() {
+        fetch(`/reviews?productId={{product._id}}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const reviewsContainer = document.getElementById('reviews-container');
+                    reviewsContainer.innerHTML = ''; // Clear the container
+                    data.reviews.forEach(review => {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.className = 'review';
+                        reviewElement.innerHTML = `
+                            <div class="stars">${generateStars(review.rating)}</div>
+                            <p>${review.comment}</p>
+                            <small>Reviewed by: ${review.userId.name} </small>
+                        `;
+                        reviewsContainer.appendChild(reviewElement);
+                    });
+                } else {
+                    console.error('Error fetching reviews:', data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+
+    function generateStars(rating) {
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= rating) {
+                starsHtml += '<i class="fas fa-star"></i>';
+            } else {
+                starsHtml += '<i class="far fa-star"></i>';
+            }
+        }
+        return starsHtml;
+    }
+});
+</script>
+</body>
+</html>

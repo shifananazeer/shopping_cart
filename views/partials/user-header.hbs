@@ -1,0 +1,269 @@
+ <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Molla - Bootstrap eCommerce Template</title>
+    <meta name="keywords" content="HTML5 Template">
+    <meta name="description" content="Molla - Bootstrap eCommerce Template">
+    <meta name="author" content="p-themes">
+    <!-- Favicon -->
+   
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/images/icons/site.html">
+    <link rel="mask-icon" href="/assets/images/icons/safari-pinned-tab.svg" color="#666666">
+    <link rel="shortcut icon" href="/assets/images/icons/favicon.ico">
+    <meta name="apple-mobile-web-app-title" content="Molla">
+    <meta name="application-name" content="Molla">
+    <meta name="msapplication-TileColor" content="#cc9966">
+    <meta name="msapplication-config" content="/assets/images/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/plugins/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="/assets/css/plugins/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" href="/assets/css/plugins/jquery.countdown.css">
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/skins/skin-demo-5.css">
+    <link rel="stylesheet" href="/assets/css/demos/demo-5.css">
+   
+
+    
+</head>
+
+
+<header class="header header-intro-clearance header-4">
+    <div class="header-top">
+        <div class="container">
+            <div class="header-left">
+                <a href="tel:#"><i class="icon-phone"></i>Call: +0123 456 789</a>
+            </div><!-- End .header-left -->
+
+            <div class="header-right">
+
+                <ul class="mt-2">
+                    <li>
+                        {{#if user}}
+                    <li><a href="/logout">logout</a></li>
+                    {{else}}
+                    <li><a href="/login">Sign in / Sign up</a></li>
+       
+                    {{/if}}
+
+                    </li>
+                </ul><!-- End .top-menu -->
+            </div><!-- End .header-right -->
+
+        </div><!-- End .container -->
+    </div><!-- End .header-top -->
+
+    <div class="header-middle">
+        <div class="container">
+            <div class="header-left">
+                <button class="mobile-menu-toggler">
+                    <span class="sr-only">Toggle mobile menu</span>
+                    <i class="icon-bars"></i>
+                </button>
+
+                <a href="/" class="logo">
+                    <img src="/product-image/logo.webp" alt="Molla Logo" width="60" height="50">
+                </a>
+                <div> <strong> &nbsp;&nbsp;Play Kid</strong></div>
+            </div><!-- End .header-left -->
+
+            
+
+<div class="col-5" style="margin: auto;float: inline-end;">
+                <div class="header-search header-search-extended header-search-visible d-none d-lg-block"
+                    style="z-index:4;margin:0px !important;">
+                    <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
+                    <div class="header-search-wrapper mx-auto col-12 search-wrapper-wide"
+                        style=" background-color: white; ">
+                        <label for="q" class="sr-only">Search</label>
+                        <button class="btn  " type="submit"><i class="icon-search"></i></button>
+                        <input class="form-control" name="q" id="q"
+                            style="color: black; background-color:white; border-radius: 50px !important; "
+                            onkeyup="sendData(this)" placeholder="Search product ..." required="">
+                    </div><!-- End .header-search-wrapper -->
+                </div><!-- End .header-search -->
+                <section
+                    style="border-radius: 5px 5px 10px 11px; position: absolute; background-color:white; width: 95.7%; margin-top: -45px; z-index: 3; margin-left: 1px; flex-direction: column; overflow: hidden;">
+                    <div id="searchResults"
+                        style= "border: solid #e0d9d9 1px; margin-right: -16px; ; overflow-y: scroll; display: block; max-height: 400px; display: none;margin-top:50px;border-radius: 30px;padding-top: 2px;">
+                    </div>
+                </section>
+            </div><!-- End .header-center -->
+
+            <div class="header-right">
+                <div class="dropdown compare-dropdown">
+                    <a href="/profile">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                            class="bi bi-person" viewBox="0 0 16 16">
+                            <path
+                                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
+
+
+                            <p>My&nbsp;Account</p>
+                        </svg>
+                    </a>
+
+
+                </div><!-- End .compare-dropdown -->
+
+                <div class="wishlist ">
+                  
+                    <a href="/wishlistProducts" title="Wishlist">
+                        <div class="icon">
+                            <i class="icon-heart-o"></i>
+                           
+                           
+                           
+                            
+                        </div>
+                        <p>Wishlist</p>
+                    </a>
+                </div><!-- End .compare-dropdown -->
+
+                <div class="dropdown cart-dropdown">
+                    <a href="/cart" class="dropdown-toggle">
+                        <div class="icon">
+                            
+                            <i class="icon-shopping-cart"></i>
+                            
+                            
+                             
+                          
+                        </div>
+                        <p>Cart</p>
+                    </a>
+
+                </div><!-- End .cart-dropdown -->
+            </div><!-- End .header-right -->
+        </div><!-- End .container -->
+    </div><!-- End .header-middle -->
+
+    <div class="header-bottom sticky-header">
+        <div class="container">
+            <div class="header-left">
+                <div class="dropdown category-dropdown">
+
+
+                    <div class="dropdown-menu">
+                        <nav>
+                            <ul>
+                                <li class="item-lead"><a href="#"></a></li>
+                                <li class="item-lead"><a href="#"></a></li>
+
+                            </ul><!-- End .menu-vertical -->
+                        </nav><!-- End .side-nav -->
+                    </div><!-- End .dropdown-menu -->
+                </div><!-- End .category-dropdown -->
+            </div><!-- End .header-left -->
+
+            <div class="header-center">
+                <nav class="main-nav">
+                    <ul class="menu sf-arrows">
+                        <li >
+                            
+
+                            <a href="/" class="sf-with-ul">Home</a>
+
+
+                        </li>
+                        <li >
+
+                            <a href="/products/?page=1" class="sf-with-ul">Products</a>
+
+
+                        </li>
+
+
+                        <li >
+                            <a href="/order-history" class="sf-with-ul">Order History</a>
+
+
+                        </li>
+
+
+
+
+                    </ul><!-- End .menu -->
+                </nav><!-- End .main-nav -->
+            </div><!-- End .header-center -->
+
+            <div class="header-right">
+                <i class="la la-lightbulb-o"></i>
+                <p>Clearance<span class="highlight">&nbsp;Up to 30% Off</span></p>
+            </div>
+        </div><!-- End .container -->
+    </div><!-- End .header-bottom -->
+</header><!-- End .header -->
+
+<div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
+
+<div class="mobile-menu-container mobile-menu-light">
+    <div class="mobile-menu-wrapper">
+        <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+        <form action="#" method="get" class="mobile-search">
+            <label for="mobile-search" class="sr-only">Search</label>
+            <input type="search" class="form-control" name="mobile-search" id="mobile-search" placeholder="Search in..."
+                required onkeyup="sendData(this)">
+            <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
+        </form>
+
+        <ul class="nav nav-pills-mobile nav-border-anim" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="mobile-menu-link" data-toggle="tab" href="#mobile-menu-tab" role="tab"
+                    aria-controls="mobile-menu-tab" aria-selected="true">Menu</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="mobile-cats-link" data-toggle="tab" href="#mobile-cats-tab" role="tab"
+                    aria-controls="mobile-cats-tab" aria-selected="false">Categories</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="mobile-menu-tab" role="tabpanel"
+                aria-labelledby="mobile-menu-link">
+                <nav class="mobile-nav">
+                    <ul class="mobile-menu">
+                        <li class="active">
+                            <a href="/">Home</a>
+
+
+                        </li>
+
+                        <li>
+                            <a href="/products/?page=1" class="sf-with-ul">Products</a>
+
+                        </li>
+                        <li>
+                            <a href="/wishlistProducts" class="sf-with-ul">wishlist</a>
+
+                        </li>
+
+
+                    </ul>
+                </nav><!-- End .mobile-nav -->
+            </div><!-- .End .tab-pane -->
+
+        </div><!-- End .tab-content -->
+
+        <div class="social-icons">
+            <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
+            <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+            <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
+            <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+        </div><!-- End .social-icons -->
+    </div><!-- End .mobile-menu-wrapper -->
+</div><!-- End .mobile-menu-container -->
+
+
+
+
+
+

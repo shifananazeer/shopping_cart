@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Product</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f0f0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      margin-top: 5px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+
+    .image-preview {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .preview-container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .preview-image {
+      max-width: 100%;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 700px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Edit Product</h2>
+  <div class="container">
+    {{#if error}}
+    <p class="error">{{error}}</p>
+    {{/if}}
+    <form id="productForm" action="/admin/update-product/{{product._id}}" method="post" enctype="multipart/form-data">
+      <label for="name">Product Name:</label>
+      <input type="text" id="name" name="name" value="{{product.name}}" required>
+      <span class="error" id="nameError"></span>
+
+      <label for="category">Category:</label>
+      <select id="category" name="category" required>
+        <option value="" disabled>Choose Category</option>
+        {{#each categories}}
+        <option value="{{this._id}}" {{#ifCond this._id ../product.category._id}}selected{{/ifCond}}>{{this.name}}</option>
+        {{/each}}
+      </select>
+      <span class="error" id="categoryError"></span>
+
+     
+
+      <label for="price">Price ($):</label>
+      <input type="number" id="price" name="price" value="{{product.price}}" required>
+      <span class="error" id="priceError"></span>
+
+      <label for="discount">Discount (%):</label>
+      <input type="number" id="discount" name="discount" step="1" value="{{product.discount}}">
+      <span class="error" id="discountError"></span>
+
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" rows="4" required>{{product.description}}</textarea>
+      <span class="error" id="descriptionError"></span>
+
+      <label for="stock">Stock:</label>
+      <input type="number" id="stock" name="stock" value="{{product.stock}}" required>
+      <span class="error" id="stockError"></span>
+
+      <label for="images">Select Images:</label>
+      <input type="file" name="image" id="img" multiple>
+      <span class="error" id="imgError"></span>
+      <div class="image-preview" id="imagePreview">
+        {{#each product.images}}
+        <img src="/{{this}}" class="preview-image" alt="Product Image">
+        {{/each}}
+      </div>
+
+      <button type="submit">Update Product</button>
+    </form>
+  </div>
+
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div>
+        <img id="image" style="max-width: 100%;">
+      </div>
+      <button id="cropBtn">Crop</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <script>
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var cropper;
+    var image = document.getElementById('image');
+    var input = document.getElementById('img');
+    var cropBtn = document.getElementById('cropBtn');
+
+    var currentIndex = 0;
+    var fileList;
+    var croppedFiles = [];
+
+    input.addEventListener('change', function (e) {
+      fileList = e.target.files;
+      currentIndex = 0;
+      croppedFiles = [];
+      showNextImage();
+    });
+
+    span.onclick = function () {
+      modal.style.display = "none";
+      if (cropper) {
+        cropper.destroy();
+      }
+    };
+
+    cropBtn.addEventListener('click', function () {
+      var canvas = cropper.getCroppedCanvas({
+        width: 400,
+        height: 400,
+      });
+      canvas.toBlob(function (blob) {
+        var file = new File([blob], 'cropped_image_' + currentIndex + '.png', { type: 'image/png' });
+        croppedFiles.push(file);
+
+        currentIndex++;
+        if (currentIndex < fileList.length) {
+          showNextImage();
+        } else {
+          modal.style.display = "none";
+          var dataTransfer = new DataTransfer();
+          croppedFiles.forEach(function (file) {
+            dataTransfer.items.add(file);
+          });
+          input.files = dataTransfer.files;
+          if (cropper) {
+            cropper.destroy();
+          }
+        }
+      });
+    });
+
+    function showNextImage() {
+      if (currentIndex >= fileList.length) {
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        image.src = event.target.result;
+        modal.style.display = "block";
+        if (cropper) {
+          cropper.destroy();
+        }
+        cropper = new Cropper(image, {
+          aspectRatio: 1,
+          viewMode: 1,
+        });
+      };
+      reader.readAsDataURL(fileList[currentIndex]);
+    }
+  </script>
+</body>
+</html>

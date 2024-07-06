@@ -1,0 +1,43 @@
+<section class="vh-100 gradient-custom" style="overflow-y:hidden;">
+  <div class="container  h-90  mt-5"   >
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card  text-white " style="border-radius: 1rem; height: 640px;border-radius: 1rem; height: 700px;background: linear-gradient(to bottom right, #cc3399 30%, #66ffff 100%);">
+          <div class="card-body p-5 text-center">
+
+            <div class="mb-md-5 mt-md-4 pb-5 ">
+              <form action="/admin/adminlogin" method="post">
+              <h2 class="fw-bold mb-2 text-uppercase">Admin Login</h2>
+              <p class="text-white-50 mb-5">Please enter your login and password!</p>
+                {{#if err}}
+                <p style="color: red;">{{err}}</p>
+                {{/if}}
+              <div class="form-outline form-white mb-4">
+                <input type="email" id="typeEmailX" class="form-control form-control-lg"  name="email" />
+                <label class="form-label" for="typeEmailX">Email</label>
+              </div>
+
+              <div class="form-outline form-white mb-4 " >
+                <input type="password" id="typePasswordX" class="form-control form-control-lg"  name="password" />
+                <label class="form-label" for="typePasswordX">Password</label>
+              
+                </div>
+                                                                               
+               <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+
+             
+              
+              </form>
+               
+              
+            </div>
+            </div>
+
+           
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

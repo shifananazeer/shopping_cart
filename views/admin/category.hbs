@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Page</title>
+  <link rel="stylesheet" href="path/to/your/css/file.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <section>
+    <div class="container">
+      <div class="row mt-5">
+        <a href="/admin/add-category"><button class="btn btn-success">Add Category</button></a>
+      </div>
+      <table class="table text-center">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete/Restore</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each categories}}
+          <tr>
+            <th scope="row">{{@index}}</th>
+            <td>{{this.name}}</td>
+            <td>
+               {{#if this.image}}
+              <img src="/{{this.image}}" alt="{{this.name}} image" style="width: 100px; height: auto;">
+              {{else}}
+              <p>No image available</p>
+              {{/if}}
+            </td>
+            <td><a href="/admin/edit-category/{{this._id}}" class="btn btn-primary">Edit</a></td>
+            <td>
+              {{#if this.is_deleted}}
+              <a href="javascript:void(0);" class="btn btn-success"
+                onclick="restoreCategory('{{this._id}}', '{{this.name}}')">Restore</a>
+              {{else}}
+              <a href="javascript:void(0);" class="btn btn-danger"
+                onclick="deleteCategory('{{this._id}}', '{{this.name}}')">Delete</a>
+              {{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  
+
+ <script>
+    function deleteCategory(id, name) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: `Do you want to delete ${name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/admin/delete-category/${id}`;
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+
+    function restoreCategory(id, name) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: `Do you want to restore ${name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, restore it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/admin/restore-category/${id}`;
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+  </script>
+    
+  </body>
+  </html>

@@ -1,0 +1,134 @@
+<!-- products.hbs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products</title>
+    <link rel="stylesheet" href="/path/to/your/css/styles.css">
+</head>
+<body>
+  <style>
+    .product-listing {
+    display: flex;
+    flex-wrap: wrap; /* This allows items to wrap to the next line if they overflow */
+    gap: 20px; /* Adjust the gap between items as needed */
+    justify-content: center; /* Center the items horizontally */
+}
+
+.product-item {
+    flex: 0 1 calc(25% - 20px); /* Adjust the width and spacing */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.product-details {
+    text-align: center;
+}
+
+.product-prices {
+    margin-top: 10px;
+}
+
+.product-discounted-price {
+    color: #e74c3c; /* Discounted price color */
+}
+
+.product-original-price {
+    color: #7f8c8d; /* Original price color */
+    margin-left: 5px;
+}
+
+.product-discount {
+    color: #27ae60; /* Discount percentage color */
+    margin-left: 5px;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 16px;
+    text-decoration: none;
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #ddd;
+}
+
+.pagination a.active {
+    background-color: #333;
+    color: white;
+    border: 1px solid #333;
+}
+
+.pagination a.prev, .pagination a.next {
+    font-weight: bold;
+}
+  </style>
+     <div class="container pt-5 pb-10 mb-3 mt-2">
+        <div class="heading heading-center mb-3">
+            <h2 class="title-lg">All Products</h2><!-- End .title -->
+        </div><!-- End .heading -->
+        <div class="row">
+            <div class="product-listing">
+                {{#each products}}
+                <div class="product-item">
+                    <div class="product-image">
+                        <img src="/{{this.images.[0]}}" alt="Product Image">
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-name">{{this.name}}</h3>
+                        <div class="product-prices">
+                            {{#if this.discount}}
+                            <span class="product-discounted-price">
+                                Rs {{calcDiscountedPrice this.price this.discount}}
+                            </span>
+                            <span class="product-original-price">
+                                <del>Rs {{this.price}}</del>
+                            </span>
+                            <span class="product-discount">({{this.discount}}% Off)</span>
+                            {{else}}
+                            <span class="product-price">Rs {{this.price}}</span>
+                            {{/if}}
+                            <button style="background-color: black; color: #fff;">Add To Cart</button>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination">
+            {{#if (gt currentPage 1)}}
+            <a href="/products?page={{subtract currentPage 1}}" class="prev">Previous</a>
+            {{/if}}
+            {{#each (range 1 totalPages)}}
+            <a href="/products?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
+            {{/each}}
+            {{#if (lt currentPage totalPages)}}
+            <a href="/products?page={{add currentPage 1}}" class="next">Next</a>
+            {{/if}}
+        </div>
+    </div>
+</body>
+</html>
