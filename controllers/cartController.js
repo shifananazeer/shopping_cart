@@ -9,7 +9,8 @@ module.exports = {
     addToCart: async (req, res) => {
         try {
             if (req.session && req.session.user) {
-                const productId = req.query.productId;
+                // Check if productId is from URL parameters or query parameters
+                const productId = req.params.productId || req.query.productId;
                 const userId = req.session.user._id;
     
                 const product = await Product.findById(productId);
@@ -30,7 +31,6 @@ module.exports = {
                     if (cart.items[itemIndex].quantity < maxQuantityPerPerson && cart.items[itemIndex].quantity < availableStock) {
                         cart.items[itemIndex].quantity += 1;
                     } else {
-                        console.log("reached")
                         return res.json({ success: false, message: 'Reached maximum quantity or out of stock' });
                     }
                 } else {
@@ -220,9 +220,52 @@ module.exports = {
     
         res.render('user/checkout', { cartItems, summary ,addresses,userHeader:true});
     },
+    addWishlistToCart : async (req, res) => {
+        try {
+            if (req.session && req.session.user) {
+                const productId = req.params.productId; // Use params for cleaner URL
+                const userId = req.session.user._id;
+    
+                const product = await Product.findById(productId);
+                if (!product) {
+                    return res.json({ success: false, message: 'Product not found' });
+                }
+    
+                const maxQuantityPerPerson = 5; 
+                const availableStock = product.stock;
+    
+                let cart = await Cart.findOne({ userId });
+                if (!cart) {
+                    cart = new Cart({ userId, items: [] });
+                }
+    
+                const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+                if (itemIndex > -1) {
+                    if (cart.items[itemIndex].quantity < maxQuantityPerPerson && cart.items[itemIndex].quantity < availableStock) {
+                        cart.items[itemIndex].quantity += 1;
+                    } else {
+                        return res.json({ success: false, message: 'Reached maximum quantity or out of stock' });
+                    }
+                } else {
+                    if (availableStock > 0) {
+                        cart.items.push({ productId, quantity: 1 });
+                    } else {
+                        return res.json({ success: false, message: 'Out of stock' });
+                    }
+                }
+    
+                await cart.save();
+                return res.json({ success: true, message: 'Product added to cart' });
+            } else {
+                return res.json({ success: false, message: 'User not logged in' });
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            return res.json({ success: false, message: 'Server error' });
+        }
    
-};
-
+}
+}
 
 //summary calculation function
 const calculateCartSummary = (items) => {

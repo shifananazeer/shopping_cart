@@ -15,7 +15,13 @@ const checkSession = (req, res, next) => {
     }
 };
 
-
+const isLogin = (req,res,next) => {
+  if (req.session && req.session.user) {
+    next();
+} else {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+}
+}
 
   const userLoggerIn = (req,res,next) => {
     if(!userLoggerIn){
@@ -61,5 +67,6 @@ const checkSession = (req, res, next) => {
     userLoggerIn,
     isVerified,
     fetchCartDetails,
+    isLogin
   
   }

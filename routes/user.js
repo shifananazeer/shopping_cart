@@ -5,6 +5,7 @@ const userproductController = require('../controllers/userproductController')
 const profileController = require('../controllers/profileController')
 const cartController = require('../controllers/cartController')
 const orderController = require('../controllers/orderController')
+const wishlistController = require('../controllers/wishlistController')
 const middleware = require('../middlewares/middleware')
 const passport = require('passport');
 const  {profileUpload} = require('../public/javascripts/fileupload');
@@ -86,5 +87,14 @@ router.delete('/cancel-order/:orderId',middleware.isVerified,orderController.can
 router.get('/order-history',middleware.isVerified,orderController.orderHistory)
 
 router.get('/order-details/:id',middleware.isVerified,orderController.orderDetails)
+
+router.post('/wishlist/add/:productId',wishlistController. addToWishlist);
+
+router.delete('/wishlist/remove/:productId',wishlistController. removeFromWishlist);
+
+router.get('/wishlist',middleware.isVerified,wishlistController.getWishlist)
+
+router.get('/addwishlisttocart/:productId', cartController.addToCart);
+
 
 module.exports = router;

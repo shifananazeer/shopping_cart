@@ -2,11 +2,14 @@ const Product = require('../models/productmodel')
 const Category = require('../models/categorymodel')
 const Brand = require('../models/brandmodel')
 const Order = require('../models/ordermodel')
+const Wishlist = require('../models/wishlistmodel')
 
 
 //get all products in product page
 const getAllProducts = async(req,res) => {
     const user = req.session.user;
+    console.log(user)
+   
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
@@ -60,6 +63,15 @@ const getAllProducts = async(req,res) => {
     filterOptions.stock = { $gt: 0 }; // Products with stock greater than 0
 }
     try {
+               // Retrieve the user's wishlist
+               let wishlistItems = [];
+               if (user) {
+                   const wishlist = await Wishlist.findOne({ userId: user._id }).populate('items');
+                   wishlistItems = wishlist ? wishlist.items.map(item => item._id.toString()) : [];
+               }
+       
+         
+
         // Query products based on filters, sorting, and pagination
         let query = Product.find(filterOptions).skip(skip).limit(limit);
         if (sortOptions) {
@@ -71,7 +83,7 @@ const getAllProducts = async(req,res) => {
         const totalPages = Math.ceil(count / limit);
         const categories = await Category.find({})
         const brands = await Brand.find({})
-        
+       
         res.render('user/view-products', {
             user,
             products,
@@ -87,7 +99,9 @@ const getAllProducts = async(req,res) => {
             Asort: req.query.Asort,
             Rsort: req.query.Rsort,
             inStockOnly: req.query.inStockOnly,
-            userHeader:true
+            userHeader:true,
+            wishlistItems
+            
         });
     } catch (error) {
         console.error('Error fetching products:', error);
