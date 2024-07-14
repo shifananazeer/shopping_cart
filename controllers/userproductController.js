@@ -1,7 +1,7 @@
 const Product = require('../models/productmodel')
 const Category = require('../models/categorymodel')
 const Brand = require('../models/brandmodel')
-
+const Order = require('../models/ordermodel')
 
 
 //get all products in product page
@@ -95,23 +95,43 @@ const getAllProducts = async(req,res) => {
     }
         }
   
-      //get each product details
-      const productdetails = async(req,res) => {
-        const productId = req.params.id;
-        const user = req.session.user
-        console.log(productId)
-        const product = await Product.findById(productId).lean()
-        const { avgRating } = product;
-        console.log(product)
-
-         // Fetch related products (same category)
-         const relatedProducts = await Product.find({
-            _id: { $ne: productId }, 
-            category: product.category 
-        }).limit(4).lean(); 
-        res.render('user/product-details', {  product ,user,avgRating,relatedProducts,userHeader:true});
-       }
-
+        const productdetails = async (req, res) => {
+            try {
+                const productId = req.params.id;
+                const user = req.session.user || {};
+                console.log(productId);
+        
+                const product = await Product.findById(productId).lean();
+                if (!product) {
+                    return res.status(404).send('Product not found');
+                }
+        
+                const { avgRating } = product;
+                console.log(product);
+        
+                // Fetch related products (same category)
+                const relatedProducts = await Product.find({
+                    _id: { $ne: productId },
+                    category: product.category
+                }).limit(4).lean();
+        
+                // Fetch user orders to check for purchased products
+                const orders = await Order.find({ userId: user._id }).populate('items.productId').lean();
+        
+                res.render('user/product-details', {
+                    product,
+                    user,
+                    avgRating,
+                    relatedProducts,
+                    userHeader: true,
+                    orders // Pass orders to the template
+                });
+            } catch (error) {
+                console.error('Error fetching product details:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        };
+        
        
         //rating submision
         const submitRating = async (req, res) => {

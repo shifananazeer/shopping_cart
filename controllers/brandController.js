@@ -5,7 +5,7 @@ const path = require('path')
 
 module.exports = {
   //view all brands
-  viewbrand: async (req, res) => {
+  viewBrand: async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || '';
 
@@ -35,7 +35,7 @@ module.exports = {
 },
 
     //brand add page render
-    addbrandPage : (req,res) => {
+    addBrandPage : (req,res) => {
         res.render('admin/add-brand',{adminHeader:true, error: req.flash('error'),
           success: req.flash('success') })
           req.flash('error', null);

@@ -61,6 +61,10 @@ avgRating: {
     type: Number,
     default: 0 // Default average rating
 },
+purchaseCount: {
+  type: Number,
+  default: 0
+},
 minStockLevel: { type: Number, default: 5 } 
 }, { timestamps: true });
 

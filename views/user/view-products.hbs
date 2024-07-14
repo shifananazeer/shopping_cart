@@ -134,7 +134,7 @@
     .filter-sort-dropdown label {
         margin-bottom: 5px; /* Adjust label spacing */
     }
-
+  
     .filter-sort-dropdown select,
     .filter-sort-dropdown input[type="checkbox"] {
         margin-bottom: 10px;
@@ -146,13 +146,81 @@
     .filter-sort-dropdown select,
     .filter-sort-dropdown input[type="checkbox"] {
         display: block;
+
     }
+   
 
     .filter-sort-dropdown label {
         margin-bottom: 5px; /* Adjust label spacing */
     }
 }
 
+.filter-sort-dropdown {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+ .filter-sort-dropdown select,
+        .filter-sort-dropdown input[type="checkbox"] {
+            margin-right: 82px;
+            margin-bottom: 3px;
+        }
+
+.filter-sort-dropdown label {
+    font-weight: bold;
+    color: #333;
+}
+
+.filter-sort-dropdown select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+    width: 150px; /* Set a consistent width */
+}
+
+.filter-sort-dropdown select:hover {
+    border-color: #007bff;
+}
+
+.filter-sort-dropdown input[type="checkbox"] {
+    margin-left: 5px;
+}
+ /* Your existing styles */
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .product-grid .product {
+            flex: 1 1 calc(25% - 1rem);
+            max-width: calc(25% - 1rem);
+            box-sizing: border-box;
+        }
+        @media (max-width: 992px) {
+            .product-grid .product {
+                flex: 1 1 calc(33.33% - 1rem);
+                max-width: calc(33.33% - 1rem);
+            }
+        }
+        @media (max-width: 768px) {
+            .product-grid .product {
+                flex: 1 1 calc(50% - 1rem);
+                max-width: calc(50% - 1rem);
+            }
+        }
+        @media (max-width: 480px) {
+            .product-grid .product {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -205,39 +273,58 @@
     </form>
         </div>
 
-        <div class="row">
+         <div class="product-grid">
             {{#each products}}
-            <div class="col-12 col-md-6 col-lg-3 mb-4">
-                <div class="product-item h-100 d-flex flex-column justify-content-between">
+            <div class="product product-3 text-center">
+                <figure class="product-media">
                     <a href="/product-details/{{this._id}}">
-                        <div class="product-image">
-                            <img src="/{{this.images.[0]}}" alt="Product Image">
-                        </div>
-                        <div class="product-details">
-                            <h3 class="product-name">{{this.name}}</h3>
-                            <div class="product-prices">
-                                {{#if this.discount}}
-                                <span class="product-discounted-price">Rs {{calcDiscountedPrice this.price this.discount}}</span>
-                                <span class="product-original-price"><del>Rs {{this.price}}</del></span>
-                                <span class="product-discount">({{this.discount}}% Off)</span>
-                                {{else}}
-                                <span class="product-price">Rs {{this.price}}</span>
-                                {{/if}}
-                            </div>
-                            <div class="stock-status">
-                                {{#if (eq this.stock 0)}}
-                                <p class="out-of-stock">Out Of Stock</p>
-                                {{else}}
-                                <p class="in-stock">In Stock: {{this.stock}}</p>
-                                {{/if}}
-                            </div>
-                        </div>
+                        <img src="/{{this.images.[0]}}" alt="Product image" class="product-image">
                     </a>
-                    <button class="btn btn-primary mt-2" data-product-id="{{this._id}}" onclick="addToCart(this)">Add To Cart</button>
-                </div>
-            </div>
+                    <div class="product-action-vertical">
+                        <a href="/homewishlist/{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                    </div><!-- End .product-action-vertical -->
+                </figure><!-- End .product-media -->
+
+                <div class="product-body">
+                    <div class="product-cat">
+                        <a href="#">{{this.brand.name}}</a>
+                    </div><!-- End .product-cat -->
+                    <h3 class="product-title"><a href="product.html">{{this.name}}</a></h3><!-- End .product-title -->
+                    <div class="product-price text-dark">
+                        {{#if this.discount}}
+                        <span style="font-weight: bolder;" class="product-discounted-price mr-2">
+                            ₹ {{calcDiscountedPrice this.price this.discount}}
+                        </span>
+                        <div>
+                            <span style="color: red;" class="product-original-price">
+                                <del>₹ {{this.price}}</del>
+                            </span>
+                            <span class="text-success ml-3">{{this.discount}}% Off</span>
+                        </div>
+                        {{/if}}
+                    </div><!-- End .product-price -->
+                </div><!-- End .product-body -->
+                <div class="product-footer">
+                    {{#if this.stock}}
+                    {{#if this.cartPresent}}
+                    <div class="product-action">
+                        <a href="/cart/{{this._id}}" type="button" class="btn btn-secondary btn-lg btn-block">Go to cart</a>
+                    </div>
+                    {{else}}
+                    <div>
+                        <button type="button" class="btn btn-secondary btn-lg btn-block" data-product-id="{{this._id}}" onclick="addToCart(this)">Add to cart</button>
+                    </div><!-- End .product-action -->
+                    {{/if}}
+                    {{else}}
+                    <div>
+                        <button type="button" class="btn btn-danger btn-lg btn-block" disabled>Out of stock</button>
+                    </div>
+                    {{/if}}
+                </div><!-- End .product-footer -->
+            </div><!-- End .product -->
             {{/each}}
-        </div>
+        </div><!-- End .product-grid -->
+
 
         <!-- Pagination Controls -->
         <div class="pagination">

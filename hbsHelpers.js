@@ -90,5 +90,18 @@ module.exports = {
     },
     formatDate: function(date) {
         return moment(date).format('MMMM Do YYYY, h:mm:ss a');
-    }
-};
+    },
+
+    isUserPurchased: (userId, productId, orders) => {
+        if (!Array.isArray(orders)) {
+            return false;
+        }
+    
+        return orders.some(order =>
+            order.status === 'Delivered' &&
+            order.items.some(item => 
+                item.productId.toString() === productId.toString()
+            )
+        )
+}
+}

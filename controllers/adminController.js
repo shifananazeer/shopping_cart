@@ -74,7 +74,7 @@ const blockUser = async (req,res) => {
 }
 
 //Unblock User
-const unblockUser = async(req,res) =>  {
+const unBlockUser = async(req,res) =>  {
   const userId = req.params.id;
   try {
     await User.findByIdAndUpdate(userId, { status: true });
@@ -97,6 +97,6 @@ module.exports ={
   verifyLogin,
   getAllUsers,
   blockUser,
-  unblockUser,
+  unBlockUser,
   logout,
 }

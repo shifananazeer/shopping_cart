@@ -47,13 +47,13 @@ router.get('/allUsers',adminsessionHandler,adminController.getAllUsers)
 
 router.post('/blockuser/:id',adminsessionHandler, adminController.blockUser);
 
-router.post('/unblockuser/:id',adminsessionHandler, adminController.unblockUser);
+router.post('/unblockuser/:id',adminsessionHandler, adminController.unBlockUser);
 
 router.get('/logout',adminsessionHandler,adminController.logout)
 
-router.get('/viewbrand',adminsessionHandler,brandController.viewbrand)
+router.get('/viewbrand',adminsessionHandler,brandController.viewBrand)
 
-router.get('/add-brand',adminsessionHandler,brandController.addbrandPage)
+router.get('/add-brand',adminsessionHandler,brandController.addBrandPage)
 
 router.post('/add-brand', adminsessionHandler,brandUpload.single('image'), brandController.addBrand);
 

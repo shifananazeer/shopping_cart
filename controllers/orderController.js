@@ -25,10 +25,15 @@ module.exports = {
                 status: 'Pending' 
             });
             await newOrder.save();
-              // Update product stock levels
-              for (const item of itemsArray) {
-                await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.quantity } });
-            }
+               // Update product stock levels and purchase counts
+             for (const item of itemsArray) {
+                     await Product.findByIdAndUpdate(item.productId, {
+                $inc: {
+                    stock: -item.quantity,
+                    purchaseCount: item.quantity // Increment purchase count
+                }
+            });
+        }
 
             const userId = req.session.user._id;
             await Cart.findOneAndDelete({ userId });
@@ -41,18 +46,28 @@ module.exports = {
             res.status(500).send('Internal Server Error');
         }
     },
-//order cancel
+//order cancel with stock incrimentaion and purchase count decrimentation
 cancelOrder : async(req,res) => {
     const orderId = req.params.orderId;
     try {
-        const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: 'Cancelled' }, { new: true });
-        if (!cancelledOrder) {
-            return res.status(404).json({ error: 'Order not found' });
+        const order = await Order.findById(orderId);
+        if (!order || order.status !== 'Pending') {
+            return res.status(400).json({ error: 'Order cannot be canceled' });
         }
+        for (const item of order.items) {
+            await Product.findByIdAndUpdate(item.productId, {
+                $inc: {
+                    stock: item.quantity,
+                    purchaseCount: -item.quantity 
+                }
+            });
+        }
+        const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: 'Cancelled' }, { new: true });
+
         res.json({ message: 'Order cancelled successfully', cancelledOrder });
     } catch (error) {
         console.error('Error cancelling order:', error);
-        res.json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 },
 
