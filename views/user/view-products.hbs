@@ -1,63 +1,96 @@
-<!-- products.hbs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Products</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/path/to/your/css/styles.css">
-</head>
-<body>
     <style>
-        .product-listing {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px; /* Adjust the gap between items as needed */
-            justify-content: center; /* Center the items horizontally */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-sort-dropdown label {
+            margin-right: 10px;
+        }
+
+        .filter-sort-dropdown select,
+        .filter-sort-dropdown input[type="checkbox"] {
+            margin-right: 10px;
         }
 
         .product-item {
-            flex: 0 1 calc(25% - 20px); /* Adjust the width and spacing */
-            box-sizing: border-box; /* Ensure padding and border are included in the width */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: #fff;
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .product-item:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-item a {
+            text-decoration: none;
+            color: #333;
         }
 
         .product-image img {
             max-width: 100%;
             height: auto;
-            display: block;
         }
 
         .product-details {
             text-align: center;
-        }
-
-        .product-prices {
             margin-top: 10px;
         }
 
+        .product-name {
+            font-size: 2.1rem;
+            margin-bottom: 5px;
+        }
+
+        .product-prices {
+            margin-top: 5px;
+        }
+
         .product-discounted-price {
-            color: #e74c3c; /* Discounted price color */
+            color: #e74c3c;
+            font-weight: bold;
         }
 
         .product-original-price {
-            color: #7f8c8d; /* Original price color */
+            color: #7f8c8d;
+            text-decoration: line-through;
             margin-left: 5px;
         }
 
         .product-discount {
-            color: #27ae60; /* Discount percentage color */
+            color: #27ae60;
             margin-left: 5px;
         }
 
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
+        .stock-status {
+            margin-top: 10px;
+        }
+
+        .out-of-stock {
+            color: red;
+        }
+
+        .in-stock {
+            color: green;
         }
 
         .pagination a {
@@ -81,19 +114,101 @@
             border: 1px solid #333;
         }
 
-        .pagination a.prev, .pagination a.next {
+        .pagination a.prev,
+        .pagination a.next {
             font-weight: bold;
         }
-    </style>
 
-    <div class="container pt-5 pb-10 mb-3 mt-2">
-        <div class="heading heading-center mb-3">
-            <h2 class="title-lg">All Products</h2><!-- End .title -->
-        </div><!-- End .heading -->
+        button, input, optgroup, select, textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: 1.3rem;
+    line-height: inherit;
+}
+         @media (max-width: 992px) {
+    .filter-sort-dropdown {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-sort-dropdown label {
+        margin-bottom: 5px; /* Adjust label spacing */
+    }
+
+    .filter-sort-dropdown select,
+    .filter-sort-dropdown input[type="checkbox"] {
+        margin-bottom: 10px;
+        flex: none;
+        width:50%;
+    }
+
+    .filter-sort-dropdown label,
+    .filter-sort-dropdown select,
+    .filter-sort-dropdown input[type="checkbox"] {
+        display: block;
+    }
+
+    .filter-sort-dropdown label {
+        margin-bottom: 5px; /* Adjust label spacing */
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="heading">
+            <h2>All Products</h2>
+        </div>
+
+       <div class="filter-sort-dropdown">
+           <form id="filterForm">
+        <label for="categoryFilter">Filter by Category:</label>
+        <select id="categoryFilter" name="category" onchange="applyFilterAndSort()">
+            <option value="">All Categories</option>
+            {{#each categories}}
+            <option value="{{this.name}}" {{#if (eq this.name ../filter.category)}}selected{{/if}}>{{this.name}}</option>
+            {{/each}}
+        </select>
+
+      <label for="brandFilter">Filter by Brand:</label>
+        <select id="brandFilter" name="brand" onchange="applyFilterAndSort()">
+            <option value="">All Brands</option>
+            {{#each brands}}
+            <option value="{{this.name}}" {{#if (eq this.name ../filter.brand)}}selected{{/if}}>{{this.name}}</option>
+            {{/each}}
+        </select>
+        
+        <label for="Psort">Price Sort:</label>
+        <select id="Psort" name="Psort" onchange="applyFilterAndSort()">
+            <option value="">Default</option>
+            <option value="1" {{#if (eq Psort '1')}}selected{{/if}}>Price: Low to High</option>
+            <option value="-1" {{#if (eq Psort '-1')}}selected{{/if}}>Price: High to Low</option>
+        </select>
+
+        <label for="ratingSort">Sort by Rating:</label>
+        <select id="ratingSort" name="Rsort" onchange="applyFilterAndSort()">
+            <option value="">Default</option>
+            <option value="1" {{#if (eq Rsort '1')}}selected{{/if}}>Low to High</option>
+            <option value="-1" {{#if (eq Rsort '-1')}}selected{{/if}}>High to Low</option>
+        </select>
+
+        <label for="Asort">Alphabetical Sort:</label>
+        <select id="Asort" name="Asort" onchange="applyFilterAndSort()">
+            <option value="">Default</option>
+            <option value="1" {{#if (eq Asort '1')}}selected{{/if}}>A to Z</option>
+            <option value="-1" {{#if (eq Asort '-1')}}selected{{/if}}>Z to A</option>
+        </select>
+
+        <label for="inStockOnly">In Stock Only:</label>
+        <input type="checkbox" id="inStockOnly" name="inStockOnly" onchange="applyFilterAndSort()" {{#if inStockOnly}}checked{{/if}}>
+    </form>
+        </div>
+
         <div class="row">
-            <div class="product-listing">
-                {{#each products}}
-                <div class="product-item">
+            {{#each products}}
+            <div class="col-12 col-md-6 col-lg-3 mb-4">
+                <div class="product-item h-100 d-flex flex-column justify-content-between">
                     <a href="/product-details/{{this._id}}">
                         <div class="product-image">
                             <img src="/{{this.images.[0]}}" alt="Product Image">
@@ -102,37 +217,101 @@
                             <h3 class="product-name">{{this.name}}</h3>
                             <div class="product-prices">
                                 {{#if this.discount}}
-                                <span class="product-discounted-price">
-                                    Rs {{calcDiscountedPrice this.price this.discount}}
-                                </span>
-                                <span class="product-original-price">
-                                    <del>Rs {{this.price}}</del>
-                                </span>
+                                <span class="product-discounted-price">Rs {{calcDiscountedPrice this.price this.discount}}</span>
+                                <span class="product-original-price"><del>Rs {{this.price}}</del></span>
                                 <span class="product-discount">({{this.discount}}% Off)</span>
                                 {{else}}
                                 <span class="product-price">Rs {{this.price}}</span>
                                 {{/if}}
-                                <button style="background-color: black; color: #fff;">Add To Cart</button>
+                            </div>
+                            <div class="stock-status">
+                                {{#if (eq this.stock 0)}}
+                                <p class="out-of-stock">Out Of Stock</p>
+                                {{else}}
+                                <p class="in-stock">In Stock: {{this.stock}}</p>
+                                {{/if}}
                             </div>
                         </div>
                     </a>
+                    <button class="btn btn-primary mt-2" data-product-id="{{this._id}}" onclick="addToCart(this)">Add To Cart</button>
                 </div>
-                {{/each}}
             </div>
+            {{/each}}
         </div>
 
         <!-- Pagination Controls -->
         <div class="pagination">
             {{#if (gt currentPage 1)}}
-            <a href="/products?page={{subtract currentPage 1}}" class="prev">Previous</a>
+            <a href="/products?page={{subtract currentPage 1}}&sort={{sort}}&filter={{filter}}&inStockOnly={{inStockOnly}}" class="prev">Previous</a>
             {{/if}}
             {{#each (range 1 totalPages)}}
-            <a href="/products?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
+            <a href="/products?page={{this}}&sort={{sort}}&filter={{filter}}&inStockOnly={{inStockOnly}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
             {{/each}}
             {{#if (lt currentPage totalPages)}}
-            <a href="/products?page={{add currentPage 1}}" class="next">Next</a>
+            <a href="/products?page={{add currentPage 1}}&sort={{sort}}&filter={{filter}}&inStockOnly={{inStockOnly}}" class="next">Next</a>
             {{/if}}
         </div>
     </div>
+
+    <!-- Script for adding to cart -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function addToCart(button) {
+            const productId = button.getAttribute('data-product-id');
+
+            try {
+                const response = await fetch(`/add-to-cart?productId=${productId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        text: 'Product successfully added to cart',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        customClass: {
+                            title: 'text-success',
+                            popup: 'swal2-popup-custom'
+                        }
+                    });
+                } else if (data.message === 'User not logged in') {
+                    Swal.fire({
+                        text: 'You must be logged in to add products to the cart',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+            }
+        }
+
+       function applyFilterAndSort() {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+
+    let url = '/products?page=1';
+    for (const [key, value] of formData.entries()) {
+        if (key === 'inStockOnly' && value === 'on') {
+            url += `&${key}=true`;
+        } else if (value) {
+            url += `&${key}=${value}`;
+        }
+    }
+
+    window.location.href = url;
+}
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

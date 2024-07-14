@@ -1,0 +1,56 @@
+<!-- user/order-status.hbs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status</title>
+    <style>
+        .order-status-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .order-status-result {
+            margin-top: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="order-status-container">
+        <h2>Order Status</h2>
+        {{#if order}}
+            <div class="order-status-result">
+                <h3>Order ID: {{ order._id }}</h3>
+                <p><strong>Date:</strong> {{ formatDate order.createdAt }}</p>
+                  {{#each order.items}}
+                <p><strong>product name:</strong> {{ this.productId.name }} </p>
+                {{/each}}
+                <p><strong>Total Amount:</strong> {{ order.totalAmountToBePaid }} ₹</p>
+                <p><strong>Status:</strong> {{ order.status }}</p>
+                <a href="/order-history" class="btn">Back To Order History</a>
+            </div>
+        {{else if error}}
+            <p>{{ error }}</p>
+        {{/if}}
+    </div>
+</body>
+</html>

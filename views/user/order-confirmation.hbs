@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <!-- Include your CSS stylesheets and other headers -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Include SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.css">
+    <style>
+        /* Example of custom CSS */
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        .order-details {
+            margin-bottom: 20px;
+        }
+        .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Order Confirmation</h2>
+
+        <!-- Order Details -->
+        <div class="order-details">
+            <h3>Order Details</h3>
+            <p><strong>Order ID:</strong> {{ newOrder._id }}</p>
+            <p><strong>Order Date:</strong> {{  formatDate newOrder.createdAt}}</p>
+            <p><strong>Payment Method:</strong> {{newOrder.paymentMethod }}</p>
+            <p><strong>Delivery Address:</strong> <br>{{ selectedAddress.houseName }}<br>{{ selectedAddress.street }}<br>
+            {{ selectedAddress.district }}<br>{{ selectedAddress.state }}<br>{{ selectedAddress.pincode }}<br>{{ selectedAddress.addressType }}</p>
+
+            <!-- Display Products Ordered -->
+            <h4>Products Ordered:</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        {{!-- <th>Price</th> --}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each newOrder.items}}
+                    <tr>
+                        <td>{{ this.name }}</td>
+                        <td>{{ this.quantity }}</td>
+                        {{!-- <td> {{ this.totalPrice }} ₹</td> --}}
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+
+            <!-- Order Summary -->
+            <h4>Order Summary</h4>
+            <p><strong>Total Price:</strong> {{ summaryObject.totalPriceBeforeDiscount }} ₹</p>
+            <p><strong>Total Discount:</strong> {{ summaryObject.totalDiscount }} ₹</p>
+            <p><strong>Shipping Charge:</strong> {{ summaryObject.shippingCharge }} ₹</p>
+            <p><strong>Total Amount to Be Paid:</strong> {{ summaryObject.totalAmountToBePaid }} ₹</p>
+        </div>
+
+        <!-- Order Management Options -->
+        <div class="order-management">
+            <h3>Order Management</h3>
+            <p>Manage your order with the following options:</p>
+            <button class="btn btn-primary" onclick="cancelOrder('{{ newOrder._id }}')">Cancel Order</button>
+
+            <a href="/order-history" class="btn btn-secondary">Order History</a>
+            {{!-- <a href="/order-status/{{ orderId }}" class="btn btn-secondary">Order Status</a> --}}
+        </div>
+    </div>
+
+    <!-- Include SweetAlert JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script>
+  function cancelOrder(orderId) {
+    // Confirm cancellation with user
+    if (confirm("Are you sure you want to cancel this order?")) {
+        // Send DELETE request to cancel order
+        fetch(`/cancel-order/${orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to cancel order');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle success message or redirect as needed
+            alert('Order cancelled successfully');
+            // Redirect to order history page or another appropriate page
+            window.location.href = '/order-history';
+        })
+        .catch(error => {
+            console.error('Error cancelling order:', error);
+            alert('Failed to cancel order. Please try again later.');
+        });
+    } else {
+        // Handle cancellation cancellation
+        alert('Order cancellation cancelled.');
+    }
+}
+    </script>
+</body>
+</html>

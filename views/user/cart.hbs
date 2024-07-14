@@ -1,0 +1,254 @@
+<style>
+    .cart{
+        
+        box-shadow: 0 8px 16px 0 
+            rgba(0, 0,0, 0.24),0 17px 50px 0 
+            rgba(0, 0,0,0.19); 
+    }
+    .summary{
+         box-shadow: 0 8px 16px 0 
+            rgba(0, 0,0, 0.24),0 17px 50px 0 
+            rgba(0, 0,0,0.19);  
+    }
+</style>
+
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/products">Products</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="row">
+            <div class="col-md-8 mt-5 cart">
+                <div class="title">
+                    <div class="row">
+                        <div class="col ">
+                            <h4 class="mt-3 text-center"><b>Shopping Cart</b></h4>
+                        </div>
+                    </div>
+                </div>
+
+                {{#each items}}
+                <div class="row border-top border-bottom item-container" id="item-{{this.productId._id}}">
+                    <div class="row main align-items-center">
+                        <div class="col-2"><img class="img-fluid" src="{{this.productId.images.[0]}}"></div>
+                        <div class="col">
+                            <div class="row text-muted">{{this.productId.name}}</div>
+                            <div class="row">{{this.productId.category.name}}</div>
+                        </div>
+                        <div class="col">
+                            <a href="javascript:void(0);" onclick="incrementItem('{{this.productId._id}}', this)">+</a>
+                            <span>{{this.quantity}}</span>
+                            <a href="javascript:void(0);" onclick="decrementItem('{{this.productId._id}}', this)">-</a>
+                        </div>
+                        <div class="col">{{this.productId.price}} ₹<a href="javascript:void(0);" onclick="deleteItem('{{this.productId._id}}', this)" class="close">&#10005;</a></div>
+                    </div>
+                </div>
+                {{/each}}
+
+                {{#if items.length}}
+                <div class="back-to-shop"><a href="/shop">&leftarrow; Back to shop</a></div>
+                {{else}}
+                <h1>No Products</h1>
+                {{/if}}
+            </div>
+
+            <div class="col-md-4 summary mt-5 text-cente">
+                {{#if items.length}}
+                <div>
+                    <h5><b>Summary</b></h5>
+                </div>
+                <hr>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">Total Price:</h6>
+                    <div style="float: right;">
+                        <h6 id="totalPriceBeforeDiscount" style="display: inline;"><b>{{ totalPriceBeforeDiscount }} ₹</b></h6>
+                    </div>
+                </div>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">Discount:</h6>
+                    <div style="float: right;">
+                        <h6 id="offerDiscount" style="display: inline;color: green;"><b>{{ offerDiscount }} ₹</b></h6>
+                        <input type="hidden" name="discount" value="{{ offerDiscount }}">
+                    </div>
+                </div>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">Discounted Price:</h6>
+                    <div style="float: right;">
+                        <h6 id="discountedPrice" style="display: inline;"><b>{{ discountedPrice }} ₹</b></h6>
+                    </div>
+                </div>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">GST:</h6>
+                    <div style="float: right;">
+                        <h6 id="gst" style="display: inline;color: red;"><b>{{ gst }} ₹</b></h6>
+                        <input type="hidden" name="gst" value="{{ gst }}">
+                    </div>
+                </div>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">Total Price Including GST:</h6>
+                    <div style="float: right;">
+                        <h6 id="totalPriceIncGst" style="display: inline;"><b>{{ totalPriceIncGst }} ₹</b></h6>
+                        <input type="hidden" name="totalPriceIncludingGst" value="{{ totalPriceIncGst }}">
+                    </div>
+                </div>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">Shipping Charge:</h6>
+                    <div style="float: right;">
+                        <h6 id="shippingCharge" style="display: inline;color: red;"><b>{{ shippingCharge }} ₹</b></h6>
+                    </div>
+                </div>
+                <div style="overflow: hidden;">
+                    <h6 style="float: left;">Total Amount to be paid:</h6>
+                    <div style="float: right;">
+                        <h6 id="totalAmountPay" style="display: inline;"><b>{{ totalAmountPay }} ₹</b></h6>
+                        <input type="hidden" name="totalAmountPay" value="{{ totalAmountPay }}">
+                    </div>
+                </div>
+            <div style="text-align: center; margin-top: 20%;">
+   <div style="text-align: center; margin-top: 20%;">
+    <a href="/checkout" id="checkoutButton" >CHECKOUT</a>
+</div>
+</div>
+                {{else}}
+                <h6>No items in the cart</h6>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function successAlert(message) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: message,
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+function errorAlert(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message
+    });
+}
+
+async function incrementItem(productId, element) {
+    try {
+        const response = await fetch('/incrementItem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            const currentQuantityElement = element.nextElementSibling; // span element
+            const currentQuantity = parseInt(currentQuantityElement.textContent);
+            currentQuantityElement.textContent = currentQuantity + 1;
+
+           
+
+            successAlert(data.message);
+            updateCartSummary(); // Update summary after increment
+        } else {
+            errorAlert(data.message);
+        }
+    } catch (error) {
+        console.error('Error incrementing item:', error);
+        errorAlert('An error occurred. Please try again later.');
+    }
+}
+
+async function decrementItem(productId, element) {
+    try {
+        const response = await fetch('/decrementItem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            const currentQuantityElement = element.previousElementSibling; // span element
+            const currentQuantity = parseInt(currentQuantityElement.textContent);
+            const newQuantity = currentQuantity - 1;
+            if (newQuantity > 0) {
+                currentQuantityElement.textContent = newQuantity;
+                
+            } else {
+                const itemElement = document.getElementById(`item-${productId}`);
+                if (itemElement) {
+                    itemElement.remove();
+                }
+            }
+            successAlert(data.message);
+            updateCartSummary(); // Update summary after decrement
+        } else {
+            errorAlert(data.message);
+        }
+    } catch (error) {
+        console.error('Error decrementing item:', error);
+        errorAlert('An error occurred. Please try again later.');
+    }
+}
+
+async function deleteItem(productId, element) {
+    try {
+        const response = await fetch('/deleteItem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            const itemElement = document.getElementById(`item-${productId}`);
+            if (itemElement) {
+                itemElement.remove();
+            }
+            successAlert(data.message);
+            updateCartSummary(); // Update summary after deletion
+        } else {
+            errorAlert(data.message);
+        }
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        errorAlert('An error occurred. Please try again later.');
+    }
+}
+
+
+async function updateCartSummary() {
+    try {
+        const response = await fetch('/getCartSummary', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await response.json();
+        if (result.success) {
+            const summary = result.summary;
+            document.querySelector('#totalPriceBeforeDiscount').innerHTML = `<b>${summary.totalPriceBeforeDiscount} ₹</b>`;
+            document.querySelector('#offerDiscount').innerHTML = `<b>${summary.totalDiscount} ₹</b>`;
+            document.querySelector('#discountedPrice').innerHTML = `<b>${summary.discountedPrice} ₹</b>`;
+            document.querySelector('#gst').innerHTML = `<b>${summary.gst} ₹</b>`;
+            document.querySelector('#totalPriceIncGst').innerHTML = `<b>${summary.totalPriceIncludingGst} ₹</b>`;
+            document.querySelector('#shippingCharge').innerHTML = `<b>${summary.shippingCharge} ₹</b>`;
+            document.querySelector('#totalAmountPay').innerHTML = `<b>${summary.totalAmountToBePaid} ₹</b>`;
+
+          
+        } else {
+            console.error('Failed to fetch cart summary:', result.message);
+        }
+    } catch (error) {
+        console.error('Error fetching cart summary:', error);
+    }
+}
+
+updateCartSummary(); // Call this function to update the summary on page load or when the cart changes
+</script>

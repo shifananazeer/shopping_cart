@@ -1,5 +1,7 @@
 const User = require('../models/usermodel');
 const nodemailer = require('nodemailer');
+const Category = require('../models/categorymodel')
+const Brand = require('../models/brandmodel')
 const bcrypt = require('bcrypt');
 
 const Product = require('../models/productmodel')
@@ -8,17 +10,29 @@ const Product = require('../models/productmodel')
 //Get Home with newly arrived products ,category ,brand
 const getHomePage = async (req, res) => {
  const user = req.session.user;
+const categories = await Category.find({}).lean();
  const products = await Product.find({is_deleted:false })
                                 .sort({ createdAt: -1 }) 
                                 .limit(4); 
-res.render('user/home', { user,products});   
+ const highOfferProducts = await Product.find({ 
+  is_deleted: false,
+   discount: { $gt: 30 } 
+                      })
+ .sort({ discount: -1 }) // Sort by highest discount
+ .limit(4)
+.lean();     
+const brands = await Brand .find({
+  is_deleted:false,
+
+})                   
+res.render('user/home', { user,products,categories,highOfferProducts,brands,userHeader:true});   
 };
 
 
 //get login page
   const getLogin = (req,res) =>{
     try {
-      res.render("user/login",{ error: req.flash('error')});
+      res.render("user/login",{ error: req.flash('error'),userHeader:true});
     } catch (error) {
       console.log(error.message);
       res.redirect("/error");
@@ -28,7 +42,7 @@ res.render('user/home', { user,products});
 
 //get signup page
   const getSignupPage = (req,res) => {
-    res.render('user/signup',{ error: req.flash('error')})
+    res.render('user/signup',{ error: req.flash('error'),userHeader:true})
   }
 
 
@@ -69,7 +83,7 @@ const postSignup = async (req, res) => {
       password: hashedPassword,
       otp,
       otpExpiresAt,
-      isVerified: false,
+      is_verified: false,
     });
     await newUser.save();
 
@@ -101,7 +115,7 @@ const postSignup = async (req, res) => {
 //get otp verifying page
 const getVerifyOtpPage = (req, res) => {
   const { email } = req.query;
-  res.render('user/validateOtp', { email, error: req.flash('error') });
+  res.render('user/validateOtp', { email, error: req.flash('error') ,userHeader:true});
 };
 
 
@@ -211,7 +225,8 @@ const postLogin = async (req, res) => {
       return res.redirect('/login');
     }
 
-   
+    user.is_verified = true;
+    await user.save()
     req.session.user = {
       _id: user._id,
       name: user.name,
@@ -228,13 +243,29 @@ const postLogin = async (req, res) => {
 };
 
 //logout user
-const logout = (req, res) => {
-      req.session.destroy();
-     
-        res.redirect('/'); 
+const logout = async (req, res) => {
+  try {
+      const userId = req.session.user._id;
+      const user = await User.findById(userId);
 
-}
- 
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+
+      user.is_verified = false;
+      await user.save();
+
+      req.session.destroy((err) => {
+          if (err) {
+              return res.status(500).send('Error logging out');
+          }
+          res.redirect('/');
+      });
+  } catch (error) {
+      console.error('Error logging out:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
 //rendering otp page 
 const otpPage = (req,res) => {
         res.render('user/generateOtp')
@@ -283,102 +314,12 @@ const otpPage = (req,res) => {
         }  
       };
 
-//get all products in product page
-  const getAllProducts = async(req,res) => {
-  const user = req.session.user;
-  const page = parseInt(req.query.page) || 1; 
-  const limit = 8; 
-  const skip = (page - 1) * limit;
 
-    try {
-        const products = await Product.find({is_deleted:false}).skip(skip).limit(limit);
-        const count = await Product.countDocuments({}); 
-        const totalPages = Math.ceil(count / limit);
+     
 
-        res.render('user/view-products', {
-          user,
-            products,
-            currentPage: page,
-            totalPages
-        });
-    } catch (error) {
-        console.error( error);  
-    }
-      }
-
-      //get each product details
-      const productdetails = async(req,res) => {
-        const productId = req.params.id;
-        const user = req.session.user
-        console.log(productId)
-        const product = await Product.findById(productId).lean()
-        const { avgRating } = product;
-        console.log(product)
-        res.render('user/product-details', {  product ,user,avgRating});
-       }
-
-
-       //rating submision
-       const submitRating = async (req, res) => {
-        const { productId, rating, comment } = req.body;
-    
-        if (!req.session.user) {
-            return res.json({ notLoggedIn: true });
-        }
-    
-        const userId = req.session.user._id;
-    
-        try {
-            const product = await Product.findById(productId);
-            if (!product) {
-                return res.json({ error: 'Product not found' });
-            }
-    
-            const existingRating = product.ratings.find(r => r.user.toString() === userId.toString());
-            if (existingRating) {
-                return res.json({ alreadyExist: true });
-            }
-    
-            product.ratings.push({ user: userId, rating, comment });
-    
-            const totalRating = product.ratings.reduce((sum, r) => sum + r.rating, 0);
-            product.avgRating = totalRating / product.ratings.length;
-    
-            await product.save();
-    
-            res.json({ success: true });
-        } catch (error) {
-            console.error(error);
-            res.json({ error: 'Internal server error' });
-        }
-    };
-    
-    
+      
    
-//fetching review 
-    const fetchReviews = async (req, res) => {
-      try {
-          const productId = req.query.productId; 
-          
-          const product = await Product.findById(productId).populate('ratings.user');
-          if (!product) {
-              return res.json({ success: false, message: 'Product not found' });
-          }
-  
-          const reviews = product.ratings.map(review => ({
-              rating: review.rating,
-              comment: review.comment,
-              userId: review.user, 
-             
-          }));
-  
-          res.json({ success: true, reviews });
-      } catch (error) {
-          console.error( error);
-          res.json({ success: false, message: 'Error fetching reviews' });
-      }
-  };
-  
+
     
       
   module.exports = {
@@ -394,8 +335,6 @@ const otpPage = (req,res) => {
     otpPage,
     postGenerateOtp,
     googleAuth,
-    getAllProducts,
-    productdetails,
-    submitRating,
-    fetchReviews,
+   
+    
   }

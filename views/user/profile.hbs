@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/myProfile.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Custom CSS for layout adjustments */
+        body {
+            background-color: #f8f9fa; /* Light background color */
+        }
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+        .profile-actions {
+            margin-top: 20px;
+        }
+        .edit {
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container cprofile rounded bg-white mt-5 mb-5">
+        <div class="row">
+            <!-- Left column with user info -->
+            <div class="col-md-3 border-right">
+                <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                    {{#if user.profilePhoto}}
+                    <img class="rounded-circle mt-5 profile-img" src="{{user.profilePhoto}}" alt="Profile Picture">
+                    {{else}}
+                    <img class="rounded-circle mt-5 profile-img" src="{{user.image}}" alt="Profile Picture">
+                    {{/if}}
+                    <span class="font-weight-bold">{{user.name}}</span>
+                    <span class="text-black-50">{{user.email}}</span>
+                    <div class="profile-actions mt-4">
+                        <a href="/profile" class="btn btn-info">Personal Information</a>
+                        <a href="/order-history" class="btn btn-info mt-2">My Orders</a>
+                        <a href="/profile/changePassword" class="btn btn-info mt-2">Change Password</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Right column with profile details -->
+            <div class="col-md-9">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="text-right">My Profile</h2>
+                        <a href="/edit-profile" class="btn btn-primary">✎ Edit</a>
+                    </div>
+                    <!-- User information section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="labels">Name:</label>
+                            <h6>{{user.name}}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="labels">Email ID:</label>
+                            <h6>{{user.email}}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="labels">Mobile Number:</label>
+                            <h6>{{user.number}}</h6>
+                        </div>
+                    </div>
+                    <!-- Addresses section -->
+                    {{#each addresses}}
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <u><h4>Address</h4></u>
+                            <p>{{this.houseName}} <br>
+                                {{this.street}}, {{this.district}}<br>
+                                {{this.state}}, {{this.pincode}}
+                            </p>
+                           
+                            <div class="mb-2">
+                                <a href="/edit-address?id={{this._id}}" class="btn btn-sm btn-primary edit">✎ Edit Address</a>
+                                <a href="/delete-address?id={{this._id}}" class="btn btn-sm btn-danger edit" onclick="return confirmDelete(event, this)">🗑️ Delete Address</a>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                    <!-- Add new address button -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="/profile/add-address" class="btn btn-success mt-5">Add New Address</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle (Bootstrap JS and Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(event, element) {
+            event.preventDefault(); // Prevent the default link behavior
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to delete this address?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to the href of the link if the user confirms
+                    window.location.href = element.href;
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

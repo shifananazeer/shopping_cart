@@ -119,17 +119,27 @@
           <label for="name">Product Name:</label>
           <input type="text" id="name" name="name" value="{{product.name}}" required>
           <span class="error" id="nameError"></span>
+<label for="category">Category:</label>
+<select id="category" name="category" required>
+    <option value="" disabled>Choose Category</option>
+    {{#each categories}}
+    <option value="{{this._id}}" {{#ifCond this._id '===' ../product.category._id}}selected{{/ifCond}}>
+        {{this.name}}
+    </option>
+    {{/each}}
+</select>
+<span class="error" id="categoryError"></span>
 
-          <label for="category">Category:</label>
-          <select id="category" name="category" required>
-            <option value="" disabled>Choose Category</option>
-            {{#each categories}}
-            <option value="{{this._id}}" {{#ifCond this._id ../product.category._id}}selected{{/ifCond}}>
-              {{this.name}}
-            </option>
-            {{/each}}
-          </select>
-          <span class="error" id="categoryError"></span>
+<label for="brand">Brand:</label>
+<select id="brand" name="brand" required>
+    <option value="" disabled>Choose Brand</option>
+    {{#each brands}}
+    <option value="{{this._id}}" {{#ifCond this._id '===' ../product.brand._id}}selected{{/ifCond}}>
+        {{this.name}}
+    </option>
+    {{/each}}
+</select>
+<span class="error" id="brandError"></span>
 
           <label for="price">Price ($):</label>
           <input type="number" id="price" name="price" value="{{product.price}}" required>

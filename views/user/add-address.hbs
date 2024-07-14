@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Address</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css">
+  <style>
+      .card {
+          box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+      }
+      label {
+          font-size: medium;
+          font-weight: bolder;
+      }
+      input {
+          font-size: large;
+      }
+      .error {
+          color: red;
+          font-size: small;
+      }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <div class="card-header text-center m-3">
+            <h3>Add Address</h3>
+          </div>
+          <div class="card-body">
+            <form id="addAddressForm" action="/profile/add-address" method="post" onsubmit="return validateForm()">
+              <div class="mb-3">
+                <label for="houseName" class="form-label">House Name</label>
+                <input type="text" class="form-control" id="houseName" name="houseName" required>
+                <div id="houseNameError" class="error"></div>
+              </div>
+              <div class="mb-3">
+                <label for="street" class="form-label">Street</label>
+                <input type="text" class="form-control" id="street" name="street" required>
+                <div id="streetError" class="error"></div>
+              </div>
+              <div class="mb-3">
+                <label for="district" class="form-label">District</label>
+                <input type="text" class="form-control" id="district" name="district" required>
+                <div id="districtError" class="error"></div>
+              </div>
+              <div class="mb-3">
+                <label for="state" class="form-label">State</label>
+                <input type="text" class="form-control" id="state" name="state" required>
+                <div id="stateError" class="error"></div>
+              </div>
+              <div class="mb-3">
+                <label for="pincode" class="form-label">Pincode</label>
+                <input type="text" class="form-control" id="pincode" name="pincode" required>
+                <div id="pincodeError" class="error"></div>
+              </div>
+              <div class="m-3">
+                <label class="form-label">Address Type</label>
+                <div class="m-3">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="home" name="addressType" value="Home" required>
+                    <label class="form-check-label m-2" for="home">Home</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="work" name="addressType" value="Work" required>
+                    <label class="form-check-label m-2" for="work">Work</label>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary mb-5">Add Address</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap Bundle (Bootstrap JS and Popper.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function validateForm() {
+      let isValid = true;
+
+      const houseName = document.getElementById('houseName').value.trim();
+      const street = document.getElementById('street').value.trim();
+      const district = document.getElementById('district').value.trim();
+      const state = document.getElementById('state').value.trim();
+      const pincode = document.getElementById('pincode').value.trim();
+
+      // Clear previous error messages
+      document.getElementById('houseNameError').innerText = '';
+      document.getElementById('streetError').innerText = '';
+      document.getElementById('districtError').innerText = '';
+      document.getElementById('stateError').innerText = '';
+      document.getElementById('pincodeError').innerText = '';
+
+      // Validate house name
+      if (houseName === '') {
+        document.getElementById('houseNameError').innerText = 'House Name cannot be blank.';
+        isValid = false;
+      }
+
+      // Validate street
+      if (street === '') {
+        document.getElementById('streetError').innerText = 'Street cannot be blank.';
+        isValid = false;
+      }
+
+      // Validate district
+      if (district === '') {
+        document.getElementById('districtError').innerText = 'District cannot be blank.';
+        isValid = false;
+      }
+
+      // Validate state
+      if (state === '') {
+        document.getElementById('stateError').innerText = 'State cannot be blank.';
+        isValid = false;
+      }
+
+      // Validate pincode
+      if (!/^\d+$/.test(pincode) || pincode.length !== 6) {
+        document.getElementById('pincodeError').innerText = 'Pincode must be a 6-digit number.';
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // Event listener to prevent non-numeric input in the pincode field
+    document.getElementById('pincode').addEventListener('input', function (e) {
+      this.value = this.value.replace(/\D/g, '');
+    });
+  </script>
+</body>
+</html>

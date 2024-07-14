@@ -4,32 +4,44 @@ const mongoose = require('mongoose');
 const fs = require('fs')
 const path = require('path')
 module.exports = {
-    categoryPage : async(req,res) => {
-      const page = parseInt(req.query.page) || 1; 
-        
-      const categories = await Category.find()
-      .skip((page - 1) * 5)
-            .limit(5)
-            .exec();
+//admin Category page
+categoryPage: async (req, res) => {
+  const page = parseInt(req.query.page) || 1; 
+  const search = req.query.search || '';
 
-      
+  // Create a search query
+  const query = search ? { name: new RegExp(search, 'i') } : {};
+
+  try {
+      const categories = await Category.find(query)
+          .skip((page - 1) * 5)
+          .limit(5)
+          .exec();
+
       const plainCategories = categories.map(category => category.toObject());
-  
-      res.render('admin/category', { admin:true,
-        categories:plainCategories, 
-        error: req.flash('error') ,
-        currentPage: page,
-         totalPages: Math.ceil(await Category.countDocuments() / 5)
+      const totalPages = Math.ceil(await Category.countDocuments(query) / 5);
+
+      res.render('admin/category', { 
+          adminHeader: true,
+          categories: plainCategories, 
+          error: req.flash('error'),
+          currentPage: page,
+          totalPages: totalPages,
+          search: search
       });
-    
-    },
-    
+  } catch (err) {
+      console.error(err);
+      req.flash('error', 'An error occurred while fetching categories.');
+      res.redirect('/admin/view-category');
+  }
+},
+    // render category add page
     addCategoryPage :(req,res) => {
-     res.render('admin/add-category',{admin:true, error: req.flash('error') })
+     res.render('admin/add-category',{adminHeader:true, error: req.flash('error') })
      req.flash('error', null)
     },
 
-
+//add category posting
     postAddCategory : async (req, res) => {
       try {
         const { name } = req.body;
@@ -54,10 +66,8 @@ module.exports = {
            
           });
       
-          
           await newCategory.save();
       
-         
           req.flash('success', 'Category added successfully');
           res.redirect('/admin/view-category'); 
         } catch (err) {
@@ -67,22 +77,18 @@ module.exports = {
         }
       },
     
-
-   
+      // edit category page render
      getEditCategory : async (req, res) => {
       const categoryId = req.query.id;
       console.log(categoryId)
-    
       try {
         const categoryId = req.params.id;
         const category = await Category.findById(categoryId);
-
         if (!category) {
             req.flash('error', 'Category not found');
             return res.redirect('/admin/view-category');
         }
-
-        res.render('admin/edit-category', { category, admin:true });
+        res.render('admin/edit-category', { category, adminHeader:true });
       } catch (err) {
         console.error( err);
         req.flash('error', 'Failed to fetch category');
@@ -90,31 +96,21 @@ module.exports = {
       }
     },
 
-
+//edit category posting
    editCategory : async (req, res) => {
     const categoryId = req.params.id;
     const { name } = req.body;
     const newImage = req.file; 
     try {
-       
-        
-
-        
         const category = await Category.findById(categoryId);
         if (!category) {
             req.flash('error', 'Category not found');
             return res.redirect('/admin/view-category');
         }
-
-        
         category.name = name;
-
-       
         if (newImage) {
             const oldImagePath = category.image;
             const newImagePath = path.join('images/category', newImage.filename);
-
-            
             if (oldImagePath) {
                 const fullOldImagePath = path.join(__dirname, '..', 'public', oldImagePath);
                 if (fs.existsSync(fullOldImagePath)) {
@@ -127,12 +123,8 @@ module.exports = {
                     });
                 }
             }
-
-           
             category.image = newImagePath;
         }
-
-       
         await category.save();
 
         req.flash('success', 'Category updated successfully');
@@ -144,15 +136,15 @@ module.exports = {
     }
 },    
 
+//category deleting
 deleteCategory: async (req, res) => {
   const categoryId = req.params.id;
   const currentPage = req.query.page || 1;
-
   try {
     const category = await Category.findById(categoryId);
     if (!category) {
       req.flash('error', 'Category not found');
-      return res.redirect('/admin/view-category?page=${currentPage}');
+      return res.redirect('/admin/view-category?page=${currentPage}',currentPage);
     }
 
     const products = await Product.find({ category: categoryId });
@@ -163,10 +155,8 @@ deleteCategory: async (req, res) => {
         return res.json({ success: false, message: 'Cannot delete category because there are active products under this category' });
       }
     }
-
     category.is_deleted = true;
     await category.save();
-
     res.json({ success: true, message: 'Category deleted successfully' });
   } catch (error) {
     console.error(error);
@@ -174,22 +164,17 @@ deleteCategory: async (req, res) => {
   }
 }
   ,
-
-
-
+//category restoring
 restoreCategory: async (req, res) => {
   const categoryId = req.params.id;
-
   try {
     const category = await Category.findById(categoryId);
     if (!category) {
       req.flash('error', 'Category not found');
       return res.redirect('/admin/view-category?page=${currentPage}');
     }
-
     category.is_deleted = false;
     await category.save();
-
     res.json({ success: true, message: 'Category restored successfully' });
   } catch (error) {
     console.error(error);

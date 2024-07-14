@@ -1,0 +1,105 @@
+<!-- user/order-history.hbs -->
+
+<style>
+    /* Table styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+    }
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+    /* Button styles */
+    .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        text-align: center;
+        text-decoration: none;
+        background-color: #007bff; /* Bootstrap primary button color */
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    .btn:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+    }
+</style>
+<div class="container">
+{{#if orders.length}}
+    <h1>Order History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each orders}}
+                <tr>
+                    <td>{{ this._id }}</td>
+                    <td>{{ formatDate this.createdAt }}</td>
+                    <td>{{ this.totalAmountToBePaid }} ₹</td>
+                    <td>{{ this.status }}</td>
+                    <td>
+                        <a href="/order-details/{{ this._id }}" class="btn btn-primary">View Details</a>
+                        {{#if (eq this.status 'Pending')}}
+                            <button class="btn btn-danger" onclick="cancelOrder('{{ this._id }}')">Cancel</button>
+                        {{/if}}
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+{{else}}
+    <p>No orders found.</p>
+{{/if}}
+</div>
+<script>
+    function cancelOrder(orderId) {
+    // Confirm cancellation with user
+    if (confirm("Are you sure you want to cancel this order?")) {
+        // Send DELETE request to cancel order
+        fetch(`/cancel-order/${orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to cancel order');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle success message or redirect as needed
+            alert('Order cancelled successfully');
+            // Redirect to order history page or another appropriate page
+            window.location.href = '/order-history';
+        })
+        .catch(error => {
+            console.error('Error cancelling order:', error);
+            alert('Failed to cancel order. Please try again later.');
+        });
+    } else {
+        // Handle cancellation cancellation
+        alert('Order cancellation cancelled.');
+    }
+}
+</script>

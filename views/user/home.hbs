@@ -1,7 +1,8 @@
- 
 <!DOCTYPE html>
 <html lang="en">
-<!-- molla/index-4.html 22 Nov 2019 09:53:08 GMT -->
+
+
+<!-- molla/index-4.html  22 Nov 2019 09:53:08 GMT -->
 
 <head>
     <meta charset="UTF-8">
@@ -36,53 +37,9 @@
 </head>
 
 <body>
-    <style>
-        .product-listing {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        .product-item {
-            flex: 0 1 calc(33.333% - 20px); /* Adjusted for three items per row */
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-
-        .product-image img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .product-details {
-            text-align: center;
-        }
-
-        .product-prices {
-            margin-top: 10px;
-        }
-
-        .product-discounted-price {
-            color: #e74c3c;
-        }
-
-        .product-original-price {
-            color: #7f8c8d;
-            margin-left: 5px;
-        }
-
-        .product-discount {
-            color: #27ae60;
-            margin-left: 5px;
-        }
-    </style>
     <div class="page-wrapper">
+
+
         <main class="main">
             <div class="intro-slider-container mb-5">
                 <div class="intro-slider owl-carousel owl-theme owl-nav-inside owl-light" data-toggle="owl"
@@ -97,219 +54,237 @@
                         }
                     }'>
                     <div class="intro-slide"
-                        style="background-image: url(assets/images/demos/demo-4/slider/slide-1.png);">
+                        style="background-image: url(product-image/slide1.jpg);">
                         <div class="container intro-content">
                             <div class="row justify-content-end">
                                 <div class="col-auto col-sm-7 col-md-6 col-lg-5">
                                     <h3 class="intro-subtitle text-third">Deals and Promotions</h3>
-                                    <h1 class="intro-title">Beats by</h1>
-                                    <h1 class="intro-title">Dre Studio 3</h1>
+                                    <!-- End .h3 intro-subtitle -->
+                                    <h1 class="intro-title"></h1>
+                                    <h1 class="">Create Happiness With Toys </h1><!-- End .intro-title -->
+
                                     <div class="intro-price">
-                                        <sup class="intro-old-price">Rs349,95</sup>
+                                        <h3>Price Starting From</h3>
+                                        <sup class="intro-old-price">Rs349</sup>
                                         <span class="text-third">
                                             Rs279<sup>.99</sup>
                                         </span>
-                                    </div>
-                                    <a href="category.html" class="btn btn-primary btn-round">
+                                    </div><!-- End .intro-price -->
+
+                                    <a href="/products" class="btn btn-primary btn-round">
                                         <span>Shop More</span>
                                         <i class="icon-long-arrow-right"></i>
                                     </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </div><!-- End .col-lg-11 offset-lg-1 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .intro-content -->
+                    </div><!-- End .intro-slide -->
+
                     <div class="intro-slide"
-                        style="background-image: url(assets/images/demos/demo-4/slider/slide-2.png);">
+                        style="background-image: url(product-image/slide2.jpg);">
                         <div class="container intro-content">
                             <div class="row justify-content-end">
                                 <div class="col-auto col-sm-7 col-md-6 col-lg-5">
                                     <h3 class="intro-subtitle text-primary">New Arrivals</h3>
-                                    <h1 class="intro-title">Apple iPad Pro <br>12.9 Inch, 64GB </h1>
+                                    <!-- End .h3 intro-subtitle -->
+                                    <h1 class="intro-title">Pick the best toy for your children  </h1>
+                                    <!-- End .intro-title -->
+
                                     <div class="intro-price">
-                                        <sup>Today:</sup>
+                                        <sup>Today's Offer:</sup>
                                         <span class="text-primary">
-                                            $999<sup>.99</sup>
+                                            10-50%<sup>Off</sup>
                                         </span>
-                                    </div>
+                                    </div><!-- End .intro-price -->
+
                                     <a href="category.html" class="btn btn-primary btn-round">
                                         <span>Shop More</span>
                                         <i class="icon-long-arrow-right"></i>
                                     </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <span class="slider-loader"></span>
-            </div>
+                                </div><!-- End .col-md-6 offset-md-6 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .intro-content -->
+                    </div><!-- End .intro-slide -->
+                </div><!-- End .intro-slider owl-carousel owl-simple -->
+
+                <span class="slider-loader"></span><!-- End .slider-loader -->
+            </div><!-- End .intro-slider-container -->
+
+
+
+
 
             <div class="container">
-                <h2 class="title text-center mb-4">Explore Popular Brands</h2>
-            </div>
+                <h2 class="title text-center mb-4">Explore Popular Brands</h2><!-- End .title text-center -->
+              
+                <div class="cat-blocks-container">
+                    <div class="row">
+                        {{#each brands}}
+                    
+                        <div class="col-6 col-sm-4 col-lg-2">
+                            <a href="/products?brand={{this.name}}" class="cat-block">
+                                <figure>
+                                    <span>
+                                        <img src="/{{this.image}}" style="width:150px ;"
+                                            alt="Category image">
+                                    </span>
+                                </figure>
 
-            <div class="pt-5 pb-10 mb-3 mt-2">
+                                <h3 class="cat-block-title">{{this.brand}}</h3><!-- End .cat-block-title -->
+                            </a>
+                        </div><!-- End .col-sm-4 col-lg-2 -->
+
+                        {{/each}}
+                    </div><!-- End .row -->
+                </div><!-- End .cat-blocks-container -->
+            </div><!-- End .container -->
+
+
+
+
+            <div class=" pt-5 pb-10 mb-3 mt-2">
                 <div class="container">
                     <div class="heading heading-center mb-3">
-                        <h2 class="title-lg">New Arrivals</h2>
-                    </div>
-                    <div class="row">
-                        <div class="product-listing">
-                            {{#each products}}
-                            <a href="/product-details/{{this._id}}">
-                                <div class="product-item">
-                                    <div class="product-image">
-                                        <img src="/{{this.images.[0]}}" alt="Product Image">
-                                    </div>
-                                    <div class="product-details">
-                                        <h3 class="product-name">{{this.name}}</h3>
-                                        <div class="product-prices">
-                                            {{#if this.discount}}
-                                            <span class="product-discounted-price">
-                                                Rs {{calcDiscountedPrice this.price this.discount}}
-                                            </span>
-                                            <span class="product-original-price">
-                                                <del>Rs {{this.price}}</del>
-                                            </span>
-                                            <span class="product-discount">({{this.discount}}% Off)</span>
-                                            {{else}}
-                                            <span class="product-price">Rs {{this.price}}</span>
-                                            {{/if}}
-                                            <button style="background-color: black; color: #ffff;">Add To Cart</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                            {{/each}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+                        <h2 class="title-lg">New Arrivals</h2><!-- End .title -->
+                    </div><!-- End .heading -->
 
-    <footer>
-        <div class="w-100 ft-main">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="widget widget-about">
-                            <a href="#" style="max-width: 11.0rem;display: block;">
-                                <img class="footer-logo" src="assets/images/logo-2.webp" alt="">
-                            </a>
-                            <p class="ft-info">Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</p>
-                            <div class="widget-info">
-                                <div class="row">
-                                    <div class="col-sm-6 col-md-4">
-                                        <span class="widget-about-title">Got Question? Call us 24/7</span>
-                                        <a class="cnt-number" href="tel:+98765432">+98 765 432</a>
-                                    </div>
-                                    <div class="col-sm-6 col-md-8">
-                                        <span class="widget-about-title">Payment Method</span>
-                                        <a class="payment_image" href="#">
-                                            <img src="assets/images/resources/pay.webp" width="272" height="20">
+                    <div class="tab-content tab-content-carousel">
+                        <div class="tab-pane tab-pane-shadow p-0 fade show active" id="new-all-tab" role="tabpanel"
+                            aria-labelledby="new-all-link">
+                            <div class="owl-carousel owl-simple carousel-equal-height" data-toggle="owl"
+                                data-owl-options='{
+                                    "nav": false, 
+                                    "dots": true,
+                                    "margin": 0,
+                                    "loop": false,
+                                    "responsive": {
+                                        "0": {
+                                            "items":2
+                                        },
+                                        "480": {
+                                            "items":2
+                                        },
+                                        "768": {
+                                            "items":3
+                                        },
+                                        "992": {
+                                            "items":4
+                                        },
+                                        "1200": {
+                                            "items":4,
+                                            "nav": true
+                                        }
+                                    }
+                                }'>
+
+                                {{#each products}}
+                                <div class="product product-3 text-center ml-5">
+                                    <figure class="product-media">
+
+                                        <a href="/product-details/{{this._id}}">
+                                            <img src="/{{this.images.[0]}}" alt="Product image"
+                                                class="product-image">
+                                            {{!-- <img src="/images/product/{{this.image}}" alt="Product image"
+                                                class="product-image-hover"> --}}
                                         </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-6">
-                        <div class="widget">
-                            <h4 class="widget-title">Useful Links</h4>
-                            <ul class="widget-list list-unstyled">
-                                <li>
-                                    <a href="about.html">About Midas</a>
-                                </li>
-                                <li>
-                                    <a href="#">How to shop on Molla</a>
-                                </li>
-                                <li>
-                                    <a href="faq.html">FAQ</a>
-                                </li>
-                                <li>
-                                    <a href="contact-us.html">Contact us</a>
-                                </li>
-                                <li>
-                                    <a href="#">Log in</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-6">
-                        <div class="widget">
-                            <h4 class="widget-title">Customer Service</h4>
-                            <ul class="widget-list list-unstyled">
-                                <li>
-                                    <a href="#">Payment Methods</a>
-                                </li>
-                                <li>
-                                    <a href="#">Money-back</a>
-                                </li>
-                                <li>
-                                    <a href="#">Returns</a>
-                                </li>
-                                <li>
-                                    <a href="#">Shipping</a>
-                                </li>
-                                <li>
-                                    <a href="#">Terms and conditions</a>
-                                </li>
-                                <li>
-                                    <a href="#">Privacy Policy</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-6">
-                        <div class="widget">
-                            <h4 class="widget-title">My Account</h4>
-                            <ul class="widget-list list-unstyled">
-                                <li>
-                                    <a href="#">Sign In</a>
-                                </li>
-                                <li>
-                                    <a href="#">View Cart</a>
-                                </li>
-                                <li>
-                                    <a href="#">My Wishlist</a>
-                                </li>
-                                <li>
-                                    <a href="#">Track My Order</a>
-                                </li>
-                                <li><a href="#">Help</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <div class="row justify-content-between">
-                        <div class="col-12 col-md-auto py-1">
-                            <p class="footer-copyright m-0">Copyright © 2019 Molla Store. All Rights Reserved.</p>
-                            <ul class="footer-menu list-unstyled">
-                                <li>
-                                    <a href="#">Terms / Privacy Policy</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-12 col-md-auto py-1">
-                            <div class="socials d-flex align-items-center gap-3">
-                                <span class="social-label">Social Media</span>
-                                <ul class="list-unstyled d-flex align-items-center flex-wrap gap-3">
-                                    <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa-brands fa-google-plus-g"></i></a></li>
-                                    <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
-                                    <li><a href="#"><i class="fa-brands fa-youtube"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-</body>
 
+                                        <div class="product-action-vertical">
+                                            <a href="/homewishlist/{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable"><span>add
+                                                    to wishlist</span></a>
+                                        </div><!-- End .product-action-vertical -->
+                                    </figure><!-- End .product-media -->
+
+                                    <div class="product-body">
+                                        <div class="product-cat">
+                                            <a href="#">{{this.brand.name}}</a>
+                                        </div><!-- End .product-cat -->
+                                        <h3 class="product-title"><a href="product.html">{{this.name}}</a></h3>
+                                        <!-- End .product-title -->
+                                        <div class="product-price text-dark">
+                                            {{!-- Rs&nbsp;:&nbsp;{{this.price}} --}}
+                                            {{#if this.discount}}
+                                            <span style="font-weight: bolder;" class="product-discounted-price mr-2">
+                                     ₹ {{calcDiscountedPrice this.price this.discount}}
+                                </span>
+                                            <div>
+                                                  <span style="color: red;" class="product-original-price">
+                                    <del> ₹ {{this.price}}</del>
+                                </span>
+                                                <span
+                                                    class="text-success ml-3"> {{ this.discount}}%Off</span>
+                                            </div>
+                                            {{/if}}
+                                        </div><!-- End .product-price -->
+                                    </div><!-- End .product-body -->
+                                    <div class="product-footer">
+                                        {{#if this.stock}}
+                                        {{#if this.cartPresent}}
+                                        <div class="product-action">
+                                           <a href="/cart/{{this._id}}" type="button" class="btn btn-secondary btn-lg btn-block"
+                                                >Go to cart</a>
+                                        </div>
+                                        {{else}}
+                                        <div>
+                                            <button type="button" class="btn btn-secondary btn-lg btn-block"
+                                               data-product-id="{{this._id}}" onclick="addToCart(this)">Add to cart</button>
+                                        </div><!-- End .product-action -->
+                                        {{/if}}
+                                        {{else}}
+                                        <div>
+                                        <button type="button" class="btn btn-danger btn-lg btn-block" disabled
+                                                >Out of stock</button>
+                                        </div>
+                                        {{/if}}
+                                    </div><!-- End .product-footer -->
+                                </div><!-- End .product -->
+                                {{/each}}
+                            </div><!-- End .owl-carousel -->
+                        </div><!-- .End .tab-pane -->
+                    </div><!-- End .tab-content -->
+                </div><!-- End .container -->
+            </div><!-- End .bg-light -->
+        </main><!-- End .main -->
+    </div><!-- End .page-wrapper -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        async function addToCart(button) {
+            const productId = button.getAttribute('data-product-id');
+
+            try {
+                const response = await fetch(`/add-to-cart?productId=${productId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        text: 'Product successfully added to cart',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        customClass: {
+                            title: 'text-success',
+                            popup: 'swal2-popup-custom'
+                        }
+                    });
+                } else if (data.message === 'User not logged in') {
+                    Swal.fire({
+                        text: 'You must be logged in to add products to the cart',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+            }
+        }
+
+    </script>
+</body>
 </html>

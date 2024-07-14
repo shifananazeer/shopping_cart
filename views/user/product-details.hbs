@@ -151,6 +151,13 @@
             <span class="product-price">Rs {{product.price}}</span>
         {{/if}}
     </div>
+     <div class="stock-info mt-3">
+        {{#if (gt product.stock 0)}}
+      <p>Stock Left: {{product.stock}}</p>
+{{else}}
+    <p class="text-danger">Out of Stock</p>
+{{/if}}
+    </div>
     <p class="mt-4" style="color: black;"><b></b> {{product.description}}</p>
 
     <!-- Display Average Rating as Stars -->
@@ -162,7 +169,7 @@
     </div>
 
     <div class="product-bottom d-flex flex-wrap align-items-center w-100 mt-3">
-        <button class="btn btn-success" onclick="addToCart(event, '{{product._id}}')">Add to Cart</button>
+         <button class="btn btn-primary mt-2" data-product-id="{{product._id}}" onclick="addToCart(this)">Add To Cart</button>
     </div>
 </div>
 
@@ -200,6 +207,36 @@
         </div>
     </section>
 </div>
+<section>
+    <div class="container mt-5">
+    <!-- Existing product details -->
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-5" style="font-weight: bolder;">Related Products</h2>
+            <div class="row">
+                {{#each relatedProducts}}
+                    <div class="col-md-3 mb-4">
+                        <div class="card">
+                            <img class="card-img-top" src="/{{this.images.[0]}}" alt="{{this.name}}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{this.name}}</h5>
+                                <p class="card-text" style="color: green;">Rs {{this.discount}}%Off</p>
+                                {{#if this.discount}}
+                                    <p class="card-text">
+                                        <del style="color: red;">Rs {{this.price}}</del> 
+                                        Rs {{calcDiscountedPrice this.price this.discount}}
+                                    </p>
+                                {{/if}}
+                                 <button class="btn btn-primary mt-2" data-product-id="{{product._id}}" onclick="addToCart(this)">Add To Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</section>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -363,6 +400,43 @@ $(document).ready(function() {
 });
 
 
+  async function addToCart(button) {
+            const productId = button.getAttribute('data-product-id');
+
+            try {
+                const response = await fetch(`/add-to-cart?productId=${productId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        text: 'Product successfully added to cart',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        customClass: {
+                            title: 'text-success',
+                            popup: 'swal2-popup-custom'
+                        }
+                    });
+                } else if (data.message === 'User not logged in') {
+                    Swal.fire({
+                        text: 'You must be logged in to add products to the cart',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+            }
+        }
 
 
 </script>

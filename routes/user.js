@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const userproductController = require('../controllers/userproductController')
+const profileController = require('../controllers/profileController')
+const cartController = require('../controllers/cartController')
+const orderController = require('../controllers/orderController')
 const middleware = require('../middlewares/middleware')
 const passport = require('passport');
+const  {profileUpload} = require('../public/javascripts/fileupload');
+const brandController = require('../controllers/brandController');
 
 // Define routes
 router.get('/', userController.getHomePage);
@@ -31,12 +37,54 @@ router.get("/auth/google", passport.authenticate("google", { scope: ['email', 'p
 
 router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: '/' }), userController.googleAuth);
 
-router.get('/products',userController.getAllProducts)
+router.get('/products',userproductController.getAllProducts)
 
-router.get('/product-details/:id',userController.productdetails)
+router.get('/product-details/:id',userproductController.productdetails)
 
-router.post('/rate' ,middleware.userLoggerIn,userController.submitRating);
+router.post('/rate' ,middleware.userLoggerIn,userproductController.submitRating);
 
-router.get('/reviews',middleware.userLoggerIn, userController.fetchReviews);
+router.get('/reviews',middleware.userLoggerIn, userproductController.fetchReviews);
+
+router.get('/profile',middleware.isVerified,profileController.getProfile)
+
+router.get('/edit-profile',middleware.isVerified,profileController.getEditProfile)
+
+router.post('/update-profile',middleware.isVerified, profileUpload.single('profilePhoto'),profileController.updateProfile)
+
+router.get("/profile/add-address",middleware.isVerified, profileController.addAddress);
+
+router .post ('/profile/add-address',middleware.isVerified,profileController.postAddAddress)
+
+router.get('/edit-address',middleware.isVerified,profileController.editAddress)
+
+router.post('/update-address',middleware.isVerified,profileController.updateAddress)
+
+router.get('/delete-address',middleware.isVerified,profileController.deleteAddress)
+
+router.get('/profile/changePassword',middleware.isVerified,profileController.changePassword)
+
+router.post('/profile/changePassword',middleware.isVerified,profileController.updatePassword)
+
+router.get('/add-to-cart',cartController.addToCart)
+
+router.get('/cart',middleware.isVerified,cartController.listCart)
+
+router.get('/getCartSummary',middleware.isVerified,cartController.getCartSummary)
+
+router.post('/incrementItem',middleware.isVerified, cartController.incrementItem);
+
+router.post('/decrementItem',middleware.isVerified, cartController.decrementItem);
+
+router.post('/deleteItem',middleware.isVerified,cartController.deleteItem)
+
+router.get('/checkout',middleware.isVerified,cartController.checkout)
+
+router.post('/place-order',middleware.isVerified, orderController.placeOrder);
+
+router.delete('/cancel-order/:orderId',middleware.isVerified,orderController.cancelOrder)
+
+router.get('/order-history',middleware.isVerified,orderController.orderHistory)
+
+router.get('/order-details/:id',middleware.isVerified,orderController.orderDetails)
 
 module.exports = router;

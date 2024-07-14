@@ -1,9 +1,10 @@
+// models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
-  number:{type:String ,unique:true},
+  number: { type: String, unique: true },
   password: String,
   image: String,
   otp: String,
@@ -13,6 +14,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   googleId: String,
   profilePhoto: String,
+  addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
 });
 
 module.exports = mongoose.model('User', userSchema);

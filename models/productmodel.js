@@ -11,6 +11,11 @@ const productSchema = new mongoose.Schema({
     ref: 'Category',
     required: true,
   },
+  brand: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Brand',
+    required: true,
+  },
   price: {
     type: Number,
     required: true,
@@ -55,7 +60,8 @@ const productSchema = new mongoose.Schema({
 avgRating: {
     type: Number,
     default: 0 // Default average rating
-}
+},
+minStockLevel: { type: Number, default: 5 } 
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

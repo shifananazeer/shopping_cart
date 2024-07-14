@@ -122,6 +122,23 @@
         <!-- Add more options as needed -->
       </select>
       <span class="error" id="categoryError"></span>
+
+
+      <label for="brand">brand:</label>
+
+      <select id="brand" name="brand" required>
+      <option value="" disabled selected>Choose Brand</option>
+      {{#each brands}}
+      <option value="{{this._id}}">{{this.name}}</option>
+      {{/each}}
+      </select>
+      <span class="error" id="brandError"></span>
+
+
+
+
+
+
       
 
       <label for="price">Price ($):</label>
@@ -183,6 +200,7 @@
     var name = document.getElementById('name');
     
     var category = document.getElementById('category');
+    var brand = document.getElementById('brand');
     var price = document.getElementById('price');
     var discount = document.getElementById('discount');
     var description = document.getElementById('description');
@@ -201,6 +219,11 @@
         document.getElementById('categoryError').textContent = 'Category is required.';
         isValid = false;
     }
+
+    if (!brand.value.trim()) {
+    document.getElementById('brandError').textContent = 'Brand is required.';
+     isValid = false;
+     }
 
    if (!price.value.trim()) {
         document.getElementById('priceError').textContent = 'Price is required.';

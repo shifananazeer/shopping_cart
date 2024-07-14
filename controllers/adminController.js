@@ -5,14 +5,19 @@ let credentials = {
     email:'abc@gmail.com'
   }
 
+
+
+  //render Dashboard
 const getDashboard = (req,res) => { 
-    res.render('admin/dashboard',{admin:true})
+    res.render('admin/dashboard',{adminHeader:true})
   }
 
+  //render admin login page 
 const loginLoad = async(req,res) => {
-    res.render('admin/login-log',{admin:true})
+    res.render('admin/login-log')
  }
   
+ //login verifying
  const verifyLogin = (req,res) =>{
   if (!req.body.email || !req.body.password) {
     req.session.err = "Please enter email and password";
@@ -27,41 +32,52 @@ const loginLoad = async(req,res) => {
 }
 }
 
-const getAllUsers = async (req,res) => {
-  const page = parseInt(req.query.page) || 1; 
-  const user = await User. find({})
-  .skip((page - 1) * 5)
-            .limit(5)
-            .exec();
-  res.render('admin/viewusers',{admin:true,
+//get all users
+const getAllUsers = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const search = req.query.search || '';
+  
+  const query = search
+    ? {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ]
+      }
+    : {};
+
+  const user = await User.find(query)
+    .skip((page - 1) * 5)
+    .limit(5)
+    .exec();
+
+  const totalCount = await User.countDocuments(query);
+
+  res.render('admin/viewusers', {
+    adminHeader: true,
     user,
     currentPage: page,
-   totalPages: Math.ceil(await User.countDocuments() / 5)
-  })
-}
+    totalPages: Math.ceil(totalCount / 5),
+    search
+  });
+};
 
+//Block User
 const blockUser = async (req,res) => {
   const userId = req.params.id;
-
   try {
-    
     await User.findByIdAndUpdate(userId, { status: false });
-
     res.redirect('/admin/allUsers')
   } catch (err) {
     console.error( err);
-    
   }
 }
 
-
+//Unblock User
 const unblockUser = async(req,res) =>  {
   const userId = req.params.id;
-
   try {
-  
     await User.findByIdAndUpdate(userId, { status: true });
-
     res.redirect('/admin/allUsers')
   } catch (err) {
     console.error('Error unblocking user:', err);
@@ -69,6 +85,7 @@ const unblockUser = async(req,res) =>  {
   }
 }
 
+//logout admin
 const logout = (req,res) => {
   req.session.destroy();
      

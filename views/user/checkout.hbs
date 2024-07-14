@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <!-- Include your CSS stylesheets and other headers -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Example of custom CSS */
+        #paymentMethod {
+            width: 300px; /* Adjust width as needed */
+            /* Add more custom styling if required */
+        }
+        label {
+            font-size: large;
+        }
+        option {
+            font-size: large;
+        }
+        select {
+            font-size: large;
+        }
+        .form-select {
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Checkout</h2>
+
+        <!-- Display product details -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price (per item)</th>
+                    <th scope="col">Discount %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each cartItems}}
+                <tr>
+                    <td>{{this.name}}</td>
+                    <td>{{this.quantity}}</td>
+                    <td>{{this.price}} ₹</td>
+                    <td>{{this.discount}} %</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Display summary -->
+        <div class="summary">
+            <h4>Order Summary</h4>
+            <p>Total Price Before Discount: {{summary.totalPriceBeforeDiscount}} ₹</p>
+            <p>Total Discount: {{summary.totalDiscount}} ₹</p>
+            <p>Discounted Price: {{summary.discountedPrice}} ₹</p>
+            <p>Shipping Charge: {{summary.shippingCharge}} ₹</p>
+            <p>Total Payable Amount: {{summary.totalAmountToBePaid}} ₹</p>
+        </div>
+
+        <!-- Address selection options -->
+        <div class="address-selection">
+            <h4>Delivery Address</h4>
+            {{#each addresses}}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="address" id="address{{@index}}" value="{{this._id}}" onchange="updateSelectedAddress('{{this._id}}')">
+                <label class="form-check-label" for="address{{@index}}">
+                    {{this.houseName}}, {{this.street}}, {{this.district}}, {{this.state}}, {{this.pincode}}
+                </label>
+            </div>
+            {{/each}}
+            <br><br>
+            <a id="editAddressLink" href="#">Edit Address</a> <!-- Placeholder link, will be updated dynamically -->
+            <!-- Hidden input to store selected address ID -->
+            <input type="hidden" id="selectedAddressId" name="selectedAddressId" value="">
+        </div>
+
+        <div class="mb-3">
+            <label for="paymentMethod" class="form-label">Select Payment Method</label>
+            <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                <option value="">Select Payment Method</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="cash_on_delivery">Cash On Delivery</option>
+                <!-- Add more payment options as needed -->
+            </select>
+        </div>
+
+        <!-- Checkout button -->
+        <form id="checkoutForm" action="/place-order" method="POST" onsubmit="return validateForm()">
+            <input type="hidden" name="selectedAddressId" id="selectedAddressIdInput" value="">
+            <input type="hidden" name="items" value='{{stringifyItems cartItems}}'>
+            <input type="hidden" name="summary" value='{{stringifySummary summary}}'>
+            <input type="hidden" name="paymentMethod" id="paymentMethodInput" value="">
+            <button type="submit" class="btn btn-primary">Place Order</button>
+        </form>
+    </div>
+
+    <!-- Include your JavaScript scripts -->
+    <script>
+       function updateSelectedAddress(addressId) {
+            document.getElementById('selectedAddressId').value = addressId;
+            document.getElementById('selectedAddressIdInput').value = addressId; // Update hidden input's value
+            document.getElementById('editAddressLink').href = `/edit-address?id=${addressId}`;
+        }
+
+        function validateForm() {
+            var selectedAddressId = document.getElementById('selectedAddressId').value;
+            var paymentMethod = document.getElementById('paymentMethod').value;
+            
+            if (!selectedAddressId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select a delivery address.'
+                });
+                return false;
+            }
+            
+            if (!paymentMethod) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select a payment method.'
+                });
+                return false;
+            }
+            
+            // Optionally, you can submit the form programmatically if validation passes
+            document.getElementById('paymentMethodInput').value = paymentMethod;
+            return true;
+        }
+    </script>
+</body>
+</html>

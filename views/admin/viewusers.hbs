@@ -6,45 +6,51 @@
   <title>User Management</title>
   <link rel="stylesheet" href="path/to/your/css/file.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pagination a {
+      margin: 0 5px;
+      padding: 8px 16px;
+      text-decoration: none;
+      background-color: #f1f1f1;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .pagination a:hover {
+      background-color: #ddd;
+    }
+
+    .pagination a.active {
+      background-color: #333;
+      color: white;
+      border: 1px solid #333;
+    }
+
+    .pagination a.prev, .pagination a.next {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<style>
-     .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .pagination a {
-            margin: 0 5px;
-            padding: 8px 16px;
-            text-decoration: none;
-            background-color: #f1f1f1;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .pagination a:hover {
-            background-color: #ddd;
-        }
-
-        .pagination a.active {
-            background-color: #333;
-            color: white;
-            border: 1px solid #333;
-        }
-
-        .pagination a.prev, .pagination a.next {
-            font-weight: bold;
-        }
-  </style>
-
-  <main id="main" class="main">
+<main id="main" class="main">
   <section>
-    <div class="container ">
+    <div class="container">
       <h2 class="text-center mt-5" style="font-style: italic;">User Management</h2>
+
+      <!-- Search Bar -->
+      <form id="searchForm" action="/admin/allusers" method="GET" class="mb-3">
+        <input type="text" name="search" placeholder="Search by name or email" class="form-control" style="width: 300px; display: inline-block;">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+
       <table class="table text-center">
         <thead>
           <tr>
@@ -82,25 +88,24 @@
         </tbody>
       </table>
     </div>
-  <!-- Pagination -->
- <div class="pagination">
-    {{#if (gt currentPage 1)}}
-        <a href="/admin/allusers?page={{subtract currentPage 1}}" class="prev">Previous</a>
-    {{/if}}
-    
-    {{#each (range 1 totalPages)}}
-        <a href="/admin/allusers?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
-    {{/each}}
-    
-    {{#if (lt currentPage totalPages)}}
-        <a href="/admin/allusers?page={{add currentPage 1}}" class="next">Next</a>
-    {{/if}}
-</div>
 
+    <!-- Pagination -->
+    <div class="pagination">
+      {{#if (gt currentPage 1)}}
+          <a href="/admin/allusers?page={{subtract currentPage 1}}&search={{search}}" class="prev">Previous</a>
+      {{/if}}
+      
+      {{#each (range 1 totalPages)}}
+          <a href="/admin/allusers?page={{this}}&search={{search}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
+      {{/each}}
+      
+      {{#if (lt currentPage totalPages)}}
+          <a href="/admin/allusers?page={{add currentPage 1}}&search={{search}}" class="next">Next</a>
+      {{/if}}
+    </div>
   </section>
-  </main>
-</body>
-</html>
+</main>
+
 <script>
   function blockUser(id, name) {
     Swal.fire({
@@ -142,3 +147,5 @@
     });
   }
 </script>
+</body>
+</html>
