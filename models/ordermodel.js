@@ -1,46 +1,77 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+    orderId: { type: String, required: true, unique: true },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: [true, 'User ID is required'],
     },
-    items: [
-        {
-            productId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Product',
-                required: true
-            },
-            name: String,
-            quantity: Number,
-            price: Number,
-            discount: Number
-        }
-    ],
-    totalPriceBeforeDiscount: Number,
-    totalDiscount: Number,
-    discountedPrice: Number,
-    shippingCharge: Number,
-    totalAmountToBePaid: Number,
+    products: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product',
+            required: [true, 'Product ID is required'],
+        },
+        quantity: {
+            type: Number,
+            required: [true, 'Quantity is required'],
+            min: [1, 'Quantity cannot be less than 1'],
+        },
+        price: {
+            type: Number,
+            required: [true, 'Price is required'],
+        },
+        discount: {
+            type: Number,
+            default: 0,
+        },
+    }],
     address: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Address',
-        required: true
+        required: [true, 'Address is required'],
+    },
+    totalAmount: {
+        type: Number,
+        required: [true, 'Total amount is required'],
     },
     paymentMethod: {
         type: String,
-        required: true
+        enum: ['cash_on_delivery', 'razorpay'],
+        required: [true, 'Payment method is required'],
     },
-    status: {
+    razorpayOrderId: {
         type: String,
-        enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
-        default: 'Pending'
+        // required: true 
     },
-},{ timestamps: true }); 
+    razorpayPaymentId: {
+        type: String,
+       
+    },
+    razorpaySignature: {
+        type: String,
+       
+    },
+    orderStatus: {
+        type: String,
+        enum: ['pending', 'completed', 'shipped', 'delivered', 'cancelled'],
+        default: 'pending',
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
 
+orderSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
 
 const Order = mongoose.model('Order', orderSchema);
-
 module.exports = Order;

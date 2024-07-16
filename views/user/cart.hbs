@@ -42,9 +42,10 @@
                             <div class="row">{{this.productId.category.name}}</div>
                         </div>
                         <div class="col">
-                            <a href="javascript:void(0);" onclick="incrementItem('{{this.productId._id}}', this)">+</a>
-                            <span>{{this.quantity}}</span>
                             <a href="javascript:void(0);" onclick="decrementItem('{{this.productId._id}}', this)">-</a>
+                            <span>{{this.quantity}}</span>
+                         <a href="javascript:void(0);" onclick="incrementItem('{{this.productId._id}}', this)">+</a>
+
                         </div>
                         <div class="col">{{this.productId.price}} ₹<a href="javascript:void(0);" onclick="deleteItem('{{this.productId._id}}', this)" class="close">&#10005;</a></div>
                     </div>
@@ -54,7 +55,11 @@
                 {{#if items.length}}
                 <div class="back-to-shop"><a href="/shop">&leftarrow; Back to shop</a></div>
                 {{else}}
-                <h1>No Products</h1>
+                  <div style="text-align: center;" >
+                                <img src="product-image/empty_cart.webp" alt=""
+                                    style="width: 300px;height: 250px;text-align:center; margin-left:30%;">
+                               <p>your cart is empty</p>
+                            </div>
                 {{/if}}
             </div>
 
@@ -150,11 +155,9 @@ async function incrementItem(productId, element) {
         });
         const data = await response.json();
         if (data.success) {
-            const currentQuantityElement = element.nextElementSibling; // span element
+            const currentQuantityElement = element.previousElementSibling; // span element
             const currentQuantity = parseInt(currentQuantityElement.textContent);
             currentQuantityElement.textContent = currentQuantity + 1;
-
-           
 
             successAlert(data.message);
             updateCartSummary(); // Update summary after increment
@@ -176,12 +179,11 @@ async function decrementItem(productId, element) {
         });
         const data = await response.json();
         if (data.success) {
-            const currentQuantityElement = element.previousElementSibling; // span element
+            const currentQuantityElement = element.nextElementSibling; // span element
             const currentQuantity = parseInt(currentQuantityElement.textContent);
             const newQuantity = currentQuantity - 1;
             if (newQuantity > 0) {
                 currentQuantityElement.textContent = newQuantity;
-                
             } else {
                 const itemElement = document.getElementById(`item-${productId}`);
                 if (itemElement) {

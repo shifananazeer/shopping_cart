@@ -117,8 +117,8 @@
                                     {{/if}}
                                 </td>
 
-                                <td class="remove-col"> <a href="/wishlist/remove/{{this._id}}"><button
-                                            class="btn-remove"><i class="icon-close"></i></button> </a></td>
+                                <td class="remove-col"> <a href=""><button
+                                            class="btn-remove" onclick="removeFromWishlist('{{this._id}}')"><i class="icon-close"></i></button> </a></td>
 
                             </tr>
                             {{/each}}
@@ -128,7 +128,7 @@
                     </table><!-- End .table table-wishlist -->
                    {{else}}
                             <div style="text-align: center;" >
-                                <img src="/images/product/emptycart.gif" alt=""
+                                <img src="product-image/empty_cart.webp" alt=""
                                     style="width: 300px;height: 250px;text-align:center; margin-left:30%;">
                                <p>your wishlish is empty</p>
                             </div>
@@ -181,6 +181,32 @@
             timer: 2000,
             showConfirmButton: false,
         });
+    }
+}
+
+async function removeFromWishlist(productId) {
+    try {
+        const response = await fetch(`/wishlist/remove/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+             Swal.fire({
+                icon: 'success',
+                title: 'Removed from Wishlist!',
+                showConfirmButton: false,
+                timer: 2000,
+            });
+        
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error removing from wishlist:', error);
     }
 }
 </script>

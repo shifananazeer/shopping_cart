@@ -4,21 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
-    <!-- Include your CSS stylesheets and other headers -->
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Example of custom CSS */
         #paymentMethod {
-            width: 300px; /* Adjust width as needed */
-            /* Add more custom styling if required */
+            width: 300px;
         }
         label {
             font-size: large;
         }
-        option {
-            font-size: large;
-        }
-        select {
+        option, select {
             font-size: large;
         }
         .form-select {
@@ -30,7 +24,6 @@
     <div class="container">
         <h2>Checkout</h2>
 
-        <!-- Display product details -->
         <table class="table">
             <thead>
                 <tr>
@@ -52,7 +45,6 @@
             </tbody>
         </table>
 
-        <!-- Display summary -->
         <div class="summary">
             <h4>Order Summary</h4>
             <p>Total Price Before Discount: {{summary.totalPriceBeforeDiscount}} ₹</p>
@@ -62,7 +54,6 @@
             <p>Total Payable Amount: {{summary.totalAmountToBePaid}} ₹</p>
         </div>
 
-        <!-- Address selection options -->
         <div class="address-selection">
             <h4>Delivery Address</h4>
             {{#each addresses}}
@@ -74,8 +65,7 @@
             </div>
             {{/each}}
             <br><br>
-            <a id="editAddressLink" href="#">Edit Address</a> <!-- Placeholder link, will be updated dynamically -->
-            <!-- Hidden input to store selected address ID -->
+            <a id="editAddressLink" href="#">Edit Address</a>
             <input type="hidden" id="selectedAddressId" name="selectedAddressId" value="">
         </div>
 
@@ -83,56 +73,148 @@
             <label for="paymentMethod" class="form-label">Select Payment Method</label>
             <select class="form-select" id="paymentMethod" name="paymentMethod" required>
                 <option value="">Select Payment Method</option>
-                <option value="credit_card">Credit Card</option>
+                <option value="razorpay">Online Payment</option>
                 <option value="cash_on_delivery">Cash On Delivery</option>
-                <!-- Add more payment options as needed -->
             </select>
         </div>
 
-        <!-- Checkout button -->
-        <form id="checkoutForm" action="/place-order" method="POST" onsubmit="return validateForm()">
-            <input type="hidden" name="selectedAddressId" id="selectedAddressIdInput" value="">
-            <input type="hidden" name="items" value='{{stringifyItems cartItems}}'>
-            <input type="hidden" name="summary" value='{{stringifySummary summary}}'>
-            <input type="hidden" name="paymentMethod" id="paymentMethodInput" value="">
-            <button type="submit" class="btn btn-primary">Place Order</button>
-        </form>
+        <button id="placeOrderButton" class="btn btn-primary">Place Order</button>
     </div>
 
-    <!-- Include your JavaScript scripts -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-       function updateSelectedAddress(addressId) {
-            document.getElementById('selectedAddressId').value = addressId;
-            document.getElementById('selectedAddressIdInput').value = addressId; // Update hidden input's value
-            document.getElementById('editAddressLink').href = `/edit-address?id=${addressId}`;
-        }
+      function updateSelectedAddress(addressId) {
+    $('#selectedAddressId').val(addressId);
+}
 
-        function validateForm() {
-            var selectedAddressId = document.getElementById('selectedAddressId').value;
-            var paymentMethod = document.getElementById('paymentMethod').value;
-            
-            if (!selectedAddressId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please select a delivery address.'
+$(document).ready(function() {
+    // Fetch cart items and summary dynamically
+    $.ajax({
+        url: '/get-cart-items',
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const items = JSON.stringify(response.items);
+                const summary = JSON.stringify(response.summary);
+
+                $('#placeOrderButton').click(function() {
+                    const selectedAddressId = $('#selectedAddressId').val();
+                    const paymentMethod = $('#paymentMethod').val();
+
+                    // Address validation
+                    if (!selectedAddressId) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Missing Address',
+                            text: 'Please select an address.'
+                        });
+                        return;
+                    }
+
+                    // Payment method validation
+                    if (!paymentMethod) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Missing Payment Method',
+                            text: 'Please select a payment method.'
+                        });
+                        return;
+                    }
+
+                    // Place order
+                    $.ajax({
+                        url: '/place-order',
+                        type: 'POST',
+                        data: {
+                            selectedAddressId: selectedAddressId,
+                            items: items,
+                            summary: summary,
+                            paymentMethod: paymentMethod
+                        },
+                        success: function(response) {
+                            if (response.success && paymentMethod === 'razorpay') {
+                                const options = {
+                                    key: response.razorpayKey,
+                                    amount: response.order.totalamount,
+                                    currency: "INR",
+                                    name: "Your Company Name",
+                                    description: "Test Transaction",
+                                    order_id: response.order.id,
+                                    handler: function(paymentResponse) {
+                                        $.ajax({
+                                            url: '/save-payment-details',
+                                            type: 'POST',
+                                            data: {
+                                                paymentId: paymentResponse.razorpay_payment_id,
+                                                orderId: response.order.id,
+                                                signature: paymentResponse.razorpay_signature
+                                            },
+                                            success: function(paymentResponse) {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Payment Successful',
+                                                    text: 'Your order has been placed successfully!'
+                                                }).then(() => {
+                                                    window.location.href = '/order-confirmation';
+                                                });
+                                            },
+                                            error: function(error) {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Payment Failed',
+                                                    text: 'There was an error processing your payment. Please try again.'
+                                                });
+                                            }
+                                        });
+                                    },
+                                    prefill: {
+                                        name: "Your Name",
+                                        email: "your-email@example.com",
+                                        contact: "9400311312"
+                                    },
+                                    notes: {
+                                        address: "Razorpay Corporate Office"
+                                    },
+                                    theme: {
+                                        color: "#3399cc"
+                                    }
+                                };
+                                const rzp1 = new Razorpay(options);
+                                rzp1.open();
+                            } else {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Order Placed',
+                                    text: 'Your order has been placed successfully!'
+                                }).then(() => {
+                                    window.location.href = '/order-confirmation';
+                                });
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Error placing order:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Order Failed',
+                                text: 'There was an error placing your order. Please try again.'
+                            });
+                        }
+                    });
                 });
-                return false;
             }
-            
-            if (!paymentMethod) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please select a payment method.'
-                });
-                return false;
-            }
-            
-            // Optionally, you can submit the form programmatically if validation passes
-            document.getElementById('paymentMethodInput').value = paymentMethod;
-            return true;
+        },
+        error: function(error) {
+            console.error('Error retrieving cart items:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Cart Retrieval Failed',
+                text: 'Could not retrieve your cart items. Please try again.'
+            });
         }
+    });
+});
     </script>
 </body>
 </html>

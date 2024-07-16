@@ -218,7 +218,7 @@ module.exports = {
         const addresses = await Address.find({userId:userId})
         console.log(addresses)
     
-        res.render('user/checkout', { cartItems, summary ,addresses,userHeader:true});
+        res.render('user/checkout', { cartItems, summary ,addresses,user,userHeader:true});
     },
     addWishlistToCart : async (req, res) => {
         try {

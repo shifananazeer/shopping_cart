@@ -67,5 +67,7 @@ getWishlist : async (req,res) => {
         console.error('Error viewing wishlist:', error);
         res.status(500).send('Error viewing wishlist');
     }
-}
+},
+ 
+   
 }

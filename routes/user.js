@@ -80,7 +80,7 @@ router.post('/deleteItem',middleware.isVerified,cartController.deleteItem)
 
 router.get('/checkout',middleware.isVerified,cartController.checkout)
 
-router.post('/place-order',middleware.isVerified, orderController.placeOrder);
+// router.post('/place-order',middleware.isVerified, orderController.placeOrder);
 
 router.delete('/cancel-order/:orderId',middleware.isVerified,orderController.cancelOrder)
 
@@ -95,6 +95,12 @@ router.delete('/wishlist/remove/:productId',wishlistController. removeFromWishli
 router.get('/wishlist',middleware.isVerified,wishlistController.getWishlist)
 
 router.get('/addwishlisttocart/:productId', cartController.addToCart);
+
+router.post('/place-order', orderController.placeOrder);
+router.post('/save-payment-details', orderController.savePaymentDetails);
+router.get('/get-cart-items',orderController.getCartItems)
+
+
 
 
 module.exports = router;
