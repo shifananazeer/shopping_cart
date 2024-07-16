@@ -86,7 +86,7 @@ router.delete('/cancel-order/:orderId',middleware.isVerified,orderController.can
 
 router.get('/order-history',middleware.isVerified,orderController.orderHistory)
 
-router.get('/order-details/:id',middleware.isVerified,orderController.orderDetails)
+router.get('/order-details/:orderId',middleware.isVerified,orderController.orderDetails)
 
 router.post('/wishlist/add/:productId',wishlistController. addToWishlist);
 
@@ -97,8 +97,14 @@ router.get('/wishlist',middleware.isVerified,wishlistController.getWishlist)
 router.get('/addwishlisttocart/:productId', cartController.addToCart);
 
 router.post('/place-order', orderController.placeOrder);
+
 router.post('/save-payment-details', orderController.savePaymentDetails);
+
 router.get('/get-cart-items',orderController.getCartItems)
+
+router.get('/order-confirmation', orderController.orderConfirmation);
+
+
 
 
 

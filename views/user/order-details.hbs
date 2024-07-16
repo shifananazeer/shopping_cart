@@ -39,13 +39,13 @@
         <h2>Order Status</h2>
         {{#if order}}
             <div class="order-status-result">
-                <h3>Order ID: {{ order._id }}</h3>
+                <h3>Order ID: {{ order.orderId}}</h3>
                 <p><strong>Date:</strong> {{ formatDate order.createdAt }}</p>
-                  {{#each order.items}}
+                  {{#each order.products}}
                 <p><strong>product name:</strong> {{ this.productId.name }} </p>
                 {{/each}}
-                <p><strong>Total Amount:</strong> {{ order.totalAmountToBePaid }} ₹</p>
-                <p><strong>Status:</strong> {{ order.status }}</p>
+                <p><strong>Total Amount:</strong> {{ order.totalAmount }} ₹</p>
+                <p><strong>Status:</strong> {{ order.orderStatus }}</p>
                 <a href="/order-history" class="btn">Back To Order History</a>
             </div>
         {{else if error}}

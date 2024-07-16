@@ -42,6 +42,7 @@
     <table>
         <thead>
             <tr>
+                <th>Image</th>
                 <th>Order ID</th>
                 <th>Date</th>
                 <th>Total Amount</th>
@@ -52,14 +53,22 @@
         <tbody>
             {{#each orders}}
                 <tr>
-                    <td>{{ this._id }}</td>
+                     <td>
+                        {{#if this.products.length}}
+                      
+                            <img src="/{{this.products.[0].product.images.[0]}}" alt="Product Image" style="width: 50px; height: auto;">
+                        {{else}}
+                            No Image
+                        {{/if}}
+                    </td>
+                    <td>{{ this.orderId }}</td>
                     <td>{{ formatDate this.createdAt }}</td>
-                    <td>{{ this.totalAmountToBePaid }} ₹</td>
-                    <td>{{ this.status }}</td>
+                    <td>{{ this.totalAmount }} ₹</td>
+                    <td>{{ this.orderStatus }}</td>
                     <td>
-                        <a href="/order-details/{{ this._id }}" class="btn btn-primary">View Details</a>
-                        {{#if (eq this.status 'Pending')}}
-                            <button class="btn btn-danger" onclick="cancelOrder('{{ this._id }}')">Cancel</button>
+                        <a href="/order-details/{{ orderId }}" class="btn btn-primary">View Details</a>
+                         {{#if (or (eq orderStatus "pending") (eq orderStatus "placed"))}}
+                            <button class="btn cancel-order-button" data-order-id="{{orderId}}">Cancel</button>
                         {{/if}}
                     </td>
                 </tr>
@@ -71,35 +80,56 @@
 {{/if}}
 </div>
 <script>
-    function cancelOrder(orderId) {
-    // Confirm cancellation with user
-    if (confirm("Are you sure you want to cancel this order?")) {
-        // Send DELETE request to cancel order
-        fetch(`/cancel-order/${orderId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to cancel order');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Handle success message or redirect as needed
-            alert('Order cancelled successfully');
-            // Redirect to order history page or another appropriate page
-            window.location.href = '/order-history';
-        })
-        .catch(error => {
-            console.error('Error cancelling order:', error);
-            alert('Failed to cancel order. Please try again later.');
+   document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.cancel-order-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const orderId = this.getAttribute('data-order-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/cancel-order/${orderId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Cancelled!',
+                                'Your order has been cancelled.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Refresh the page to reflect changes
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message,
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while cancelling the order.',
+                            'error'
+                        );
+                    });
+                }
+            });
         });
-    } else {
-        // Handle cancellation cancellation
-        alert('Order cancellation cancelled.');
-    }
-}
+    });
+});
 </script>

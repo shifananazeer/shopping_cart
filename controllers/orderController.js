@@ -51,7 +51,7 @@ placeOrder: async (req, res) => {
             address: selectedAddressId,
             totalAmount: parsedSummary.totalAmountToBePaid,
             paymentMethod: paymentMethod,
-            orderStatus: paymentMethod === 'razorpay' ? 'pending' : 'completed',
+            orderStatus: paymentMethod === 'razorpay' ? 'pending' : 'placed',
         });
 
         await order.save();
@@ -68,7 +68,6 @@ placeOrder: async (req, res) => {
             order.razorpayOrderId = razorpayOrder.id; // Assign Razorpay order ID
             await order.save();
 
-            // Pass the order, items, and summary back to the frontend
             return res.json({
                 success: true,
                 razorpayKey: process.env.RAZORPAY_KEY_ID,
@@ -87,9 +86,7 @@ placeOrder: async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to place order." });
     }
 },
-
-
- savePaymentDetails : async (req, res) => {
+savePaymentDetails : async (req, res) => {
     const { paymentId, orderId, signature } = req.body;
 
     try {
@@ -101,9 +98,10 @@ placeOrder: async (req, res) => {
 
         order.razorpayOrderId = paymentId;
         order.razorpaySignature = signature;
-        order.orderStatus = "completed";
+        order.orderStatus = "placed";
 
         await order.save();
+        await Cart.deleteOne({ userId: order.userId });
 
         res.json({ success: true, message: "Payment details saved successfully." });
     } catch (error) {
@@ -111,7 +109,6 @@ placeOrder: async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to save payment details." });
     }
 },
-
 getCartItems: async(req,res) => {
     const userId = req.session.user._id; // Get the user ID from session
 
@@ -130,19 +127,19 @@ getCartItems: async(req,res) => {
             discount: item.productId.discount
         }));
 
-        const totalPriceBeforeDiscount = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-        const totalDiscount = items.reduce((acc, item) => acc + (item.price * item.discount / 100) * item.quantity, 0);
-        const discountedPrice = totalPriceBeforeDiscount - totalDiscount;
-        const gst = discountedPrice * 0.02; 
+        const totalPriceBeforeDiscount = Math.round(items.reduce((acc, item) => acc + item.price * item.quantity, 0));
+        const totalDiscount = Math.round(items.reduce((acc, item) => acc + (item.price * item.discount / 100) * item.quantity, 0));
+        const discountedPrice = Math.round(totalPriceBeforeDiscount - totalDiscount);
+        const gst = Math.round(discountedPrice * 0.02); 
         const shippingCharge = 50; // Flat shipping charge
-        const totalAmountToBePaid = discountedPrice + gst + shippingCharge;
+        const totalAmountToBePaid = Math.round(discountedPrice + gst + shippingCharge);
 
         const summary = {
             totalPriceBeforeDiscount,
             totalDiscount,
             discountedPrice,
             gst,
-            totalPriceIncludingGst: discountedPrice + gst,
+            totalPriceIncludingGst: Math.round(discountedPrice + gst),
             shippingCharge,
             totalAmountToBePaid
         };
@@ -152,41 +149,61 @@ getCartItems: async(req,res) => {
         console.error('Error retrieving cart items:', error);
         res.status(500).json({ success: false, message: "Failed to retrieve cart items." });
     }
-
 },
 
-createOrder: async(req,res) => {
- console.log(req.body)
-},
-confirmOrder : async (req, res) => {
-    const { orderId, paymentId } = req.body;
+orderConfirmation: async (req, res) => {
+    const userId = req.session.user._id; // Get user ID from session
+    try {
+        const orders = await Order.find({ userId: userId }).populate('products.productId').sort({ createdAt: -1 }).limit(1); // Get the latest order
 
-    // Find the order and update payment status
-    const order = await Order.findByIdAndUpdate(orderId, {
-        paymentStatus: 'Paid',
-    });
+        if (!orders.length) {
+            return res.status(404).render('order-confirmation', { message: "No orders found." });
+        }
 
-    res.json({ success: true, order });
+        const order = orders[0];
+
+        const address = await Address.findById(order.address);
+
+        if (!address) {
+            return res.status(404).render('order-confirmation', { message: "Address not found." });
+        }
+
+        res.render('user/order-confirmation', {
+            orderId: order.orderId,
+            products: order.products,
+            totalAmount: order.totalAmount,
+            paymentMethod: order.paymentMethod,
+            orderStatus: order.orderStatus,
+            address: address 
+        });
+    } catch (error) {
+        console.error('Error retrieving order details:', error);
+        res.status(500).render('order-confirmation', { message: "Failed to retrieve order details." });
+    }
 },
+
+
+
+
 //order cancel with stock incrimentaion and purchase count decrimentation
 cancelOrder : async(req,res) => {
-    const orderId = req.params.orderId;
+    const { orderId } = req.params; // Extract orderId from params
+    console.log("orderId:", orderId);
     try {
-        const order = await Order.findById(orderId);
-        if (!order || order.status !== 'Pending') {
+        const order = await Order.findOne({ orderId: orderId });
+        if (!order || order.orderStatus !== 'Pending'&& order.orderStatus !== 'placed') {
             return res.status(400).json({ error: 'Order cannot be canceled' });
         }
-        for (const item of order.items) {
+        order.orderStatus = 'cancelled';
+        await order.save();
+
+        // Restore product stock
+        for (let item of order.products) {
             await Product.findByIdAndUpdate(item.productId, {
-                $inc: {
-                    stock: item.quantity,
-                    purchaseCount: -item.quantity 
-                }
+                $inc: { stock: item.quantity }
             });
         }
-        const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: 'Cancelled' }, { new: true });
-
-        res.json({ message: 'Order cancelled successfully', cancelledOrder });
+        res.json({ success: true, message: 'Order cancelled successfully.' });
     } catch (error) {
         console.error('Error cancelling order:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -199,7 +216,22 @@ orderHistory : async(req,res) => {
     try {
         const orders = await Order.find({ userId }).sort({ createdAt: -1 });
         const user = req.session.user
-        res.render('user/order-history', { orders ,userHeader:true,user});
+         
+        const ordersWithProductDetails = await Promise.all(orders.map(async (order) => {
+            const productsWithDetails = await Promise.all(order.products.map(async (item) => {
+                const product = await Product.findById(item.productId._id); // Extract the _id
+                return {
+                    ...item,
+                    product, // Include the product details
+                };
+            }));
+            return {
+                ...order.toObject(), // Convert Mongoose document to plain object
+                products: productsWithDetails,
+            };
+        }));
+
+        res.render('user/order-history', { orders:ordersWithProductDetails ,userHeader:true,user});
     } catch (error) {
         console.error('Error fetching order history:', error);
         res.status(500).send('Internal Server Error');
@@ -208,11 +240,11 @@ orderHistory : async(req,res) => {
 
 //orderDetails page
 orderDetails :async (req,res) => {
-    const { id: orderId } = req.params; 
+    const { orderId } = req.params; 
     console.log(orderId)
     const user = req.session.user 
     try {
-        const order = await Order.findById(orderId).populate('items.productId'); 
+        const order = await Order.findOne({ orderId: orderId }).populate('products.productId'); 
         console.log(order);
         if (order) {
             res.render('user/order-details', { order ,userHeader:true});

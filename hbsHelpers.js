@@ -51,6 +51,9 @@ module.exports = {
     range: function(start, end) {
         return Array.from({ length: end - start + 1 }, (_, i) => i + start);
     },
+    or: (v1, v2) => {
+        return v1 || v2;
+    },
     generateStars: function(rating) {
         let starsHtml = '';
         const filledStars = Math.floor(rating);
