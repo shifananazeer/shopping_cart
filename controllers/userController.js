@@ -311,9 +311,10 @@ const otpPage = (req,res) => {
           res.redirect("/");
         } catch (error) {
           console.log(error.message);
-        }  
-      };
-
+        } 
+      }
+        
+      
 
      
 
@@ -335,6 +336,6 @@ const otpPage = (req,res) => {
     otpPage,
     postGenerateOtp,
     googleAuth,
-   
+  
     
   }

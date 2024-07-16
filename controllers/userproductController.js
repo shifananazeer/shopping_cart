@@ -19,6 +19,12 @@ const getAllProducts = async(req,res) => {
         is_deleted: false 
     };
 
+     // Apply search filter if search query is provided
+     if (req.query.searchQuery) {
+        filterOptions.name = { $regex: req.query.searchQuery, $options: 'i' }; // Case-insensitive search
+    }
+
+
     // Apply category filter if selected
     if (req.query.category) {
         const category = await Category.findOne({ name: req.query.category });
@@ -93,7 +99,8 @@ const getAllProducts = async(req,res) => {
             totalPages,
             filter: {
                 category: req.query.category,
-                brand: req.query.brand
+                brand: req.query.brand,
+                searchQuery: req.query.searchQuery
             },
             Psort: req.query.Psort,
             Asort: req.query.Asort,
@@ -130,7 +137,7 @@ const getAllProducts = async(req,res) => {
                 }).limit(4).lean();
         
                 // Fetch user orders to check for purchased products
-                const orders = await Order.find({ userId: user._id }).populate('items.productId').lean();
+                const orders = await Order.find({ userId: user._id }).populate('products.productId').lean();
         
                 res.render('user/product-details', {
                     product,

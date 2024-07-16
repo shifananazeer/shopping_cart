@@ -92,7 +92,16 @@
         .in-stock {
             color: green;
         }
+        {{!-- .inputSearch {
+            width: 50%;
+            border-radius: 30px;
+           margin: 3rem;
+           height: 40px;
+             box-shadow: 0 8px 16px 0 
+            rgba(0, 0,0, 0.24),0 17px 50px 0 
+            rgba(0, 0,0,0.19); 
 
+        } --}}
         .pagination a {
             margin: 0 5px;
             padding: 8px 16px;
@@ -221,6 +230,65 @@
                 max-width: 100%;
             }
         }
+       
+/* Basic styling for the search form */
+.search-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Styling for the search input */
+.search-form input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+/* Change border color on focus */
+.search-form input[type="text"]:focus {
+    border-color: #007bff;
+}
+
+/* Styling for the search button */
+.search-form button {
+    padding: 10px 20px;
+    border: 2px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Change background and border color on hover */
+.search-form button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Optional: Responsive adjustments */
+@media (max-width: 600px) {
+    .search-form {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-form input[type="text"],
+    .search-form button {
+        width: 100%;
+        border-radius: 4px;
+        margin: 5px 0;
+    }
+
+    .search-form button {
+        border-radius: 4px;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -228,6 +296,10 @@
         <div class="heading">
             <h2>All Products</h2>
         </div>
+          <form action="/products" method="GET" class="search-form">
+        <input type="text" name="searchQuery" placeholder="Search products..." class="inputSearch" value="{{filter.searchQuery}}" onkeypress="handleSearchKeyPress(event)">
+        <button type="submit" class="searchbtn">Search</button>
+    </form>
 
        <div class="filter-sort-dropdown">
            <form id="filterForm">
@@ -272,6 +344,7 @@
         <input type="checkbox" id="inStockOnly" name="inStockOnly" onchange="applyFilterAndSort()" {{#if inStockOnly}}checked{{/if}}>
     </form>
         </div>
+       
 
          <div class="product-grid">
             {{#each products}}
@@ -400,6 +473,13 @@
     window.location.href = url;
 }
 
+    function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                event.target.form.submit();
+            }
+        }
+
 async function addToWishlist(productId) {
     try {
         const response = await fetch(`/wishlist/add/${productId}`, {
@@ -460,86 +540,5 @@ async function removeFromWishlist(productId) {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
-<footer class="footer">
-            <div class="footer-middle">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="widget widget-about">
-                                <img src="assets/images/logo.png" class="footer-logo" alt="Footer Logo" width="105"
-                                    height="25">
-                                <p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate
-                                    magna eros eu erat. </p>
 
-                                <div class="social-icons">
-                                    <a href="#" class="social-icon" target="_blank" title="Facebook"><i
-                                            class="icon-facebook-f"></i></a>
-                                    <a href="#" class="social-icon" target="_blank" title="Twitter"><i
-                                            class="icon-twitter"></i></a>
-                                    <a href="#" class="social-icon" target="_blank" title="Instagram"><i
-                                            class="icon-instagram"></i></a>
-                                    <a href="#" class="social-icon" target="_blank" title="Youtube"><i
-                                            class="icon-youtube"></i></a>
-                                    <a href="#" class="social-icon" target="_blank" title="Pinterest"><i
-                                            class="icon-pinterest"></i></a>
-                                </div><!-- End .soial-icons -->
-                            </div><!-- End .widget about-widget -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="widget">
-                                <h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
-
-                                <ul class="widget-list">
-                                    <li><a href="about.html">About Molla</a></li>
-                                    <li><a href="#">How to shop on Molla</a></li>
-                                    <li><a href="#">FAQ</a></li>
-                                    <li><a href="contact.html">Contact us</a></li>
-                                    <li><a href="login.html">Log in</a></li>
-                                </ul><!-- End .widget-list -->
-                            </div><!-- End .widget -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="widget">
-                                <h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
-
-                                <ul class="widget-list">
-                                    <li><a href="#">Payment Methods</a></li>
-                                    <li><a href="#">Money-back guarantee!</a></li>
-                                    <li><a href="#">Returns</a></li>
-                                    <li><a href="#">Shipping</a></li>
-                                    <li><a href="#">Terms and conditions</a></li>
-                                    <li><a href="#">Privacy Policy</a></li>
-                                </ul><!-- End .widget-list -->
-                            </div><!-- End .widget -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="widget">
-                                <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
-
-                                <ul class="widget-list">
-                                    <li><a href="#">Sign In</a></li>
-                                    <li><a href="cart.html">View Cart</a></li>
-                                    <li><a href="#">My Wishlist</a></li>
-                                    <li><a href="#">Track My Order</a></li>
-                                    <li><a href="#">Help</a></li>
-                                </ul><!-- End .widget-list -->
-                            </div><!-- End .widget -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
-                    </div><!-- End .row -->
-                </div><!-- End .container -->
-            </div><!-- End .footer-middle -->
-
-            <div class="footer-bottom">
-                <div class="container">
-                    <p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p>
-                    <!-- End .footer-copyright -->
-                    <figure class="footer-payments">
-                        <img src="assets/images/payments.png" alt="Payment methods" width="272" height="20">
-                    </figure><!-- End .footer-payments -->
-                </div><!-- End .container -->
-            </div><!-- End .footer-bottom -->
-        </footer><!-- End .footer -->
 </html>

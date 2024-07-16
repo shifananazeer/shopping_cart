@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Orders</title>
-    <!-- Include your CSS stylesheets and other headers -->
     <link rel="stylesheet" href="/styles.css">
     <style>
-        /* Add custom styles as needed */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -32,13 +30,11 @@
         .cancel-btn {
             color: red;
         }
-        
-     .pagination {
+        .pagination {
             display: flex;
             justify-content: center;
             margin-top: 20px;
         }
-
         .pagination a {
             margin: 0 5px;
             padding: 8px 16px;
@@ -49,96 +45,88 @@
             border-radius: 4px;
             transition: background-color 0.3s;
         }
-
         .pagination a:hover {
             background-color: #ddd;
         }
-
         .pagination a.active {
             background-color: #333;
             color: white;
             border: 1px solid #333;
         }
-
         .pagination a.prev, .pagination a.next {
             font-weight: bold;
         }
- 
-
     </style>
 </head>
 <body>
-    <section>
-     <main id="main" class="main">
-    <div class="container">
-        <h2>Admin Orders</h2>
-     
-        <!-- Orders Table -->
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>User</th>
-                    <th>Total Amount</th>
-                    <th>Order Date</th> 
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each orders}}
-                <tr>
-                    <td>{{this._id}}</td>
-                    <td>{{this.userId.name}}</td>
-                    <td>{{this.totalAmountToBePaid}} ₹</td>
-                     <td>{{formatDate this.createdAt}}</td> 
-                    <td class="status">{{this.status}}</td>
-                    <td class="actions">
-                        <form action="/admin/orders/{{this._id}}/change-status" method="POST">
-                            <select name="status" onchange="this.form.submit()">
-                                <option value="Pending" {{#ifCond this.status '===' 'Pending'}}selected{{/ifCond}}>Pending</option>
-                                <option value="Processing" {{#ifCond this.status '===' 'Processing'}}selected{{/ifCond}}>Processing</option>
-                                <option value="Shipped" {{#ifCond this.status '===' 'Shipped'}}selected{{/ifCond}}>Shipped</option>
-                                <option value="Delivered" {{#ifCond this.status '===' 'Delivered'}}selected{{/ifCond}}>Delivered</option>
-                                <option value="Cancelled" {{#ifCond this.status '===' 'Cancelled'}}selected{{/ifCond}}>Cancelled</option>
-                            </select>
-                        </form>
-                       {{!-- <form action="/admin/orders/{{this._id}}/cancel" method="post" style="display:inline;">
-                            <button type="submit" {{#ifCond this.status '===' 'Delivered'}}disabled{{/ifCond}}>Cancel Order</button>
-                        </form> --}}
-                    </td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
+<section>
+    <main id="main" class="main">
+        <div class="container">
+            <h2>Admin Orders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Total Amount</th>
+                        <th>Order Date</th> 
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each orders}}
+                    <tr>
+                        <td>{{this.orderId}}</td>
+                        <td>{{this.userId.name}}</td>
+                        <td>{{this.totalAmount}} ₹</td>
+                        <td>{{formatDate this.createdAt}}</td> 
+                        <td class="status">{{this.orderStatus}}</td>
+                        <td class="actions">
+                            <form action="/admin/orders/{{orderId}}/change-status" method="POST">
+                                <select name="status" onchange="this.form.submit()">
+                                    <option value="pending" {{#ifCond this.orderStatus '===' 'pending'}}selected{{/ifCond}}>Pending</option>
+                                    <option value="placed" {{#ifCond this.orderStatus '===' 'placed'}}selected{{/ifCond}}>Placed</option>
+                                    <option value="shipped" {{#ifCond this.orderStatus '===' 'shipped'}}selected{{/ifCond}}>Shipped</option>
+                                    <option value="delivered" {{#ifCond this.orderStatus '===' 'delivered'}}selected{{/ifCond}}>Delivered</option>
+                                     <option value="cancelled" {{#ifCond this.orderStatus '===' 'cancelled'}}selected{{/ifCond}}>cancelled</option>
+                                </select>
+                            </form>
+                           <form action="/admin/orders/{{this._id}}/cancel" method="post" style="display:inline;">
+    <button type="submit" class="cancel-btn btn btn-warning" 
+        {{#ifCond this.orderStatus '===' 'delivered'}}disabled{{/ifCond}} 
+        {{#ifCond this.orderStatus '===' 'cancelled'}}disabled{{/ifCond}}>
+        Cancel Order
+    </button>
+</form>
 
-        <br>
-        <a href="/admin/dashboard">Back to Dashboard</a> <!-- Replace with your actual admin dashboard link -->
-    </div>
-      <!-- Pagination -->
- <div class="pagination">
-    {{#if (gt currentPage 1)}}
-        <a href="/admin/orders?page={{subtract currentPage 1}}" class="prev">Previous</a>
-    {{/if}}
-    
-    {{#each (range 1 totalPages)}}
-        <a href="/admin/orders?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
-    {{/each}}
-    
-    {{#if (lt currentPage totalPages)}}
-        <a href="/admin/orders?page={{add currentPage 1}}" class="next">Next</a>
-    {{/if}}
-</div>
-  </section>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <br>
+            <a href="/admin/dashboard">Back to Dashboard</a>
+        </div>
+        <div class="pagination">
+            {{#if (gt currentPage 1)}}
+                <a href="/admin/orders?page={{subtract currentPage 1}}" class="prev">Previous</a>
+            {{/if}}
+            {{#each (range 1 totalPages)}}
+                <a href="/admin/orders?page={{this}}" class="{{#if (eq this ../currentPage)}}active{{/if}}">{{this}}</a>
+            {{/each}}
+            {{#if (lt currentPage totalPages)}}
+                <a href="/admin/orders?page={{add currentPage 1}}" class="next">Next</a>
+            {{/if}}
+        </div>
+    </section>
 </main>
-    <!-- Include your JavaScript scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script>
-       function getCurrentPage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('page') || 1;
-}
-    </script>
-    
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    function getCurrentPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('page') || 1;
+    }
+</script>
 </body>
 </html>
