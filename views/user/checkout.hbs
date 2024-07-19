@@ -73,7 +73,7 @@
             <label for="paymentMethod" class="form-label">Select Payment Method</label>
             <select class="form-select" id="paymentMethod" name="paymentMethod" required>
                 <option value="">Select Payment Method</option>
-                <option value="razorpay">Online Payment</option>
+                <option value="online_payment">Online Payment</option>
                 <option value="cash_on_delivery">Cash On Delivery</option>
             </select>
         </div>
@@ -102,6 +102,7 @@ $(document).ready(function() {
                 $('#placeOrderButton').click(function() {
                     const selectedAddressId = $('#selectedAddressId').val();
                     const paymentMethod = $('#paymentMethod').val();
+                    let paymentStatus = 'pending'; // Default to pending for cash on delivery
 
                     // Address validation
                     if (!selectedAddressId) {
@@ -131,10 +132,11 @@ $(document).ready(function() {
                             selectedAddressId: selectedAddressId,
                             items: items,
                             summary: summary,
-                            paymentMethod: paymentMethod
+                            paymentMethod: paymentMethod,
+                            paymentStatus: paymentStatus
                         },
                         success: function(response) {
-                            if (response.success && paymentMethod === 'razorpay') {
+                            if (response.success && paymentMethod === 'online_payment') {
                                 const options = {
                                     key: response.razorpayKey,
                                     amount: response.order.totalamount,
@@ -149,7 +151,8 @@ $(document).ready(function() {
                                             data: {
                                                 paymentId: paymentResponse.razorpay_payment_id,
                                                 orderId: response.order.id,
-                                                signature: paymentResponse.razorpay_signature
+                                                signature: paymentResponse.razorpay_signature,
+                                                paymentStatus: 'success'
                                             },
                                             success: function(paymentResponse) {
                                                 Swal.fire({
@@ -165,6 +168,15 @@ $(document).ready(function() {
                                                     icon: 'error',
                                                     title: 'Payment Failed',
                                                     text: 'There was an error processing your payment. Please try again.'
+                                                });
+                                                // Update payment status to failed
+                                                $.ajax({
+                                                    url: '/update-payment-status',
+                                                    type: 'POST',
+                                                    data: {
+                                                        orderId: response.order.id,
+                                                        paymentStatus: 'failed'
+                                                    }
                                                 });
                                             }
                                         });

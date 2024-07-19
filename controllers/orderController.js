@@ -51,7 +51,7 @@ placeOrder: async (req, res) => {
             address: selectedAddressId,
             totalAmount: parsedSummary.totalAmountToBePaid,
             paymentMethod: paymentMethod,
-            orderStatus: paymentMethod === 'razorpay' ? 'pending' : 'placed',
+            orderStatus: paymentMethod === 'online_payment' ? 'pending' : 'placed',
         });
 
         await order.save();
@@ -63,7 +63,7 @@ placeOrder: async (req, res) => {
             });
         }
 
-        if (paymentMethod === 'razorpay') {
+        if (paymentMethod === 'online_payment') {
             const razorpayOrder = await createRazorpayOrder(parsedSummary.totalAmountToBePaid);
             order.razorpayOrderId = razorpayOrder.id; // Assign Razorpay order ID
             await order.save();
