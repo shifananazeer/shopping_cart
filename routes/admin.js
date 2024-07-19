@@ -5,6 +5,7 @@ const {adminsessionHandler,} = require('../middlewares/middleware')
 const productController = require('../controllers/productController')
 const categoryController = require('../controllers/categoryController')
 const brandController = require('../controllers/brandController')
+const admincouponController = require('../controllers/adminCouponController')
 const adminOrderController = require('../controllers/adminOrderController')
 const {upload,categoryUpload,brandUpload} = require('../public/javascripts/fileupload')
 
@@ -67,5 +68,19 @@ router.post('/orders/:orderId/change-status',adminsessionHandler, adminOrderCont
 
 router.post('/orders/:orderId/cancel',adminsessionHandler, adminOrderController.cancelOrder);
 
+router.get('/coupons', adminsessionHandler,admincouponController.viewCopons);
+
+router.get('/coupons/add', adminsessionHandler,admincouponController.addCouponPage);
+
+router.post('/coupons/add', adminsessionHandler,admincouponController.addCoupon);
+
+router.post('/coupons/deactivate/:id',adminsessionHandler, admincouponController.deactivateCoupon);
+
+router.post('/coupons/activate/:id',adminsessionHandler, admincouponController.activateCoupon);
+
+router.get('/coupons/edit/:id',adminsessionHandler, admincouponController.getEditCoupon);
+
+
+router.post('/coupons/edit/:id',adminsessionHandler, admincouponController.updateCoupon);
 
 module.exports = router;

@@ -105,7 +105,7 @@ router.get('/get-cart-items',orderController.getCartItems)
 router.get('/order-confirmation', orderController.orderConfirmation);
 
 
-
+router.get('/coupons',orderController.getCoupon )
 
 
 

@@ -2,11 +2,18 @@ const Order = require('../models/ordermodel')
 const Product = require('../models/productmodel')
 const Cart = require('../models/cartmodel')
 const Address = require('../models/addressmodel')
-
+const Coupon = require('../models/couponmodel')
 
 const Razorpay = require('razorpay');
 
 const crypto = require('crypto');
+
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+
 
 const createRazorpayOrder = async (amount) => {
     const instance = new Razorpay({
@@ -26,87 +33,57 @@ module.exports = {
 //order creation
 placeOrder: async (req, res) => {
     console.log("body", req.body);
-    const { selectedAddressId, items, summary, paymentMethod } = req.body;
+    const { addressId, paymentMethod, cartItems, summary } = req.body;
 
-    if (!selectedAddressId || !paymentMethod) {
-        return res.status(400).json({ success: false, message: "Address and payment method are required." });
+    // Validate input
+    if (!addressId || !paymentMethod || !cartItems || !summary) {
+        return res.status(400).json({ message: 'Missing required fields' });
     }
 
     try {
-        const parsedItems = JSON.parse(items);
-        const parsedSummary = JSON.parse(summary);
-        const userId = req.session.user._id;
-        let orderId = generateUniqueOrderId();
+        // Generate unique order ID
+        const uniqueOrderId = generateUniqueOrderId();
 
-        // Create a new order
-        let order = new Order({
-            orderId: orderId,
-            userId: userId,
-            products: parsedItems.map(item => ({
-                productId: item.productId,
-                quantity: item.quantity,
-                price: item.price,
-                discount: item.discount
-            })),
-            address: selectedAddressId,
-            totalAmount: parsedSummary.totalAmountToBePaid,
-            paymentMethod: paymentMethod,
-            orderStatus: paymentMethod === 'online_payment' ? 'pending' : 'placed',
+        // Create new order
+        const newOrder = new Order({
+            userId: req.session.user._id, // Assuming req.user is populated by authentication middleware
+            addressId,
+            paymentMethod,
+            items: cartItems,
+            summary,
+            status: 'pending',
+            orderId: uniqueOrderId
         });
 
-        await order.save();
+        // Save the order
+        await newOrder.save();
 
-        // Update product stock
-        for (let item of parsedItems) {
-            await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stock: -item.quantity }
-            });
-        }
-
-        if (paymentMethod === 'online_payment') {
-            const razorpayOrder = await createRazorpayOrder(parsedSummary.totalAmountToBePaid);
-            order.razorpayOrderId = razorpayOrder.id; // Assign Razorpay order ID
-            await order.save();
-
-            return res.json({
-                success: true,
-                razorpayKey: process.env.RAZORPAY_KEY_ID,
-                order: razorpayOrder,
-                items: parsedItems,
-                summary: parsedSummary,
-            });
-        }
-
-        // Clear the cart after the order is placed
-        await Cart.deleteOne({ userId: userId });
-        res.json({ success: true, message: "Order placed successfully." });
-
+        // Respond with the order ID
+        res.status(201).json({ message: 'Order placed successfully', orderId: newOrder.orderId });
     } catch (error) {
         console.error('Error placing order:', error);
-        res.status(500).json({ success: false, message: "Failed to place order." });
+        res.status(500).json({ message: 'Internal server error' });
     }
 },
 savePaymentDetails : async (req, res) => {
-    const { paymentId, orderId, signature } = req.body;
-
     try {
-        const order = await Order.findOne({ razorpayOrderId: orderId });
+        const { paymentId, orderId, signature, paymentStatus } = req.body;
 
+        // Update order with payment details
+        const order = await Order.findOne({ orderId });
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found." });
+            return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        order.razorpayOrderId = paymentId;
+        order.razorpayPaymentId = paymentId;
         order.razorpaySignature = signature;
-        order.orderStatus = "placed";
-
+        order.paymentStatus = paymentStatus;
         await order.save();
-        await Cart.deleteOne({ userId: order.userId });
 
-        res.json({ success: true, message: "Payment details saved successfully." });
+        res.json({ success: true });
     } catch (error) {
         console.error('Error saving payment details:', error);
-        res.status(500).json({ success: false, message: "Failed to save payment details." });
+        res.status(500).json({ success: false, message: 'Error saving payment details.' });
     }
 },
 getCartItems: async(req,res) => {
@@ -255,7 +232,20 @@ orderDetails :async (req,res) => {
         console.error('Error fetching order details:', error);
         res.render('user/order-details', { error: 'Error fetching order details' });
     }
+},
+
+getCoupon : async (req,res) => {
+    try {
+        // Fetch active coupons
+        const coupons = await Coupon.find({ isActive: true });
+        res.json(coupons);
+    } catch (error) {
+        console.error('Error fetching coupons:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 }
+
+
 }
 
 
@@ -265,5 +255,5 @@ orderDetails :async (req,res) => {
 
 
 const generateUniqueOrderId = () => {
-    return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-}
+    return 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+};

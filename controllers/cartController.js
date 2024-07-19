@@ -3,6 +3,7 @@ const Product = require('../models/productmodel')
 const Address = require('../models/addressmodel')
 const Order = require('../models/ordermodel');
 const usermodel = require('../models/usermodel');
+const Coupon = require ('../models/couponmodel')
 
 module.exports = {
     //add products to cart
@@ -214,11 +215,13 @@ module.exports = {
         console.log(cartItems)
     
         const summary = calculateCartSummary(cart.items);
+        
+        const coupons = await Coupon.find({ minPurchaseAmount: { $lte: summary.totalAmountToBePaid } });
 
         const addresses = await Address.find({userId:userId})
         console.log(addresses)
     
-        res.render('user/checkout', { cartItems, summary ,addresses,user,userHeader:true});
+        res.render('user/checkout', { cartItems, summary ,addresses,user,userHeader:true,coupons});
     },
     addWishlistToCart : async (req, res) => {
         try {
