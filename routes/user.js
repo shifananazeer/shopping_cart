@@ -102,7 +102,7 @@ router.post('/save-payment-details', orderController.savePaymentDetails);
 
 router.get('/get-cart-items',orderController.getCartItems)
 
-router.get('/order-confirmation', orderController.orderConfirmation);
+router.get('/order-confirmation/:orderId', orderController.orderConfirmation);
 
 
 router.get('/coupons',orderController.getCoupon )

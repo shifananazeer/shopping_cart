@@ -129,33 +129,32 @@ getCartItems: async(req,res) => {
 },
 
 orderConfirmation: async (req, res) => {
-    const userId = req.session.user._id; // Get user ID from session
+    const { orderId } = req.params;
+
     try {
-        const orders = await Order.find({ userId: userId }).populate('products.productId').sort({ createdAt: -1 }).limit(1); // Get the latest order
+        // Fetch the order details
+        const order = await Order.findOne({ orderId: orderId })
+            .populate('userId') // Adjust according to your schema
+            .populate('items.productId'); // Adjust according to your schema
 
-        if (!orders.length) {
-            return res.status(404).render('order-confirmation', { message: "No orders found." });
+        if (!order) {
+            return res.status(404).render('404', { message: 'Order not found' });
         }
 
-        const order = orders[0];
+        // Fetch the delivery address, assuming it is referenced in the order
+        const address = await Address.findById(order.addressId);
 
-        const address = await Address.findById(order.address);
-
-        if (!address) {
-            return res.status(404).render('order-confirmation', { message: "Address not found." });
-        }
-
+        // Render the order confirmation page
         res.render('user/order-confirmation', {
-            orderId: order.orderId,
-            products: order.products,
-            totalAmount: order.totalAmount,
-            paymentMethod: order.paymentMethod,
-            orderStatus: order.orderStatus,
-            address: address 
+            order: order,
+            address: address,
+            products: order.items,
+            formatDate: (date) => new Date(date).toLocaleDateString(), // Formatting function for date
+            totalAmount: order.totalAmount
         });
     } catch (error) {
-        console.error('Error retrieving order details:', error);
-        res.status(500).render('order-confirmation', { message: "Failed to retrieve order details." });
+        console.error('Error fetching order details:', error);
+        res.status(500).render('500', { message: 'Internal Server Error' });
     }
 },
 

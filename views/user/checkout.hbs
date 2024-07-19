@@ -35,7 +35,7 @@
             </thead>
             <tbody id="cartItems">
                 {{#each cartItems}}
-                <tr>
+                <tr data-product-id="{{this.productId}}">
                     <td>{{this.name}}</td>
                     <td>{{this.quantity}}</td>
                     <td>{{this.price}} ₹</td>
@@ -102,6 +102,7 @@
             <select class="form-select" id="paymentMethod" name="paymentMethod" required>
                 <option value="">Select Payment Method</option>
                 <option value="cash_on_delivery">Cash On Delivery</option>
+                <!-- Add other payment methods if needed -->
             </select>
         </div>
 
@@ -109,135 +110,130 @@
     </div>
 
     <script>
-        // Function to validate the coupon
-         let appliedCoupon = null; // Store the applied coupon details
+        let appliedCoupon = null; // Store the applied coupon details
 
-    async function validateCoupon() {
-        const couponCode = document.getElementById('couponCode').value;
-        const couponMessage = document.getElementById('couponMessage');
-        try {
-            const response = await fetch('/coupons');
-            const coupons = await response.json();
-            const selectedCoupon = coupons.find(coupon => coupon.code === couponCode);
-
-            if (selectedCoupon) {
-                const totalPriceBeforeDiscount = parseFloat(document.getElementById('totalPriceBeforeDiscount').innerText);
-                if (totalPriceBeforeDiscount >= selectedCoupon.minPurchaseAmount) {
-                    const discount = (totalPriceBeforeDiscount * selectedCoupon.discount) / 100;
-                    const discountedPrice = totalPriceBeforeDiscount - discount;
-                    const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
-                    const totalAmountToBePaid = discountedPrice + shippingCharge;
-
-                    // Update the summary with the coupon discount
-                    document.getElementById('totalDiscount').innerText = discount.toFixed(2);
-                    document.getElementById('discountedPrice').innerText = discountedPrice.toFixed(2);
-                    document.getElementById('totalAmountToBePaid').innerText = totalAmountToBePaid.toFixed(2);
-
-                    appliedCoupon = selectedCoupon; // Store the applied coupon
-                    couponMessage.innerText = 'Coupon applied successfully!';
-                } else {
-                    couponMessage.innerText = 'Coupon requires a minimum purchase amount of ₹' + selectedCoupon.minPurchaseAmount;
-                }
-            } else {
-                couponMessage.innerText = 'Invalid coupon code';
-                appliedCoupon = null; // Clear applied coupon
-            }
-        } catch (error) {
-            console.error('Error validating coupon:', error);
-        }
-    }
-
-    function getCartItems() {
-        const rows = document.querySelectorAll('#cartItems tr');
-        return Array.from(rows).map(row => {
-            const cells = row.querySelectorAll('td');
-            return {
-                name: cells[0].innerText,
-                quantity: parseInt(cells[1].innerText),
-                price: parseFloat(cells[2].innerText.replace(' ₹', '')),
-                discount: parseFloat(cells[3].innerText.replace(' %', ''))
-            };
-        });
-    }
-
-    function getOrderSummary() {
-        const totalPriceBeforeDiscount = parseFloat(document.getElementById('totalPriceBeforeDiscount').innerText);
-        const totalDiscount = parseFloat(document.getElementById('totalDiscount').innerText);
-        const discountedPrice = parseFloat(document.getElementById('discountedPrice').innerText);
-        const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
-        const totalAmountToBePaid = parseFloat(document.getElementById('totalAmountToBePaid').innerText);
-
-        return {
-            totalPriceBeforeDiscount: totalPriceBeforeDiscount,
-            totalDiscount: totalDiscount,
-            discountedPrice: discountedPrice,
-            shippingCharge: shippingCharge,
-            totalAmountToBePaid: totalAmountToBePaid
-        };
-    }
-
-  function updateSelectedAddress(addressId) {
-            document.getElementById('selectedAddressId').value = addressId;
-        }
-    document.getElementById('placeOrderButton').addEventListener('click', async function(event) {
-        event.preventDefault();
-
-        const selectedAddressId = document.getElementById('selectedAddressId').value;
-        const paymentMethod = document.getElementById('paymentMethod').value;
-
-        if (!selectedAddressId) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Please select a delivery address!',
-                confirmButtonText: 'OK'
-            });
-        } else if (!paymentMethod) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Please select a payment method!',
-                confirmButtonText: 'OK'
-            });
-        } else {
+        async function validateCoupon() {
+            const couponCode = document.getElementById('couponCode').value;
+            const couponMessage = document.getElementById('couponMessage');
             try {
-                const response = await fetch('/place-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        addressId: selectedAddressId,
-                        paymentMethod: paymentMethod,
-                        cartItems: getCartItems(),
-                        summary: getOrderSummary(),
-                        appliedCoupon: appliedCoupon // Include the applied coupon details
-                    })
-                });
+                const response = await fetch('/coupons');
+                const coupons = await response.json();
+                const selectedCoupon = coupons.find(coupon => coupon.code === couponCode);
 
-                const data = await response.json();
+                if (selectedCoupon) {
+                    const totalPriceBeforeDiscount = parseFloat(document.getElementById('totalPriceBeforeDiscount').innerText);
+                    if (totalPriceBeforeDiscount >= selectedCoupon.minPurchaseAmount) {
+                        const discount = (totalPriceBeforeDiscount * selectedCoupon.discount) / 100;
+                        const discountedPrice = totalPriceBeforeDiscount - discount;
+                        const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
+                        const totalAmountToBePaid = discountedPrice + shippingCharge;
 
-                if (response.ok) {
-                    window.location.href = '/order-confirmation/' + data.orderId;
+                        // Update the summary with the coupon discount
+                        document.getElementById('totalDiscount').innerText = discount.toFixed(2);
+                        document.getElementById('discountedPrice').innerText = discountedPrice.toFixed(2);
+                        document.getElementById('totalAmountToBePaid').innerText = totalAmountToBePaid.toFixed(2);
+
+                        appliedCoupon = selectedCoupon; // Store the applied coupon
+                        couponMessage.innerText = 'Coupon applied successfully!';
+                    } else {
+                        couponMessage.innerText = 'Coupon requires a minimum purchase amount of ₹' + selectedCoupon.minPurchaseAmount;
+                    }
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: data.message || 'Failed to place the order',
-                        confirmButtonText: 'OK'
-                    });
+                    couponMessage.innerText = 'Invalid coupon code';
+                    appliedCoupon = null; // Clear applied coupon
                 }
             } catch (error) {
-                console.error('Error placing order:', error);
+                console.error('Error validating coupon:', error);
+            }
+        }
+
+        function getCartItems() {
+            const rows = document.querySelectorAll('#cartItems tr');
+            return Array.from(rows).map(row => {
+                const cells = row.querySelectorAll('td');
+                return {
+                    productId: row.getAttribute('data-product-id'), // Retrieve product ID from data attribute
+                    name: cells[0].innerText,
+                    quantity: parseInt(cells[1].innerText),
+                    price: parseFloat(cells[2].innerText.replace(' ₹', '')),
+                    discount: parseFloat(cells[3].innerText.replace(' %', ''))
+                };
+            });
+        }
+
+        function getOrderSummary() {
+            const totalPriceBeforeDiscount = parseFloat(document.getElementById('totalPriceBeforeDiscount').innerText);
+            const totalDiscount = parseFloat(document.getElementById('totalDiscount').innerText);
+            const discountedPrice = parseFloat(document.getElementById('discountedPrice').innerText);
+            const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
+            const totalAmountToBePaid = parseFloat(document.getElementById('totalAmountToBePaid').innerText);
+
+            return {
+                totalPriceBeforeDiscount: totalPriceBeforeDiscount,
+                totalDiscount: totalDiscount,
+                discountedPrice: discountedPrice,
+                shippingCharge: shippingCharge,
+                totalAmountToBePaid: totalAmountToBePaid
+            };
+        }
+
+        function updateSelectedAddress(addressId) {
+            document.getElementById('selectedAddressId').value = addressId;
+        }
+
+        document.getElementById('placeOrderButton').addEventListener('click', async function(event) {
+            event.preventDefault();
+
+            const selectedAddressId = document.getElementById('selectedAddressId').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (!selectedAddressId) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Something went wrong!',
+                    text: 'Please select a delivery address!',
                     confirmButtonText: 'OK'
                 });
+            } else if (!paymentMethod) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select a payment method!',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                try {
+                    const response = await fetch('/place-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            addressId: selectedAddressId,
+                            paymentMethod: paymentMethod,
+                            cartItems: getCartItems(),
+                            summary: getOrderSummary(),
+                            appliedCoupon: appliedCoupon // Include the applied coupon details
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        window.location.href = '/order-confirmation/' + data.orderId;
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message || 'Failed to place the order',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error placing order:', error);
+                }
             }
-        }
-    });
+        });
     </script>
 </body>
 </html>
