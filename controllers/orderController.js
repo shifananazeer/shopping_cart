@@ -55,6 +55,14 @@ placeOrder: async (req, res) => {
 
         await newOrder.save();
 
+        for (const item of cartItems) {
+            await Product.findByIdAndUpdate(item.productId, {
+                $inc: { stock: -item.quantity }
+            });
+        }
+
+        await Cart.deleteMany({ userId: req.usersession._id });
+
         res.status(201).json({ message: 'Order placed successfully', orderId: newOrder.orderId });
     } catch (error) {
         console.error('Error placing order:', error);
@@ -225,7 +233,7 @@ orderDetails :async (req,res) => {
     console.log(orderId)
     const user = req.session.user 
     try {
-        const order = await Order.findOne({ orderId: orderId }).populate('products.productId'); 
+        const order = await Order.findOne({ orderId: orderId }) 
         console.log(order);
         if (order) {
             res.render('user/order-details', { order ,userHeader:true});
@@ -242,6 +250,7 @@ getCoupon : async (req,res) => {
     try {
         // Fetch active coupons
         const coupons = await Coupon.find({ isActive: true });
+        console.log("coupon",coupons)
         res.json(coupons);
     } catch (error) {
         console.error('Error fetching coupons:', error);
@@ -285,6 +294,13 @@ createOrder : async (req, res) => {
         });
 
         await newOrder.save();
+        for (const item of cartItems) {
+            await Product.findByIdAndUpdate(item.productId, {
+                $inc: { stock: -item.quantity }
+            });
+        }
+
+        await Cart.deleteMany({ userId: req.session.user._id });
 
         res.json({
             success: true,
@@ -303,35 +319,26 @@ createOrder : async (req, res) => {
 
 verifyPayment :async (req, res) => {
     console.log("verify",req.body)
-    const { payment_id, order_id, signature,razorpayOrderId } = req.body;
+    try {
+        const { payment_id, order_id, signature, paymentStatus } = req.body;
 
-    if (!payment_id || !order_id || !signature) {
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
-
-    const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-        .update(`${order_id}|${payment_id}`)
-        .digest('hex');
-
-    if (generatedSignature === signature) {
-        try {
-            // Update payment status to 'success'
-            await Order.findOneAndUpdate(
-                { razorpayOrderId },
-                { paymentStatus: 'success' },
-                { new: true }
-            );
-            res.json({ success: true, message: 'Payment verified successfully' });
-        } catch (error) {
-            console.error('Error updating order payment status:', error);
-            res.status(500).json({ success: false, message: 'Failed to update payment status' });
+        // Find the order by orderId
+        const order = await Order.findOne({ orderId: order_id }); // Ensure orderId is the correct field in your schema
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
         }
-    } else {
-        // Payment verification failed
-        res.status(400).json({ success: false, message: 'Payment verification failed' });
+
+        // Update the order with payment details
+        order.razorpayPaymentId = payment_id;
+        order.razorpaySignature = signature;
+        order.paymentStatus = paymentStatus;
+        await order.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error saving payment details:', error);
+        res.status(500).json({ success: false, message: 'Error saving payment details.' });
     }
-
-
 },
 
 updatePaymentStatus : async (req, res) => {
@@ -357,6 +364,49 @@ updatePaymentStatus : async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 },
+repay : async (req,res) => {
+    const { orderId } = req.params;
+    console.log('Repay Order ID:', orderId);
+
+    try {
+        // Find the order by orderId
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            console.log('Order not found');
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Check if the order is eligible for repayment
+        if (order.paymentStatus !== 'failed') {
+            console.log('Order is not eligible for repayment');
+            return res.status(400).json({ success: false, message: 'Order is not eligible for repayment' });
+        }
+
+        // Prepare options for creating a Razorpay order
+        const options = {
+            amount: order.summary.totalAmountToBePaid * 100, // Amount in paise
+            currency: 'INR',
+            receipt: `receipt_${Date.now()}`,
+        };
+
+        // Create the order with Razorpay
+        const razorpayOrder = await razorpay.orders.create(options);
+        console.log('Razorpay Order:', razorpayOrder);
+
+        // Respond with Razorpay order details
+        res.json({
+            success: true,
+            orderId:order.orderId,
+            razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+            razorpayOrderId: razorpayOrder.id,
+            totalAmountToBePaid: order.summary.totalAmountToBePaid
+        });
+    } catch (error) {
+        console.error('Error initiating repayment:', error);
+        res.status(500).json({ success: false, message: 'An error occurred while initiating repayment' });
+    }
+}
 
 
 }

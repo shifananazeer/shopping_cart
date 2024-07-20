@@ -241,10 +241,11 @@
                                     },
                                     body: JSON.stringify({
                                         payment_id: response.razorpay_payment_id,
-                                        order_id: response.razorpay_order_id,
                                         signature: response.razorpay_signature,
                                         orderDetails: orderDetails,
-                                         razorpayOrderId: data.razorpayOrderId
+                                         razorpayOrderId: data.razorpayOrderId,
+                                         order_id: data.orderId,
+                                          paymentStatus:"success",
                                     })
                                 });
 
@@ -256,7 +257,7 @@
                                         text: 'Your order has been placed successfully.',
                                         confirmButtonText: 'OK'
                                     }).then(() => {
-                                        window.location.href = '/order-confirmation';
+                                        window.location.href = `/order-confirmation${data.orderId}`;
                                     });
                                 } else {
                                     Swal.fire({
@@ -308,7 +309,7 @@
                         text: 'Your order has been placed successfully.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = '/order-confirmation';
+                        window.location.href = `/order-confirmation${data.orderId}`;
                     });
                 }
             } else {

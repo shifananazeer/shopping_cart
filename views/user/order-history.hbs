@@ -4,100 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/path/to/your/styles.css">
     <style>
-        /* Table styles */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-            color: #333;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        /* Button styles */
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            text-align: center;
-            text-decoration: none;
-            background-color: #007bff; /* Bootstrap primary button color */
+        /* Custom styles */
+        .return-btn {
+            background-color: #28a745; /* Green */
             color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
         }
-        .btn:hover {
-            background-color: #0056b3; /* Darker shade on hover */
+        .return-btn:hover {
+            background-color: #218838;
+        }
+        .btn-repay {
+            background-color: #007bff; /* Blue */
+            color: white;
+        }
+        .btn-repay:hover {
+            background-color: #0056b3;
+        }
+        .cancel-order-button {
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+        .cancel-order-button:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
 <body>
-  
-    <div class="container">
+
+    <div class="container mt-5">
         {{#if orders.length}}
-            <h1>Order History</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Product Name</th>
-                        <th>Product Price</th>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>Payment Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each orders}}
-                        {{#each items}}
-                            <tr>
-                                <td>
-                                    {{#if this.productImage}}
-                                        <img src="/{{this.productImage}}" alt="Product Image" style="width: 50px; height: auto;">
-                                    {{else}}
-                                        No Image
-                                    {{/if}}
-                                </td>
-                                <td>{{ this.productName }}</td>
-                                <td>{{ this.productPrice}} ₹</td>
-                                <td>{{ ../orderId }}</td>
-                                <td>{{ formatDate ../createdAt }}</td>
-                                <td>{{ ../summary.totalAmountToBePaid }} ₹</td>
-                                <td>{{ ../status }}</td>
-                                <td>{{../paymentStatus}}</td>
-                                <td>
-                                    <a href="/order-details/{{ ../orderId }}" class="btn btn-primary">View Details</a>
-                                    {{#if (or (eq ../orderStatus "pending") (eq ../status "pending"))}}
-                                        <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel</button>
-                                    {{/if}}
-                                </td>
-                            </tr>
+            <h1 class="mb-4">Order History</h1>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Product Price</th>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each orders}}
+                            {{#each items}}
+                                <tr>
+                                    <td>
+                                        {{#if this.productImage}}
+                                            <img src="/{{this.productImage}}" alt="Product Image" class="img-fluid" style="width: 50px; height: auto;">
+                                        {{else}}
+                                            No Image
+                                        {{/if}}
+                                    </td>
+                                    <td>{{ this.productName }}</td>
+                                    <td>{{ this.productPrice }} ₹</td>
+                                    <td>{{ ../orderId }}</td>
+                                    <td>{{ formatDate ../createdAt }}</td>
+                                    <td>{{ ../summary.totalAmountToBePaid }} ₹</td>
+                                    <td>{{ ../status }}</td>
+                                    <td>{{ ../paymentStatus }}</td>
+                                    <td>
+                                        <a href="/order-details/{{ ../orderId }}" class="btn btn-primary m-2">View Details</a>
+                                    </td>
+                                    <td>
+                                        {{#if (or (eq ../status "pending") (eq ../paymentStatus "pending") (eq ../paymentStatus "success"))}}
+                                            <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel</button>
+                                        {{/if}}
+                                        {{#if (eq ../status 'delivered')}}
+                                            <a href="/orders/{{../orderId}}/return" class="return-btn btn">Return Order</a>
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        {{#if (eq ../paymentStatus "failed")}}
+                                            <button class="btn btn-repay" onclick="handleRepay('{{../orderId}}')">Repay</button>
+                                        {{/if}}
+                                    </td>
+                                </tr>
+                            {{/each}}
                         {{/each}}
-                    {{/each}}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         {{else}}
             <p>No orders found.</p>
         {{/if}}
     </div>
-   
-    <script src="/path/to/your/scripts.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Cancel order event listener
             document.querySelectorAll('.cancel-order-button').forEach(button => {
                 button.addEventListener('click', function () {
                     const orderId = this.getAttribute('data-order-id');
@@ -148,6 +153,119 @@
                     });
                 });
             });
+
+            // Repay function
+            window.handleRepay = function(orderId) {
+                alert('handleRepay called'); // Debug alert
+                
+                console.log('Initiating repayment for Order ID:', orderId);
+                
+                fetch(`/repay-order/${orderId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Data from server:', data);
+                    
+                    if (data.success) {
+                        const options = {
+                            key: data.razorpayKeyId,
+                            amount: data.totalAmountToBePaid * 100, // Amount in paise
+                            currency: 'INR',
+                            name: 'Your Website Name',
+                            description: 'Purchase Order',
+                            order_id: data.razorpayOrderId,
+                            handler: async function(response) {
+                                try {
+                                    const verifyResponse = await fetch('/verify-payment', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            payment_id: response.razorpay_payment_id,
+                                            order_id: data.orderId,
+                                            signature: response.razorpay_signature,
+                                            razorpayOrderId: data.razorpayOrderId,
+                                            paymentStatus: "success",
+                                        })
+                                    });
+
+                                    const verifyData = await verifyResponse.json();
+                                    console.log('Verify Payment Response:', verifyData);
+
+                                    if (verifyResponse.ok) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Payment Successful!',
+                                            text: 'Your payment has been processed successfully.',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            window.location.href = `/order-confirmation${data.orderId}`;
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Payment Failed',
+                                            text: verifyData.message,
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }
+                                } catch (error) {
+                                    console.error('Error verifying payment:', error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Payment Verification Failed',
+                                        text: 'An error occurred while verifying your payment. Please try again.',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            },
+                            prefill: {
+                                name: 'Customer Name',
+                                email: 'customer@example.com',
+                                contact: '9999999999'
+                            },
+                            notes: {
+                                address: 'Customer Address'
+                            },
+                            theme: {
+                                color: '#F37254'
+                            }
+                        };
+
+                        const rzp = new Razorpay(options);
+                        rzp.on('payment.failed', function (response) {
+                            console.log('Payment failed:', response.error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Failed',
+                                text: response.error.description,
+                                confirmButtonText: 'OK'
+                            });
+                        });
+
+                        rzp.open();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error initiating repayment:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while initiating repayment. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            };
         });
     </script>
 </body>

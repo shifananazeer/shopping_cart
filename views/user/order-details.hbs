@@ -44,8 +44,8 @@
                   {{#each order.products}}
                 <p><strong>product name:</strong> {{ this.productId.name }} </p>
                 {{/each}}
-                <p><strong>Total Amount:</strong> {{ order.totalAmount }} ₹</p>
-                <p><strong>Status:</strong> {{ order.orderStatus }}</p>
+                <p><strong>Total Amount:</strong> {{ order.summary.totalAmountToBePaid }} ₹</p>
+                <p><strong>Status:</strong> {{ order.status }}</p>
                 <a href="/order-history" class="btn">Back To Order History</a>
             </div>
         {{else if error}}

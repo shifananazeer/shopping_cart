@@ -71,6 +71,7 @@
                         <th>Total Amount</th>
                         <th>Order Date</th> 
                         <th>Status</th>
+                        <th>Payment Method</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -79,20 +80,21 @@
                     <tr>
                         <td>{{this.orderId}}</td>
                         <td>{{this.userId.name}}</td>
-                        <td>{{this.totalAmount}} ₹</td>
+                        <td>{{this.summary.totalAmountToBePaid}} ₹</td>
                         <td>{{formatDate this.createdAt}}</td> 
-                        <td class="status">{{this.orderStatus}}</td>
+                        <td class="status">{{this.status}}</td>
+                        <td>{{this.paymentMethod}}</td>
                         <td class="actions">
-                            <form action="/admin/orders/{{orderId}}/change-status" method="POST">
+                            <form action="/admin/orders/{{this.orderId}}/change-status" method="POST">
                                 <select name="status" onchange="this.form.submit()">
                                     <option value="pending" {{#ifCond this.orderStatus '===' 'pending'}}selected{{/ifCond}}>Pending</option>
-                                    <option value="placed" {{#ifCond this.orderStatus '===' 'placed'}}selected{{/ifCond}}>Placed</option>
-                                    <option value="shipped" {{#ifCond this.orderStatus '===' 'shipped'}}selected{{/ifCond}}>Shipped</option>
-                                    <option value="delivered" {{#ifCond this.orderStatus '===' 'delivered'}}selected{{/ifCond}}>Delivered</option>
-                                     <option value="cancelled" {{#ifCond this.orderStatus '===' 'cancelled'}}selected{{/ifCond}}>cancelled</option>
+                                   
+                                    <option value="shipped" {{#ifCond this.status '===' 'shipped'}}selected{{/ifCond}}>Shipped</option>
+                                    <option value="delivered" {{#ifCond this.status '===' 'delivered'}}selected{{/ifCond}}>Delivered</option>
+                                     <option value="cancelled" {{#ifCond this.status '===' 'cancelled'}}selected{{/ifCond}}>cancelled</option>
                                 </select>
                             </form>
-                           <form action="/admin/orders/{{this._id}}/cancel" method="post" style="display:inline;">
+                           <form action="/admin/orders/{{this.orderId}}/cancel" method="post" style="display:inline;">
     <button type="submit" class="cancel-btn btn btn-warning" 
         {{#ifCond this.orderStatus '===' 'delivered'}}disabled{{/ifCond}} 
         {{#ifCond this.orderStatus '===' 'cancelled'}}disabled{{/ifCond}}>
@@ -127,6 +129,53 @@
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('page') || 1;
     }
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Handle status change confirmation
+        document.querySelectorAll('form[action^="/orders/"][action$="/change-status"]').forEach(form => {
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const formElement = event.target;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to change the status of this order.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, change it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formElement.submit();
+                    }
+                });
+            });
+        });
+
+        // Handle cancel order confirmation
+        document.querySelectorAll('form[action^="/orders/"][action$="/cancel"]').forEach(form => {
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const formElement = event.target;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to cancel this order.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, cancel it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formElement.submit();
+                    }
+                });
+            });
+        });
+    });
+
 </script>
 </body>
 </html>

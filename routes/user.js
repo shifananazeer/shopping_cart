@@ -113,4 +113,6 @@ router.post('/verify-payment',orderController.verifyPayment)
 
 router.post('/update-payment-status',orderController. updatePaymentStatus);
 
+router.get('/repay-order/:orderId',orderController.repay)
+
 module.exports = router;

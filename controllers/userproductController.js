@@ -136,8 +136,8 @@ const getAllProducts = async(req,res) => {
                     category: product.category
                 }).limit(4).lean();
         
-                // Fetch user orders to check for purchased products
-                const orders = await Order.find({ userId: user._id }).populate('products.productId').lean();
+                // // Fetch user orders to check for purchased products
+                // const orders = await Order.find({ userId: user._id }).populate('products.productId').lean();
         
                 res.render('user/product-details', {
                     product,
@@ -145,7 +145,7 @@ const getAllProducts = async(req,res) => {
                     avgRating,
                     relatedProducts,
                     userHeader: true,
-                    orders // Pass orders to the template
+                    // orders // Pass orders to the template
                 });
             } catch (error) {
                 console.error('Error fetching product details:', error);

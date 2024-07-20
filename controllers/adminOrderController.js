@@ -32,32 +32,56 @@ module.exports = {
     },
     //changeing order status
     changeOrderStatus: async (req, res) => {
-        const { orderId } = req.params;
-        const { status } = req.body;
-    
         try {
-            const order = await Order.findOne({orderId: orderId});
-            if (!order) {
-                return res.status(404).send('Order not found');
+            const { orderId } = req.params;
+            const { status } = req.body;
+    
+            // Validate the new status
+            const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
+            if (!validStatuses.includes(status)) {
+                return res.status(400).json({ message: 'Invalid status' });
             }
-            order.orderStatus = status;
-            await order.save();
-        res.redirect('/admin/orders');
-    } catch (error) {
-        console.error('Error updating order status:', error);
-        res.status(500).send('Internal Server Error');
-    }
+    
+            // Update the order status in the database
+            const order = await Order.findOneAndUpdate(
+                { orderId },
+                { status },
+                { new: true }
+            );
+    
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+    
+            // Redirect to orders list page or send success response
+            res.redirect('/admin/orders'); // or res.json({ message: 'Status updated successfully' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Server error' });
+        }
     },
 
     //cancel order
     cancelOrder: async (req, res) => {
         try {
             const { orderId } = req.params;
-            await Order.findByIdAndUpdate(orderId, { status: 'Cancelled' });
-            res.redirect('/admin/orders');
+    
+            // Cancel the order by setting its status to 'cancelled'
+            const order = await Order.findOneAndUpdate(
+                { orderId },
+                { status: 'cancelled' },
+                { new: true }
+            );
+    
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+    
+            // Redirect to orders list page or send success response
+            res.redirect('/admin/orders'); // or res.json({ message: 'Order cancelled successfully' });
         } catch (error) {
-            console.error('Error canceling order:', error);
-            res.send('Internal Server Error');
+            console.error(error);
+            res.status(500).json({ message: 'Server error' });
         }
-    }
+}
 }
