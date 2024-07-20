@@ -49,7 +49,8 @@ placeOrder: async (req, res) => {
             items: cartItems, 
             summary: orderSummary,
             status: 'pending',
-            orderId: uniqueOrderId
+            orderId: uniqueOrderId,
+            paymentStatus:'pending'
         });
 
         await newOrder.save();
@@ -186,26 +187,32 @@ cancelOrder : async(req,res) => {
 
 //order History
 orderHistory : async(req,res) => {
-    const userId = req.session.user._id; 
+    const userId = req.session.user._id;
     try {
-        const orders = await Order.find({ userId }).sort({ createdAt: -1 });
-        const user = req.session.user
-         
-        const ordersWithProductDetails = await Promise.all(orders.map(async (order) => {
-            const productsWithDetails = await Promise.all(order.products.map(async (item) => {
-                const product = await Product.findById(item.productId._id); // Extract the _id
+        const orders = await Order.find({ userId })
+            .sort({ createdAt: -1 })
+            .populate('items.productId'); // Populate the productId field in items
+
+        const user = req.session.user;
+
+        const ordersWithItemDetails = orders.map(order => {
+            const itemsWithDetails = order.items.map(item => {
+                const product = item.productId; // product is already populated
                 return {
-                    ...item,
-                    product, // Include the product details
+                    ...item.toObject(),
+                    productName: product.name,
+                    productPrice: product.price,
+                    productImage: product.images ? product.images[0] : null // Assuming `images` is an array in the product schema
                 };
-            }));
+            });
+
             return {
                 ...order.toObject(), // Convert Mongoose document to plain object
-                products: productsWithDetails,
+                items: itemsWithDetails,
             };
-        }));
+        });
 
-        res.render('user/order-history', { orders:ordersWithProductDetails ,userHeader:true,user});
+        res.render('user/order-history', { orders: ordersWithItemDetails, userHeader: true, user });
     } catch (error) {
         console.error('Error fetching order history:', error);
         res.status(500).send('Internal Server Error');
@@ -256,11 +263,12 @@ createOrder : async (req, res) => {
 
         // Create order with Razorpay
         const order = await razorpay.orders.create(options);
+        const uniqueOrderId = generateUniqueOrderId();
 
         const newOrder = new Order({
             userId: req.session.user._id,
             addressId,
-            orderId: generateUniqueOrderId(),
+            orderId: uniqueOrderId,
             items: cartItems,
             paymentMethod,
             summary: {
@@ -273,15 +281,17 @@ createOrder : async (req, res) => {
             appliedCoupon,
             razorpayOrderId: order.id,
             status: 'pending',
-            paymentStatus: paymentMethod === 'online_payment' ? 'pending' : 'success', // Initial status
+            paymentStatus: paymentMethod === 'online_payment' ? 'failed' : 'success', 
         });
 
         await newOrder.save();
 
         res.json({
             success: true,
-            orderId: order.id,
+            orderId: uniqueOrderId,
+            razorpayOrderId: order.id,
             totalAmountToBePaid: orderSummary.totalAmountToBePaid,
+            orderId: uniqueOrderId,
             razorpayKeyId: process.env.RAZORPAY_KEY_ID
         });
     } catch (error) {
@@ -293,7 +303,7 @@ createOrder : async (req, res) => {
 
 verifyPayment :async (req, res) => {
     console.log("verify",req.body)
-    const { payment_id, order_id, signature } = req.body;
+    const { payment_id, order_id, signature,razorpayOrderId } = req.body;
 
     if (!payment_id || !order_id || !signature) {
         return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -307,7 +317,7 @@ verifyPayment :async (req, res) => {
         try {
             // Update payment status to 'success'
             await Order.findOneAndUpdate(
-                { order_id },
+                { razorpayOrderId },
                 { paymentStatus: 'success' },
                 { new: true }
             );
@@ -322,7 +332,31 @@ verifyPayment :async (req, res) => {
     }
 
 
-}
+},
+
+updatePaymentStatus : async (req, res) => {
+    const { orderId, paymentStatus } = req.body;
+
+    console.log("update", req.body); // Check the output in the server logs
+
+    try {
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+       console.log("order",order)
+        order.paymentStatus = paymentStatus;
+        console.log("mid",order)
+        await order.save();
+        console.log("sec",order)
+
+        res.json({ success: true, message: 'Payment status updated successfully' });
+    } catch (error) {
+        console.error('Error updating payment status:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+},
 
 
 }

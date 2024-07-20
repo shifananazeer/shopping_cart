@@ -111,4 +111,6 @@ router.post('/create-order',orderController.createOrder)
 
 router.post('/verify-payment',orderController.verifyPayment)
 
+router.post('/update-payment-status',orderController. updatePaymentStatus);
+
 module.exports = router;

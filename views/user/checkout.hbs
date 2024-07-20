@@ -182,7 +182,7 @@
             document.getElementById('selectedAddressId').value = addressId;
         }
 
-       document.getElementById('placeOrderButton').addEventListener('click', async function(event) {
+    document.getElementById('placeOrderButton').addEventListener('click', async function(event) {
     event.preventDefault();
 
     const selectedAddressId = document.getElementById('selectedAddressId').value;
@@ -231,7 +231,7 @@
                         currency: 'INR',
                         name: 'Your Website Name',
                         description: 'Purchase Order',
-                        order_id: data.orderId,
+                        order_id: data.razorpayOrderId,
                         handler: async function(response) {
                             try {
                                 const verifyResponse = await fetch('/verify-payment', {
@@ -243,7 +243,8 @@
                                         payment_id: response.razorpay_payment_id,
                                         order_id: response.razorpay_order_id,
                                         signature: response.razorpay_signature,
-                                        orderDetails: orderDetails
+                                        orderDetails: orderDetails,
+                                         razorpayOrderId: data.razorpayOrderId
                                     })
                                 });
 
@@ -255,7 +256,7 @@
                                         text: 'Your order has been placed successfully.',
                                         confirmButtonText: 'OK'
                                     }).then(() => {
-                                        window.location.href = '/order-history';
+                                        window.location.href = '/order-confirmation';
                                     });
                                 } else {
                                     Swal.fire({
@@ -275,6 +276,11 @@
                                 });
                             }
                         },
+                        modal: {
+                            ondismiss: function() {
+                                handlePaymentFailure(data.orderId);
+                            }
+                        },
                         prefill: {
                             name: 'Customer Name',
                             email: 'customer@example.com',
@@ -289,6 +295,11 @@
                     };
 
                     const rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function (response) {
+                        console.log('Payment failed:', response.error);
+                        handlePaymentFailure(data.orderId);
+                    });
+
                     rzp.open();
                 } else {
                     Swal.fire({
@@ -297,7 +308,7 @@
                         text: 'Your order has been placed successfully.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = '/order-history';
+                        window.location.href = '/order-confirmation';
                     });
                 }
             } else {
@@ -319,6 +330,44 @@
         }
     }
 });
+
+const handlePaymentFailure = (orderId,) => {
+    fetch('/update-payment-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: orderId, paymentStatus: 'failed' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Cancelled',
+                text: 'Your payment was cancelled. Please try again.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = '/order-history';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to update payment status',
+                text: 'An error occurred while updating the payment status.',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error updating payment status:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Failed to update payment status',
+            text: 'An error occurred while updating the payment status.',
+            confirmButtonText: 'OK'
+        });
+    });
+};
+
     </script>
 </body>
 </html>
