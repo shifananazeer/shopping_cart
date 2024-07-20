@@ -44,6 +44,11 @@
                         <a href="/profile" class="btn btn-info">Personal Information</a>
                         <a href="/order-history" class="btn btn-info mt-2">My Orders</a>
                         <a href="/profile/changePassword" class="btn btn-info mt-2">Change Password</a>
+                        <div class="referral-info">
+            <h2>Referral Information</h2>
+            <p><strong>Your Referral Code:</strong> {{user.referralCode}}</p>
+            
+        </div>
                     </div>
                 </div>
             </div>
@@ -68,6 +73,10 @@
                             <label class="labels">Mobile Number:</label>
                             <h6>{{user.number}}</h6>
                         </div>
+                         <div class="wallet-info">
+                         <h2>Wallet Information</h2>
+                         <p style="color: green;"><strong>Wallet Balance:</strong> ₹{{walletBalance}}</p>
+                         </div>
                     </div>
                     <!-- Addresses section -->
                     {{#each addresses}}

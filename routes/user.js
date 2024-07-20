@@ -46,7 +46,7 @@ router.post('/rate' ,middleware.userLoggerIn,userproductController.submitRating)
 
 router.get('/reviews',middleware.userLoggerIn, userproductController.fetchReviews);
 
-router.get('/profile',middleware.isVerified,profileController.getProfile)
+router.get('/profile',profileController.getProfile)
 
 router.get('/edit-profile',middleware.isVerified,profileController.getEditProfile)
 
@@ -115,4 +115,9 @@ router.post('/update-payment-status',orderController. updatePaymentStatus);
 
 router.get('/repay-order/:orderId',orderController.repay)
 
+
+router.get('/orders/:orderId/return', orderController.renderReturnPage);
+
+// Route to handle return order submission
+router.post('/orders/:orderId/return', orderController.handleReturnOrder);
 module.exports = router;

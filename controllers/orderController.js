@@ -3,7 +3,8 @@ const Product = require('../models/productmodel')
 const Cart = require('../models/cartmodel')
 const Address = require('../models/addressmodel')
 const Coupon = require('../models/couponmodel')
-
+const Wallet = require('../models/walletmodel')
+const Return = require('../models/returnmodel')
 const Razorpay = require('razorpay');
 
 const crypto = require('crypto');
@@ -40,6 +41,23 @@ placeOrder: async (req, res) => {
     }
 
     try {
+
+        const userId = req.session.user._id;
+        let totalAmount = orderSummary.totalAmountToBePaid;
+
+        // Handle Wallet Payment
+        if (paymentMethod === 'wallet') {
+            const wallet = await Wallet.findOne({ userId });
+            if (!wallet || wallet.balance < totalAmount) {
+                return res.status(400).json({ message: 'Insufficient wallet balance' });
+            }
+
+            // Deduct amount from wallet
+            wallet.balance -= totalAmount;
+            await wallet.save();
+        }
+
+
         const uniqueOrderId = generateUniqueOrderId();
 
         const newOrder = new Order({
@@ -50,7 +68,7 @@ placeOrder: async (req, res) => {
             summary: orderSummary,
             status: 'pending',
             orderId: uniqueOrderId,
-            paymentStatus:'pending'
+             paymentStatus: paymentMethod === 'wallet' ? 'success' : 'pending'
         });
 
         await newOrder.save();
@@ -61,7 +79,7 @@ placeOrder: async (req, res) => {
             });
         }
 
-        await Cart.deleteMany({ userId: req.usersession._id });
+        await Cart.deleteMany({ userId: req.session.user._id });
 
         res.status(201).json({ message: 'Order placed successfully', orderId: newOrder.orderId });
     } catch (error) {
@@ -154,7 +172,8 @@ orderConfirmation: async (req, res) => {
             address: address,
             products: order.items,
             formatDate: (date) => new Date(date).toLocaleDateString(), // Formatting function for date
-            totalAmount: order.totalAmount
+            totalAmount: order.totalAmount,
+            userHeader:true
         });
     } catch (error) {
         console.error('Error fetching order details:', error);
@@ -405,6 +424,74 @@ repay : async (req,res) => {
     } catch (error) {
         console.error('Error initiating repayment:', error);
         res.status(500).json({ success: false, message: 'An error occurred while initiating repayment' });
+    }
+},
+       renderReturnPage : (req, res) => {
+    const orderId = req.params.orderId;
+    res.render('user/return-order', { orderId ,userHeader:true});
+     },
+
+// Function to handle return order submission
+     handleReturnOrder : async (req, res) => {
+    const orderId = req.params.orderId;
+    const { reason } = req.body;
+
+    try {
+        // Find the order by ID
+        const order = await Order.findOne({orderId});
+
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        // Check if the order is delivered
+        if (order.status !== 'delivered') {
+            return res.status(400).send('Only delivered orders can be returned');
+        }
+
+        // Create a return request
+        const returnRequest = new Return({
+            orderId: order._id,
+            userId: order.userId,
+            reason,
+            amount: order.summary.totalAmountToBePaid // Assuming you have a total amount field in your order summary
+        });
+
+        await returnRequest.save();
+
+        // Credit the amount to the user's wallet
+        const wallet = await Wallet.findOne({ userId: order.userId });
+
+        if (!wallet) {
+            // Create a new wallet if it doesn't exist
+            const newWallet = new Wallet({
+                userId: order.userId,
+                balance: order.summary.totalAmountToBePaid,
+                transactions: [{
+                    type: 'credit',
+                    amount: order.summary.totalAmountToBePaid,
+                    description: `Return of Order ID: ${orderId}`
+                }]
+            });
+            await newWallet.save();
+        } else {
+            // Update the existing wallet
+            wallet.balance += order.summary.totalAmountToBePaid;
+            wallet.transactions.push({
+                type: 'credit',
+                amount: order.summary.totalAmountToBePaid,
+                description: `Return of Order ID: ${orderId}`
+            });
+            await wallet.save();
+        }
+        order.status = 'returned';
+        order.paymentStatus = 'credited in wallet';
+        await order.save();
+
+        res.redirect('/order-history')
+    } catch (error) {
+        console.error('Error processing return order:', error);
+        res.status(500).send('Internal Server Error');
     }
 }
 

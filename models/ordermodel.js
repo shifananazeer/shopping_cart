@@ -3,14 +3,14 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
-    paymentStatus: { type: String, enum: ['pending', 'success', 'failed'], default: '' }, // New field
+    paymentStatus: { type: String, enum: ['pending', 'success', 'failed','credited in wallet'], default: '' }, // New field
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
     razorpaySignature: { type: String },
     paymentMethod: { 
         type: String, 
         required: true, 
-        enum: ['cash_on_delivery', 'online_payment'] // Ensure this includes the new payment method
+        enum: ['cash_on_delivery', 'online_payment','wallet'] // Ensure this includes the new payment method
     },
     onlinePaymentDetails: {
         razorpayOrderId:{type:String},

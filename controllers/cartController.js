@@ -4,6 +4,7 @@ const Address = require('../models/addressmodel')
 const Order = require('../models/ordermodel');
 const usermodel = require('../models/usermodel');
 const Coupon = require ('../models/couponmodel')
+const Wallet = require('../models/walletmodel')
 
 module.exports = {
     //add products to cart
@@ -217,11 +218,16 @@ module.exports = {
         const summary = calculateCartSummary(cart.items);
         
         const coupons = await Coupon.find({ minPurchaseAmount: { $lte: summary.totalAmountToBePaid } });
-
+       const wallet = await Wallet.findOne({userId})
+       console.log(wallet)
+       let walletBalance = 'Wallet empty';
+       if (wallet) {
+        walletBalance = wallet.balance ? wallet.balance.toFixed(2) : 'Wallet empty';
+       }
         const addresses = await Address.find({userId:userId})
         console.log(addresses)
     
-        res.render('user/checkout', { cartItems, summary ,addresses,user,userHeader:true,coupons});
+        res.render('user/checkout', { cartItems, summary ,addresses,user,userHeader:true,coupons,walletBalance});
     },
     addWishlistToCart : async (req, res) => {
         try {

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Order</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Return Order</h1>
+        <form action="/orders/{{orderId}}/return" method="POST">
+            <div class="form-group">
+                <label for="reason">Reason for Return</label>
+                <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Return Request</button>
+        </form>
+    </div>
+</body>
+</html>

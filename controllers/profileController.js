@@ -3,6 +3,7 @@ const Address = require('../models/addressmodel')
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
+const Wallet = require('../models/walletmodel')
 
 module.exports = {
 
@@ -17,11 +18,18 @@ module.exports = {
               if (!user) {
                 return res.redirect('/login');
               }
-        
+              const wallet = await Wallet.findOne({ userId: _id });
+              let walletBalance = 'Wallet empty';
+              if (wallet) {
+                  
+                  walletBalance = wallet.balance ? wallet.balance.toFixed(2) : 'Wallet empty';
+              }
+              
+              
               // Fetch user addresses
               const addresses = await Address.find({ userId: _id });
         
-              res.render('user/profile', { user, addresses ,userHeader:true});
+              res.render('user/profile', { user, addresses ,userHeader:true,walletBalance});
             } else {
               res.redirect('/login');
             }

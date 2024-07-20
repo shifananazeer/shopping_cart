@@ -18,6 +18,10 @@
         .form-select {
             font-size: 2rem;
         }
+         .wallet-balance {
+            font-size: 1.2rem;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -96,14 +100,16 @@
             <a id="editAddressLink" href="#">Edit Address</a>
             <input type="hidden" id="selectedAddressId" name="selectedAddressId" value="">
         </div>
-
+           <div class="wallet-balance mb-4">
+            <strong>Wallet Balance:</strong> {{walletBalance}} ₹
+        </div>
         <div class="mb-3">
             <label for="paymentMethod" class="form-label">Select Payment Method</label>
             <select class="form-select" id="paymentMethod" name="paymentMethod" required>
                 <option value="">Select Payment Method</option>
                 <option value="cash_on_delivery">Cash On Delivery</option>
                 <option value="online_payment">Online Payment</option>
-                <!-- Add other payment methods if needed -->
+                 <option value="wallet" class="wallet-option">Wallet Payment</option>
             </select>
         </div>
 
@@ -111,6 +117,18 @@
     </div>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
+   document.addEventListener('DOMContentLoaded', function () {
+            const walletBalance = {{walletBalance}}; // Pass wallet balance from server-side to client-side
+
+            // Check if wallet balance is greater than zero
+            if (walletBalance > 0) {
+                // Show the wallet payment option
+                document.querySelector('.wallet-option').style.display = 'block';
+            }
+        });
+
+
+
         let appliedCoupon = null; // Store the applied coupon details
 
         async function validateCoupon() {
@@ -214,7 +232,7 @@
         };
 
         try {
-            const response = await fetch(paymentMethod === 'cash_on_delivery' ? '/place-order' : '/create-order', {
+             const response = await fetch(paymentMethod === 'cash_on_delivery' || paymentMethod === 'wallet' ? '/place-order' : '/create-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -257,7 +275,7 @@
                                         text: 'Your order has been placed successfully.',
                                         confirmButtonText: 'OK'
                                     }).then(() => {
-                                        window.location.href = `/order-confirmation${data.orderId}`;
+                                        window.location.href = `/order-confirmation/${data.orderId}`;
                                     });
                                 } else {
                                     Swal.fire({
@@ -309,7 +327,7 @@
                         text: 'Your order has been placed successfully.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = `/order-confirmation${data.orderId}`;
+                        window.location.href = `/order-confirmation/${data.orderId}`;
                     });
                 }
             } else {

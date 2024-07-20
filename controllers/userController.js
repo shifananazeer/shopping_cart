@@ -3,9 +3,9 @@ const nodemailer = require('nodemailer');
 const Category = require('../models/categorymodel')
 const Brand = require('../models/brandmodel')
 const bcrypt = require('bcrypt');
-
+const Wallet = require('../models/walletmodel')
 const Product = require('../models/productmodel')
-
+const crypto = require('crypto');
 
 //Get Home with newly arrived products ,category ,brand
 const getHomePage = async (req, res) => {
@@ -60,10 +60,14 @@ res.render('user/home', { user,products,categories,highOfferProducts,brands,user
     return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
-  
+const generateReferralCode = () => {
+  return crypto.randomBytes(4).toString('hex').toUpperCase();
+};
+
 //post signup function
 const postSignup = async (req, res) => {
-  const { name, email, number, password } = req.body;
+  console.log("signup",req.body)
+  const { name, email, number, password,referralCode } = req.body;
   try {
     const existingUser = await User.findOne({ $or: [{ email }, { number }] });
 
@@ -71,7 +75,14 @@ const postSignup = async (req, res) => {
       req.flash('error', 'Email or phone number already exists.');
       return res.redirect('/signup');
     }
-
+    let referrer = null;
+        if (referralCode) {
+            referrer = await User.findOne({ referralCode });
+            if (!referrer) {
+                return res.status(400).json({ message: 'Invalid referral code' });
+            }
+        }
+        const newReferralCode = generateReferralCode();
     const otp = generateOTP();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -84,8 +95,26 @@ const postSignup = async (req, res) => {
       otp,
       otpExpiresAt,
       is_verified: false,
+      referralCode: newReferralCode,
+      referredBy: referrer ? referrer._id : null
     });
     await newUser.save();
+    if (referrer) {
+      const wallet = await Wallet.findOne({ userId: referrer._id });
+      if (wallet) {
+          wallet.balance += 500; // Add 500 to referrer's wallet
+          await wallet.save();
+      } else {
+        
+          const newWallet = new Wallet({
+              userId: referrer._id,
+              balance: 500
+          });
+          await newWallet.save();
+      }
+  }
+
+
 
     req.user = {
       id: newUser._id,

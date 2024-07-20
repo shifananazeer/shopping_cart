@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   googleId: String,
   profilePhoto: String,
+  referralCode: String,
+    referredBy: String, 
   addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
 });
 
