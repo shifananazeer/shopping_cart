@@ -7,11 +7,11 @@ const Coupon = require('../models/couponmodel')
 const Razorpay = require('razorpay');
 
 const crypto = require('crypto');
-
-const razorpayInstance = new Razorpay({
+const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
+
 
 
 
@@ -32,37 +32,32 @@ const createRazorpayOrder = async (amount) => {
 module.exports = {
 //order creation
 placeOrder: async (req, res) => {
-    console.log("body", req.body);
-    const { addressId, paymentMethod, cartItems, summary } = req.body;
+    console.log("Request body:", req.body);
+    const { addressId, paymentMethod, cartItems, orderSummary } = req.body;
 
-    // Validate input
-    if (!addressId || !paymentMethod || !cartItems || !summary) {
+    if (!addressId || !paymentMethod || !cartItems || !orderSummary) {
         return res.status(400).json({ message: 'Missing required fields' });
     }
 
     try {
-        // Generate unique order ID
         const uniqueOrderId = generateUniqueOrderId();
 
-        // Create new order
         const newOrder = new Order({
-            userId: req.session.user._id, // Assuming req.user is populated by authentication middleware
+            userId: req.session.user._id,
             addressId,
             paymentMethod,
-            items: cartItems,
-            summary,
+            items: cartItems, 
+            summary: orderSummary,
             status: 'pending',
             orderId: uniqueOrderId
         });
 
-        // Save the order
         await newOrder.save();
 
-        // Respond with the order ID
         res.status(201).json({ message: 'Order placed successfully', orderId: newOrder.orderId });
     } catch (error) {
         console.error('Error placing order:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 },
 savePaymentDetails : async (req, res) => {
@@ -163,26 +158,29 @@ orderConfirmation: async (req, res) => {
 
 //order cancel with stock incrimentaion and purchase count decrimentation
 cancelOrder : async(req,res) => {
-    const { orderId } = req.params; // Extract orderId from params
+    const { orderId } = req.params; 
     console.log("orderId:", orderId);
     try {
+       
         const order = await Order.findOne({ orderId: orderId });
-        if (!order || order.orderStatus !== 'Pending'&& order.orderStatus !== 'placed') {
-            return res.status(400).json({ error: 'Order cannot be canceled' });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
         }
-        order.orderStatus = 'cancelled';
+
+        
+        if (order.status === 'cancelled' || order.status === 'completed') {
+            return res.status(400).json({ success: false, message: 'Order cannot be cancelled' });
+        }
+
+        
+        order.status = 'cancelled';
         await order.save();
 
-        // Restore product stock
-        for (let item of order.products) {
-            await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stock: item.quantity }
-            });
-        }
-        res.json({ success: true, message: 'Order cancelled successfully.' });
+        res.json({ success: true, message: 'Order has been cancelled successfully' });
     } catch (error) {
         console.error('Error cancelling order:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 },
 
@@ -242,13 +240,92 @@ getCoupon : async (req,res) => {
         console.error('Error fetching coupons:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+},
+
+createOrder : async (req, res) => {
+    console.log("body",req.body)
+    
+    const { addressId, cartItems, orderSummary, appliedCoupon ,paymentMethod} = req.body;
+
+    try {
+        const options = {
+            amount: orderSummary.totalAmountToBePaid * 100, // Amount in paise
+            currency: 'INR',
+            receipt: `receipt_${Date.now()}`,
+        };
+
+        // Create order with Razorpay
+        const order = await razorpay.orders.create(options);
+
+        const newOrder = new Order({
+            userId: req.session.user._id,
+            addressId,
+            orderId: generateUniqueOrderId(),
+            items: cartItems,
+            paymentMethod,
+            summary: {
+                totalPriceBeforeDiscount: orderSummary.totalPriceBeforeDiscount,
+                totalDiscount: orderSummary.totalDiscount,
+                discountedPrice: orderSummary.discountedPrice,
+                shippingCharge: orderSummary.shippingCharge,
+                totalAmountToBePaid: orderSummary.totalAmountToBePaid
+            },
+            appliedCoupon,
+            razorpayOrderId: order.id,
+            status: 'pending',
+            paymentStatus: paymentMethod === 'online_payment' ? 'pending' : 'success', // Initial status
+        });
+
+        await newOrder.save();
+
+        res.json({
+            success: true,
+            orderId: order.id,
+            totalAmountToBePaid: orderSummary.totalAmountToBePaid,
+            razorpayKeyId: process.env.RAZORPAY_KEY_ID
+        });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+},
+
+
+verifyPayment :async (req, res) => {
+    console.log("verify",req.body)
+    const { payment_id, order_id, signature } = req.body;
+
+    if (!payment_id || !order_id || !signature) {
+        return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${order_id}|${payment_id}`)
+        .digest('hex');
+
+    if (generatedSignature === signature) {
+        try {
+            // Update payment status to 'success'
+            await Order.findOneAndUpdate(
+                { order_id },
+                { paymentStatus: 'success' },
+                { new: true }
+            );
+            res.json({ success: true, message: 'Payment verified successfully' });
+        } catch (error) {
+            console.error('Error updating order payment status:', error);
+            res.status(500).json({ success: false, message: 'Failed to update payment status' });
+        }
+    } else {
+        // Payment verification failed
+        res.status(400).json({ success: false, message: 'Payment verification failed' });
+    }
 
 
 }
 
 
-   
+}
 
 
 

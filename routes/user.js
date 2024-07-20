@@ -107,6 +107,8 @@ router.get('/order-confirmation/:orderId', orderController.orderConfirmation);
 
 router.get('/coupons',orderController.getCoupon )
 
+router.post('/create-order',orderController.createOrder)
 
+router.post('/verify-payment',orderController.verifyPayment)
 
 module.exports = router;

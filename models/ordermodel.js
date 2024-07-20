@@ -3,7 +3,16 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
-    paymentMethod: { type: String, required: true },
+    paymentStatus: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending' }, // New field
+    paymentMethod: { 
+        type: String, 
+        required: true, 
+        enum: ['cash_on_delivery', 'online_payment'] // Ensure this includes the new payment method
+    },
+    onlinePaymentDetails: {
+        transactionId: { type: String }, // For storing transaction ID or other online payment details
+        paymentStatus: { type: String }  // For storing status of online payment (e.g., completed, pending)
+    },
     items: [
         {
             productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
