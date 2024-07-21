@@ -202,11 +202,7 @@ module.exports = {
         if (!isMatch) {
             return res.redirect('/profile/changePassword?error=Current password is incorrect');
         }
-
-        // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        // Update the user's password
         user.password = hashedPassword;
         await user.save();
 

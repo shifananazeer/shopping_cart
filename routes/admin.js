@@ -84,5 +84,5 @@ router.get('/coupons/edit/:id',adminsessionHandler, admincouponController.getEdi
 
 router.post('/coupons/edit/:id',adminsessionHandler, admincouponController.updateCoupon);
 
-router.get("/salesReport", adminsalesController.salesReport);
+router.get("/salesReport",adminsessionHandler, adminsalesController.salesReport);
 module.exports = router;

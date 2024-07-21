@@ -16,7 +16,6 @@ module.exports ={
     
     addCoupon : async (req, res) => {
         const { code, discount, minPurchaseAmount, expirationDate } = req.body;
-    
         try {
             const newCoupon = new Coupon({
                 code,
@@ -36,19 +35,19 @@ deactivateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
             await Coupon.findByIdAndUpdate(id, { isActive: false });
-            res.redirect('/admin/coupons'); // Redirect to the coupons page after deactivation
+            res.redirect('/admin/coupons'); 
         } catch (error) {
             console.error('Error deactivating coupon:', error);
             res.status(500).send('Server Error');
         }
     },
     
-    // Activate coupon
+   
    activateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
             await Coupon.findByIdAndUpdate(id, { isActive: true });
-            res.redirect('/admin/coupons'); // Redirect to the coupons page after activation
+            res.redirect('/admin/coupons'); 
         } catch (error) {
             console.error('Error activating coupon:', error);
             res.status(500).send('Server Error');
@@ -59,14 +58,14 @@ deactivateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
             const coupon = await Coupon.findById(id);
-            res.render('admin/edit-coupon', { coupon ,adminHeader:true}); // Render the edit coupon page with the coupon data
+            res.render('admin/edit-coupon', { coupon ,adminHeader:true}); 
         } catch (error) {
             console.error('Error fetching coupon:', error);
             res.status(500).send('Server Error');
         }
     },
     
-    // Update coupon
+   
     updateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
@@ -79,7 +78,7 @@ deactivateCoupon : async (req, res) => {
                 expirationDate
             });
     
-            res.redirect('/admin/coupons'); // Redirect to the coupons page after update
+            res.redirect('/admin/coupons'); 
         } catch (error) {
             console.error('Error updating coupon:', error);
             res.status(500).send('Server Error');

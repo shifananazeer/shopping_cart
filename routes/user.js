@@ -88,36 +88,33 @@ router.get('/order-history',middleware.isVerified,orderController.orderHistory)
 
 router.get('/order-details/:orderId',middleware.isVerified,orderController.orderDetails)
 
-router.post('/wishlist/add/:productId',wishlistController. addToWishlist);
+router.post('/wishlist/add/:productId',middleware.isVerified,wishlistController. addToWishlist);
 
-router.delete('/wishlist/remove/:productId',wishlistController. removeFromWishlist);
+router.delete('/wishlist/remove/:productId',middleware.isVerified,wishlistController. removeFromWishlist);
 
 router.get('/wishlist',middleware.isVerified,wishlistController.getWishlist)
 
-router.get('/addwishlisttocart/:productId', cartController.addToCart);
+router.get('/addwishlisttocart/:productId',middleware.isVerified, cartController.addToCart);
 
-router.post('/place-order', orderController.placeOrder);
-
-router.post('/save-payment-details', orderController.savePaymentDetails);
-
-router.get('/get-cart-items',orderController.getCartItems)
-
-router.get('/order-confirmation/:orderId', orderController.orderConfirmation);
+router.post('/place-order',middleware.isVerified, orderController.placeOrder);
 
 
-router.get('/coupons',orderController.getCoupon )
+router.get('/get-cart-items',middleware.isVerified,orderController.getCartItems)
 
-router.post('/create-order',orderController.createOrder)
-
-router.post('/verify-payment',orderController.verifyPayment)
-
-router.post('/update-payment-status',orderController. updatePaymentStatus);
-
-router.get('/repay-order/:orderId',orderController.repay)
+router.get('/order-confirmation/:orderId',middleware.isVerified, orderController.orderConfirmation);
 
 
-router.get('/orders/:orderId/return', orderController.renderReturnPage);
+router.get('/coupons',middleware.isVerified,orderController.getCoupon )
 
-// Route to handle return order submission
-router.post('/orders/:orderId/return', orderController.handleReturnOrder);
+router.post('/create-order',middleware.isVerified,orderController.createOrder)
+
+router.post('/verify-payment',middleware.isVerified,orderController.verifyPayment)
+
+router.post('/update-payment-status',middleware.isVerified,orderController. updatePaymentStatus);
+
+router.get('/repay-order/:orderId',middleware.isVerified,orderController.repay)
+
+router.get('/orders/:orderId/return',middleware.isVerified, orderController.renderReturnPage);
+
+router.post('/orders/:orderId/return',middleware.isVerified, orderController.handleReturnOrder);
 module.exports = router;

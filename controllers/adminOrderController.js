@@ -6,8 +6,8 @@ module.exports = {
     //get all order list
     listOrders: async (req, res) => {
         try {
-            const perPage = 10; // Number of orders per page
-            const page = parseInt(req.query.page) || 1; // Current page number from query parameter
+            const perPage = 10; 
+            const page = parseInt(req.query.page) || 1; 
     
             const orders = await Order.find()
                 .sort({ createdAt: -1 })
@@ -35,14 +35,10 @@ module.exports = {
         try {
             const { orderId } = req.params;
             const { status } = req.body;
-    
-            // Validate the new status
             const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({ message: 'Invalid status' });
             }
-    
-            // Update the order status in the database
             const order = await Order.findOneAndUpdate(
                 { orderId },
                 { status },
@@ -56,9 +52,7 @@ module.exports = {
             if (!order) {
                 return res.status(404).json({ message: 'Order not found' });
             }
-    
-            // Redirect to orders list page or send success response
-            res.redirect('/admin/orders'); // or res.json({ message: 'Status updated successfully' });
+            res.redirect('/admin/orders'); 
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Server error' });
@@ -69,8 +63,7 @@ module.exports = {
     cancelOrder: async (req, res) => {
         try {
             const { orderId } = req.params;
-    
-            // Cancel the order by setting its status to 'cancelled'
+
             const order = await Order.findOneAndUpdate(
                 { orderId },
                 { status: 'cancelled' },
@@ -80,9 +73,7 @@ module.exports = {
             if (!order) {
                 return res.status(404).json({ message: 'Order not found' });
             }
-    
-            // Redirect to orders list page or send success response
-            res.redirect('/admin/orders'); // or res.json({ message: 'Order cancelled successfully' });
+            res.redirect('/admin/orders'); 
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Server error' });

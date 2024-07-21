@@ -36,8 +36,6 @@
             border-radius: 5px;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.6/xlsx.full.min.js"></script>
-
 </head>
 <body>
     <main id="main" class="main">
@@ -68,7 +66,6 @@
                         <th>Order Amount</th>
                         <th>Discount</th>
                         <th>Coupon Deduction</th>
-                        <th>GST Amount</th>
                         <th>Final Amount</th>
                         <th>Payment Status</th>
                     </tr>
@@ -82,7 +79,6 @@
                         <td>{{summary.totalAmountToBePaid}} ₹</td>
                         <td>{{summary.totalDiscount}} ₹</td>
                         <td>{{#if coupon.discountAmount}}{{coupon.discountAmount}}{{else}}0.00{{/if}} ₹</td>
-                        <td>{{totalGst}} ₹</td>
                         <td>{{summary.discountedPrice}} ₹</td>
                         <td>{{paymentStatus}}</td>
                     </tr>
@@ -96,7 +92,7 @@
                 <div>Overall Discount: {{totalDiscount}} ₹</div>
                 <div>Overall Coupon Discount: {{totalCouponDiscount}} ₹</div>
                 <div>Overall GST Amount: {{totalGst}} ₹</div>
-                <div>Overall Revenue: {{totalRevenue}} ₹</div>
+                <div>Overall Revenue: {{round totalRevenue}} ₹</div>
             </div>
             <div class="text-center mt-4">
                 <button onclick="downloadPDF()" class="btn btn-danger">Download PDF</button>
@@ -104,10 +100,9 @@
             </div>
         </div>
     </main>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.1/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
-    
     <script>
         function filterReport() {
             const startDate = document.getElementById('start-date').value;
@@ -132,7 +127,7 @@
             doc.text('Sales Report', 14, 22);
 
             // Table Headers
-            const headers = ["Order ID", "Date", "Customer Name", "Order Amount", "Discount", "Coupon Deduction", "GST Amount", "Final Amount", "Payment Status"];
+            const headers = ["Order ID", "Date", "Customer Name", "Order Amount", "Discount", "Coupon Deduction", "Final Amount", "Payment Status"];
             const data = [];
 
             {{#each orders}}
@@ -143,7 +138,6 @@
                 "{{summary.totalAmountToBePaid}} ₹",
                 "{{summary.totalDiscount}} ₹",
                 "{{#if coupon.discountAmount}}{{coupon.discountAmount}}{{else}}0.00{{/if}} ₹",
-                "{{totalGst}} ₹",
                 "{{summary.discountedPrice}} ₹",
                 "{{paymentStatus}}"
             ]);
@@ -167,54 +161,52 @@
             doc.text(`Overall GST Amount: {{totalGst}} ₹`, 14, startY + 40);
             doc.text(`Overall Revenue: {{totalRevenue}} ₹`, 14, startY + 50);
 
-            // Save PDF
             doc.save('sales_report.pdf');
         }
 
-        function downloadAsExcel() {
-            console.log("Download as Excel function called");
+      function downloadAsExcel() {
+   const headers = [
+        "Order ID", "Date", "Customer Name", "Order Amount", 
+        "Discount", "Coupon Deduction", "GST Amount", "Final Amount", "Payment Status"
+    ];
 
-            // Sample data - update with your data
-            const wsData = [
-                ["Order ID", "Date", "Customer Name", "Order Amount", "Discount", "Coupon Deduction", "GST Amount", "Final Amount", "Payment Status"],
-                {{#each orders}}
-                [
-                    "{{orderId}}",
-                    "{{formatDate createdAt}}",
-                    "{{userId.name}}",
-                    "{{summary.totalAmountToBePaid}} ₹",
-                    "{{summary.totalDiscount}} ₹",
-                    "{{#if coupon.discountAmount}}{{coupon.discountAmount}}{{else}}0.00{{/if}} ₹",
-                    "{{totalGst}} ₹",
-                    "{{summary.discountedPrice}} ₹",
-                    "{{paymentStatus}}"
-                ],
-                {{/each}}
-            ];
+    const data = [
+        ...{{#each orders}}
+        {
+            "Order ID": "{{orderId}}",
+            "Date": "{{formatDate createdAt}}",
+            "Customer Name": "{{userId.name}}",
+            "Order Amount": "{{summary.totalAmountToBePaid}} ₹",
+            "Discount": "{{summary.totalDiscount}} ₹",
+            "Coupon Deduction": "{{#if coupon.discountAmount}}{{coupon.discountAmount}}{{else}}0.00{{/if}} ₹",
+            "GST Amount": "{{totalGst}} ₹",
+            "Final Amount": "{{summary.discountedPrice}} ₹",
+            "Payment Status": "{{paymentStatus}}"
+        },
+        {{/each}}
+    ];
 
-            // Create workbook and worksheet
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(wsData);
-            XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+    const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Report');
 
-            // Generate Excel file
-            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+    // Summary Data
+    const summaryData = [
+        ["Overall Sales Count", "{{totalSalesCount}}"],
+        ["Overall Order Amount", "{{totalOrderAmount}} ₹"],
+        ["Overall Discount", "{{totalDiscount}} ₹"],
+        ["Overall Coupon Discount", "{{totalCouponDiscount}} ₹"],
+        ["Overall GST Amount", "{{totalGst}} ₹"],
+        ["Overall Revenue", "{{totalRevenue}} ₹"]
+    ];
+    
+    const summaryWorksheet = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary');
 
-            // Helper function to convert string to array buffer
-            function s2ab(s) {
-                const buf = new ArrayBuffer(s.length);
-                const view = new Uint8Array(buf);
-                for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-                return buf;
-            }
+    // Save Excel
+    XLSX.writeFile(workbook, 'sales_report.xlsx');
+}
 
-            // Download file
-            const blob = new Blob([s2ab(wbout)], { type: "application/octet-stream" });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = "sales_report.xlsx";
-            link.click();
-        }
     </script>
 </body>
 </html>

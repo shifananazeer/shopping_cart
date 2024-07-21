@@ -63,6 +63,9 @@ module.exports = {
         const args = Array.prototype.slice.call(arguments, 0, -1);
         return args.every(Boolean);
     },
+    round: function (value) {
+        return Math.round(value);
+    },
     generateStars: function(rating) {
         let starsHtml = '';
         const filledStars = Math.floor(rating);

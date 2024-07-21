@@ -5,7 +5,7 @@ module.exports = {
     salesReport : async(req,res) => {
         try {
             const { startDate, endDate, presetRange } = req.query;
-            let filter = { status: 'delivered' }; // Initial filter for delivered orders
+            let filter = { status: 'delivered' }; 
     
             // Handling date range
             if (startDate && endDate) {
@@ -32,17 +32,12 @@ module.exports = {
             }
     
             const orders = await Order.find(filter).populate('userId').exec();
-    
-            // GST rate
-            const gstRate = 0.02;  // 2% GST rate
-
-            // Calculate summaries
+            const gstRate = 0.02;  
             const totalSalesCount = orders.length;
             const totalOrderAmount = orders.reduce((sum, order) => sum + order.summary.totalAmountToBePaid, 0);
             const totalDiscount = orders.reduce((sum, order) => sum + order.summary.totalDiscount, 0);
             const totalCouponDiscount = orders.reduce((sum, order) => sum + (order.coupon.discountAmount || 0), 0);
 
-            // Calculate GST and total revenue
             const totalGst = orders.reduce((sum, order) => {
                 const gst = order.summary.totalAmountToBePaid * gstRate;
                 return sum + gst;
@@ -50,7 +45,6 @@ module.exports = {
             
             const totalRevenue = totalOrderAmount - totalDiscount - totalCouponDiscount - totalGst;
     
-            // Render view
             res.render('admin/salesReport', {
                 orders: orders,
                 totalSalesCount,
@@ -58,7 +52,8 @@ module.exports = {
                 totalDiscount,
                 totalCouponDiscount,
                 totalGst,
-                totalRevenue
+                totalRevenue,
+                adminHeader:true,
             });
         } catch (error) {
             console.error(error);
