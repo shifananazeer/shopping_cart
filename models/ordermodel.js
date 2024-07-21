@@ -33,6 +33,7 @@ const orderSchema = new mongoose.Schema({
         totalAmountToBePaid: { type: Number, required: true }
     },
     status: { type: String, default: 'pending' },
+    coupon:{ type: String},
     razorpayPaymentId :{type:String},
     createdAt: { type: Date, default: Date.now },
     orderId: { type: String, unique: true, required: true }

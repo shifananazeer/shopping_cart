@@ -12,8 +12,9 @@ const categorySchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  discount: { type: Number, default: 0 },
   image: {
-    type: String,  // Assuming the image is stored as a URL or file path
+    type: String,  
     required: true,
   },
 }, { timestamps: true });

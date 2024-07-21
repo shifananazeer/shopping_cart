@@ -375,8 +375,8 @@
                     <div class="product-price text-dark">
                         {{#if this.discount}}
                         <span style="font-weight: bolder;" class="product-discounted-price mr-2">
-                            ₹ {{calcDiscountedPrice this.price this.discount}}
-                        </span>
+                              ₹ {{calcDiscountedPrice this.price this.productDiscount this.category.discount}}
+                               </span>
                         <div>
                             <span style="color: red;" class="product-original-price">
                                 <del>₹ {{this.price}}</del>

@@ -44,10 +44,10 @@ categoryPage: async (req, res) => {
 //add category posting
     postAddCategory : async (req, res) => {
       try {
-        const { name } = req.body;
+        const { name,discount } = req.body;
         const image = req.file;
           
-          if (!name || !image) {
+          if (!name || !image ) {
             req.flash('error', 'Name and image are required');
             return res.redirect('/admin/add-category'); 
           }
@@ -62,6 +62,7 @@ categoryPage: async (req, res) => {
           
           const newCategory = new Category({
            name: name,
+           discount:discount,
            image : imagePath
            
           });
@@ -99,7 +100,7 @@ categoryPage: async (req, res) => {
 //edit category posting
    editCategory : async (req, res) => {
     const categoryId = req.params.id;
-    const { name } = req.body;
+    const { name,discount } = req.body;
     const newImage = req.file; 
     try {
         const category = await Category.findById(categoryId);
@@ -108,6 +109,7 @@ categoryPage: async (req, res) => {
             return res.redirect('/admin/view-category');
         }
         category.name = name;
+        category.discount = discount;
         if (newImage) {
             const oldImagePath = category.image;
             const newImagePath = path.join('images/category', newImage.filename);

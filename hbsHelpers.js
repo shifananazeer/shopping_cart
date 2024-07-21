@@ -26,12 +26,17 @@ module.exports = {
                 return options.inverse(this);
         }
     },
-    calcDiscountedPrice: function(price, discount) {
-        price = parseFloat(price);
-        discount = parseFloat(discount);
-
-        let discountedPrice = price - (price * (discount / 100));
-        return Math.round(discountedPrice);
+    calcDiscountedPrice: function(price, productDiscount, categoryDiscount) {
+        price = parseFloat(price) || 0;
+        productDiscount = parseFloat(productDiscount) || 0;
+        categoryDiscount = parseFloat(categoryDiscount) || 0;
+    
+        // Determine the greater discount
+        let maxDiscount = Math.max(productDiscount, categoryDiscount);
+    
+        // Calculate the discounted price
+        let discountedPrice = price - (price * (maxDiscount / 100));
+        return isNaN(discountedPrice) ? price : Math.round(discountedPrice);
     },
     add: function(value1, value2) {
         return value1 + value2;

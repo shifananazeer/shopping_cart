@@ -55,7 +55,8 @@
             <tr>
               <th scope="col">#</th>
               <th scope="col">Name</th>
-              <th scope="col">Description</th>
+              <th scope="col">Image</th>
+              <th scope="col">Discount</th>
               <th scope="col">Edit</th>
               <th scope="col">Delete/Restore</th>
             </tr>
@@ -72,6 +73,7 @@
                 <p>No image available</p>
                 {{/if}}
               </td>
+              <td>{{this.discount}}</td>
               <td><a href="/admin/edit-category/{{this._id}}" class="btn btn-primary">Edit</a></td>
               <td>
                 {{#if this.is_deleted}}

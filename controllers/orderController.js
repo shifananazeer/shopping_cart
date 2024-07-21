@@ -306,7 +306,7 @@ createOrder : async (req, res) => {
                 shippingCharge: orderSummary.shippingCharge,
                 totalAmountToBePaid: orderSummary.totalAmountToBePaid
             },
-            appliedCoupon,
+             coupon: appliedCoupon,
             razorpayOrderId: order.id,
             status: 'pending',
             paymentStatus: paymentMethod === 'online_payment' ? 'failed' : 'success', 
