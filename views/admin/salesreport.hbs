@@ -47,6 +47,7 @@
                 <span class="mx-2">to</span>
                 <input type="date" id="end-date" class="form-control d-inline-block" style="width: auto; display: inline;">
                 <button onclick="filterReport()" class="btn btn-primary">Filter</button>
+                 <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
             </div>
             <div class="filter mb-3">
                 <label for="preset-range" class="form-label">Preset Date Range:</label>
@@ -104,6 +105,44 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
     <script>
+       
+          function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            startDate: params.get('startDate') || '',
+            endDate: params.get('endDate') || '',
+            presetRange: params.get('presetRange') || ''
+        };
+    }
+
+    // Function to set filter values on page load
+    function setFilterValues() {
+        const { startDate, endDate, presetRange } = getQueryParams();
+
+        if (startDate) {
+            document.getElementById('start-date').value = startDate;
+        }
+        if (endDate) {
+            document.getElementById('end-date').value = endDate;
+        }
+        if (presetRange) {
+            document.getElementById('preset-range').value = presetRange;
+        }
+    }
+
+    // Call setFilterValues on page load
+    window.onload = setFilterValues;
+
+          function clearFilters() {
+        // Clear filter fields
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('preset-range').value = '';
+        
+        // Redirect to the page without query parameters
+        window.location.href = '/admin/salesReport';
+    }
+         
         function filterReport() {
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
