@@ -33,12 +33,21 @@ module.exports = {
     
             const orders = await Order.find(filter).populate('userId').exec();
     
+            // GST rate
+            const gstRate = 0.02;  // 2% GST rate
+
             // Calculate summaries
             const totalSalesCount = orders.length;
             const totalOrderAmount = orders.reduce((sum, order) => sum + order.summary.totalAmountToBePaid, 0);
             const totalDiscount = orders.reduce((sum, order) => sum + order.summary.totalDiscount, 0);
             const totalCouponDiscount = orders.reduce((sum, order) => sum + (order.coupon.discountAmount || 0), 0);
-            const totalGst = orders.reduce((sum, order) => sum + order.totalGst, 0);
+
+            // Calculate GST and total revenue
+            const totalGst = orders.reduce((sum, order) => {
+                const gst = order.summary.totalAmountToBePaid * gstRate;
+                return sum + gst;
+            }, 0);
+            
             const totalRevenue = totalOrderAmount - totalDiscount - totalCouponDiscount - totalGst;
     
             // Render view
