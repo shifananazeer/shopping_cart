@@ -95,13 +95,16 @@
                     {{this.houseName}}, {{this.street}}, {{this.district}}, {{this.state}}, {{this.pincode}}
                 </label>
             </div>
-            {{/each}}
+           
             <br><br>
-            <a id="editAddressLink" href="#">Edit Address</a>
+            
+            <a href="/edit-address?id={{this._id}}" class="btn btn-sm btn-primary edit">✎ Edit Address</a>
+             <button class="btn btn-primary" onclick="addNewAddress()">Add New Address</button>
+              {{/each}}
             <input type="hidden" id="selectedAddressId" name="selectedAddressId" value="">
         </div>
-           <div class="wallet-balance mb-4">
-            <strong>Wallet Balance:</strong> {{walletBalance}} ₹
+           <div class="wallet-balance m-4">
+            <strong style="font-size: larger;">Wallet Balance:</strong> {{walletBalance}} ₹
         </div>
         <div class="mb-3">
             <label for="paymentMethod" class="form-label">Select Payment Method</label>
@@ -199,6 +202,14 @@
         function updateSelectedAddress(addressId) {
             document.getElementById('selectedAddressId').value = addressId;
         }
+           function addNewAddress() {
+            window.location.href = '/profile/add-address'; 
+        }
+
+        function editAddress(addressId) {
+    window.location.href = `/edit-address?id=${addressId}`;
+}
+
 
     document.getElementById('placeOrderButton').addEventListener('click', async function(event) {
     event.preventDefault();

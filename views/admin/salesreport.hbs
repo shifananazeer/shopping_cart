@@ -67,7 +67,7 @@
                         <th>Discount</th>
                         <th>Coupon Deduction</th>
                         <th>Final Amount</th>
-                        <th>Payment Status</th>
+                      
                     </tr>
                 </thead>
                 <tbody id="orders-table-body">
@@ -80,7 +80,7 @@
                         <td>{{summary.totalDiscount}} ₹</td>
                         <td>{{#if coupon.discountAmount}}{{coupon.discountAmount}}{{else}}0.00{{/if}} ₹</td>
                         <td>{{summary.discountedPrice}} ₹</td>
-                        <td>{{paymentStatus}}</td>
+                       
                     </tr>
                     {{/each}}
                 </tbody>

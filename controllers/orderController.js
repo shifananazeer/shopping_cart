@@ -33,10 +33,11 @@ placeOrder: async (req, res) => {
         const userId = req.session.user._id;
         let totalAmount = orderSummary.totalAmountToBePaid;
         let couponDetails = null;
+        let discountAmount = 0;
         if (coupon && coupon._id) {
              couponDetails = await Coupon.findById(coupon._id);
             if (couponDetails) {
-                discountAmount = (couponDetails.discount / 100) * totalAmount;
+             discountAmount = (couponDetails.discount / 100) * totalAmount;
                 totalAmount -= discountAmount;
             } else {
                 return res.status(400).json({ message: 'Invalid coupon' });
@@ -148,7 +149,7 @@ orderConfirmation: async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching order details:', error);
-        res.status(500).render('500', { message: 'Internal Server Error' });
+       
     }
 },
 //order cancel,stock manege,payed amount credit in wallet
