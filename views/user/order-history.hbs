@@ -74,9 +74,9 @@
                                         <a href="/order-details/{{ ../orderId }}" class="btn btn-primary m-2">View Details</a>
                                     </td>
                                     <td>
-                                        {{#if (or (eq ../status "pending") (eq ../paymentStatus "success"))}}
-                                            <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel</button>
-                                        {{/if}}
+                                       {{#if (and (eq ../status "pending") (or (eq ../paymentStatus "pending") (eq ../paymentStatus "success")))}}
+                                              <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel</button>
+                                      {{/if}}
                                         {{#if (eq ../status 'delivered')}}
                                             <a href="/orders/{{../orderId}}/return" class="return-btn btn">Return Order</a>
                                         {{/if}}

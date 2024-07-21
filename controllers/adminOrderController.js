@@ -48,6 +48,10 @@ module.exports = {
                 { status },
                 { new: true }
             );
+            if (status === 'delivered') {
+                order.paymentStatus = 'success';
+            }
+            await order.save();
     
             if (!order) {
                 return res.status(404).json({ message: 'Order not found' });

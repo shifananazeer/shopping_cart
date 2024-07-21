@@ -59,6 +59,10 @@ module.exports = {
     or: (v1, v2) => {
         return v1 || v2;
     },
+    and: function() {
+        const args = Array.prototype.slice.call(arguments, 0, -1);
+        return args.every(Boolean);
+    },
     generateStars: function(rating) {
         let starsHtml = '';
         const filledStars = Math.floor(rating);

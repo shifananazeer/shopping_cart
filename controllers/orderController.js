@@ -5,6 +5,7 @@ const Address = require('../models/addressmodel')
 const Coupon = require('../models/couponmodel')
 const Wallet = require('../models/walletmodel')
 const Return = require('../models/returnmodel')
+const User = require('../models/usermodel');
 const Razorpay = require('razorpay');
 
 const crypto = require('crypto');
@@ -213,13 +214,55 @@ cancelOrder : async(req,res) => {
         }
 
         
-        if (order.status === 'cancelled' || order.status === 'completed') {
+        if (order.status === 'cancelled' || order.status === 'delivered') {
             return res.status(400).json({ success: false, message: 'Order cannot be cancelled' });
         }
 
         
         order.status = 'cancelled';
+
+        const productUpdates = order.items.map(async item => {
+            const product = await Product.findById(item.productId);
+            if (product) {
+                
+                product.stock += item.quantity;
+                await product.save();
+            }
+        });
+        await Promise.all(productUpdates);
+         
+        if (order.paymentStatus === 'success') {
+            let user = await User.findById(order.userId._id);
+
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            let wallet = await Wallet.findOne({ userId: user._id });
+
+            if (!wallet) {
+                wallet = new Wallet({
+                    userId: user._id,
+                    balance: 0,
+                    transactions: []
+                });
+                await wallet.save();
+                user.wallet = wallet._id;
+                await user.save();
+            }
+            wallet.balance += order.summary.totalAmountToBePaid;
+            wallet.transactions.push({
+                amount: order.summary.totalAmountToBePaid,
+                type: 'credit',
+                description: 'Refund for canceled order',
+                date: new Date()
+            });
+            await wallet.save();
+            order.paymentStatus = 'credited in wallet';
+        }
+
         await order.save();
+      
 
         res.json({ success: true, message: 'Order has been cancelled successfully' });
     } catch (error) {
