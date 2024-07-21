@@ -34,7 +34,7 @@ module.exports = {
 //order creation
 placeOrder: async (req, res) => {
     console.log("Request body:", req.body);
-    const { addressId, paymentMethod, cartItems, orderSummary } = req.body;
+    const { addressId, paymentMethod, cartItems, orderSummary,coupon } = req.body;
 
     if (!addressId || !paymentMethod || !cartItems || !orderSummary) {
         return res.status(400).json({ message: 'Missing required fields' });
@@ -44,6 +44,18 @@ placeOrder: async (req, res) => {
 
         const userId = req.session.user._id;
         let totalAmount = orderSummary.totalAmountToBePaid;
+        let couponDetails = null;
+        if (coupon && coupon._id) {
+             couponDetails = await Coupon.findById(coupon._id);
+            if (couponDetails) {
+                discountAmount = (couponDetails.discount / 100) * totalAmount;
+                totalAmount -= discountAmount;
+            } else {
+                return res.status(400).json({ message: 'Invalid coupon' });
+            }
+        }
+
+
 
         // Handle Wallet Payment
         if (paymentMethod === 'wallet') {
@@ -68,7 +80,11 @@ placeOrder: async (req, res) => {
             summary: orderSummary,
             status: 'pending',
             orderId: uniqueOrderId,
-             paymentStatus: paymentMethod === 'wallet' ? 'success' : 'pending'
+             paymentStatus: paymentMethod === 'wallet' ? 'success' : 'pending',
+             coupon: {
+                code: couponDetails ? couponDetails.code : null,
+                discountAmount: discountAmount
+            }
         });
 
         await newOrder.save();

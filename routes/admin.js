@@ -7,6 +7,7 @@ const categoryController = require('../controllers/categoryController')
 const brandController = require('../controllers/brandController')
 const admincouponController = require('../controllers/adminCouponController')
 const adminOrderController = require('../controllers/adminOrderController')
+const adminsalesController = require('../controllers/adminsalesController')
 const {upload,categoryUpload,brandUpload} = require('../public/javascripts/fileupload')
 
 
@@ -83,4 +84,5 @@ router.get('/coupons/edit/:id',adminsessionHandler, admincouponController.getEdi
 
 router.post('/coupons/edit/:id',adminsessionHandler, admincouponController.updateCoupon);
 
+router.get("/salesReport", adminsalesController.salesReport);
 module.exports = router;

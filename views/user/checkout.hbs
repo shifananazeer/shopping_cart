@@ -117,7 +117,7 @@
     </div>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-   document.addEventListener('DOMContentLoaded', function () {
+   {{!-- document.addEventListener('DOMContentLoaded', function () {
             const walletBalance = {{walletBalance}}; // Pass wallet balance from server-side to client-side
 
             // Check if wallet balance is greater than zero
@@ -125,7 +125,7 @@
                 // Show the wallet payment option
                 document.querySelector('.wallet-option').style.display = 'block';
             }
-        });
+        }); --}}
 
 
 
