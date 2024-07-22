@@ -5,116 +5,99 @@ const Order = require('../models/ordermodel')
 const Wishlist = require('../models/wishlistmodel')
 
 
-//get all products in product page
-const getAllProducts = async(req,res) => {
+const getAllProducts = async (req, res) => {
     const user = req.session.user;
-    console.log(user)
-   
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
-
+  
     // Filter options
     const filterOptions = {
-        is_deleted: false 
+      is_deleted: false
     };
-
-     // Apply search filter if search query is provided
-     if (req.query.searchQuery) {
-        filterOptions.name = { $regex: req.query.searchQuery, $options: 'i' }; // Case-insensitive search
+  
+    // Apply search filter if search query is provided
+    if (req.query.searchQuery) {
+      filterOptions.name = { $regex: req.query.searchQuery, $options: 'i' };
     }
-
-
+  
     // Apply category filter if selected
     if (req.query.category) {
-        const category = await Category.findOne({ name: req.query.category });
-        if (category) {
-            filterOptions.category = category._id;
-        }
+      const category = await Category.findOne({ name: req.query.category });
+      if (category) {
+        filterOptions.category = category._id;
+      }
     }
-
-   // Apply brand filter if selected
-   if (req.query.brand) {
-    const brand = await Brand.findOne({ name: req.query.brand });
-    if (brand) {
+  
+    // Apply brand filter if selected
+    if (req.query.brand) {
+      const brand = await Brand.findOne({ name: req.query.brand });
+      if (brand) {
         filterOptions.brand = brand._id;
+      }
     }
-   }
-
-    // Apply price sorting if selected
+  
+    // Apply sorting options
     let sortOptions = {};
-    if (req.query.Psort === '1') {
-        sortOptions = { price: 1 }; // Low to High
-    } else if (req.query.Psort === '-1') {
-        sortOptions = { price: -1 }; // High to Low
+    if (req.query.Psort) {
+      sortOptions.price = parseInt(req.query.Psort);
     }
-    //apply rating sorting
-    if (req.query.Rsort === '1') {
-        sortOptions.avgRating = 1; // Low to High
-    } else if (req.query.Rsort === '-1') {
-        sortOptions.avgRating = -1; // High to Low
+    if (req.query.Rsort) {
+      sortOptions.avgRating = parseInt(req.query.Rsort);
     }
-
-    // Apply alphabet sorting if selected
-    if (req.query.Asort === '1') {
-        sortOptions = { name: 1 }; // A to Z
-    } else if (req.query.Asort === '-1') {
-        sortOptions = { name: -1 }; // Z to A
+    if (req.query.Asort) {
+      sortOptions.name = parseInt(req.query.Asort);
     }
-
-    
-
-   // Apply in-stock filter if selected
-   if (req.query.inStockOnly === 'true') {
-    filterOptions.stock = { $gt: 0 }; // Products with stock greater than 0
-}
+  
+    // Apply in-stock filter if selected
+    if (req.query.inStockOnly === 'true') {
+      filterOptions.stock = { $gt: 0 };
+    }
+  
     try {
-               // Retrieve the user's wishlist
-               let wishlistItems = [];
-               if (user) {
-                   const wishlist = await Wishlist.findOne({ userId: user._id }).populate('items');
-                   wishlistItems = wishlist ? wishlist.items.map(item => item._id.toString()) : [];
-               }
-       
-         
-
-        // Query products based on filters, sorting, and pagination
-        let query = Product.find(filterOptions).skip(skip).limit(limit);
-        if (sortOptions) {
-            query = query.sort(sortOptions);
-        }
-
-        const products = await Product.find().populate('category');
-        const count = await Product.countDocuments(filterOptions);
-        const totalPages = Math.ceil(count / limit);
-        const categories = await Category.find({})
-        const brands = await Brand.find({})
-       
-        res.render('user/view-products', {
-            user,
-            products,
-            categories,
-            brands,
-            currentPage: page,
-            totalPages,
-            filter: {
-                category: req.query.category,
-                brand: req.query.brand,
-                searchQuery: req.query.searchQuery
-            },
-            Psort: req.query.Psort,
-            Asort: req.query.Asort,
-            Rsort: req.query.Rsort,
-            inStockOnly: req.query.inStockOnly,
-            userHeader:true,
-            wishlistItems
-            
-        });
+      // Retrieve the user's wishlist
+      let wishlistItems = [];
+      if (user) {
+        const wishlist = await Wishlist.findOne({ userId: user._id }).populate('items');
+        wishlistItems = wishlist ? wishlist.items.map(item => item._id.toString()) : [];
+      }
+  
+      // Query products based on filters, sorting, and pagination
+      let query = Product.find(filterOptions).skip(skip).limit(limit).populate('category').populate('brand');
+      if (Object.keys(sortOptions).length) {
+        query = query.sort(sortOptions);
+      }
+  
+      const products = await query;
+      const count = await Product.countDocuments(filterOptions);
+      const totalPages = Math.ceil(count / limit);
+      const categories = await Category.find({});
+      const brands = await Brand.find({});
+  
+      res.render('user/view-products', {
+        user,
+        products,
+        categories,
+        brands,
+        currentPage: page,
+        totalPages,
+        filter: {
+          category: req.query.category,
+          brand: req.query.brand,
+          searchQuery: req.query.searchQuery
+        },
+        Psort: req.query.Psort,
+        Asort: req.query.Asort,
+        Rsort: req.query.Rsort,
+        inStockOnly: req.query.inStockOnly,
+        userHeader: true,
+        wishlistItems
+      });
     } catch (error) {
-        console.error('Error fetching products:', error);
-        res.status(500).send('Error fetching products');
+      console.error('Error fetching products:', error);
+      res.status(500).send('Error fetching products');
     }
-        }
+  };
   
         const productdetails = async (req, res) => {
             try {

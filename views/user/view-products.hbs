@@ -296,54 +296,55 @@
         <div class="heading">
             <h2>All Products</h2>
         </div>
-          <form action="/products" method="GET" class="search-form">
-        <input type="text" name="searchQuery" placeholder="Search products..." class="inputSearch" value="{{filter.searchQuery}}" onkeypress="handleSearchKeyPress(event)">
-        <button type="submit" class="searchbtn">Search</button>
-    </form>
+          <form id="searchForm" class="search-form" onsubmit="event.preventDefault(); applyFilterAndSort();">
+            <input type="text" name="searchQuery" placeholder="Search products..." class="inputSearch" value="{{filter.searchQuery}}">
+            <button type="submit" class="searchbtn">Search</button>
+        </form>
 
        <div class="filter-sort-dropdown">
-           <form id="filterForm">
-        <label for="categoryFilter">Filter by Category:</label>
-        <select id="categoryFilter" name="category" onchange="applyFilterAndSort()">
-            <option value="">All Categories</option>
-            {{#each categories}}
-            <option value="{{this.name}}" {{#if (eq this.name ../filter.category)}}selected{{/if}}>{{this.name}}</option>
-            {{/each}}
-        </select>
+            <form id="filterForm">
+                <label for="categoryFilter">Filter by Category:</label>
+                <select id="categoryFilter" name="category" onchange="applyFilterAndSort()">
+                    <option value="">All Categories</option>
+                    {{#each categories}}
+                    <option value="{{this.name}}" {{#if (eq this.name ../filter.category)}}selected{{/if}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
 
-      <label for="brandFilter">Filter by Brand:</label>
-        <select id="brandFilter" name="brand" onchange="applyFilterAndSort()">
-            <option value="">All Brands</option>
-            {{#each brands}}
-            <option value="{{this.name}}" {{#if (eq this.name ../filter.brand)}}selected{{/if}}>{{this.name}}</option>
-            {{/each}}
-        </select>
-        
-        <label for="Psort">Price Sort:</label>
-        <select id="Psort" name="Psort" onchange="applyFilterAndSort()">
-            <option value="">Default</option>
-            <option value="1" {{#if (eq Psort '1')}}selected{{/if}}>Price: Low to High</option>
-            <option value="-1" {{#if (eq Psort '-1')}}selected{{/if}}>Price: High to Low</option>
-        </select>
+                <label for="brandFilter">Filter by Brand:</label>
+                <select id="brandFilter" name="brand" onchange="applyFilterAndSort()">
+                    <option value="">All Brands</option>
+                    {{#each brands}}
+                    <option value="{{this.name}}" {{#if (eq this.name ../filter.brand)}}selected{{/if}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
 
-        <label for="ratingSort">Sort by Rating:</label>
-        <select id="ratingSort" name="Rsort" onchange="applyFilterAndSort()">
-            <option value="">Default</option>
-            <option value="1" {{#if (eq Rsort '1')}}selected{{/if}}>Low to High</option>
-            <option value="-1" {{#if (eq Rsort '-1')}}selected{{/if}}>High to Low</option>
-        </select>
+                <label for="Psort">Price Sort:</label>
+                <select id="Psort" name="Psort" onchange="applyFilterAndSort()">
+                    <option value="">Default</option>
+                    <option value="1" {{#if (eq Psort '1')}}selected{{/if}}>Price: Low to High</option>
+                    <option value="-1" {{#if (eq Psort '-1')}}selected{{/if}}>Price: High to Low</option>
+                </select>
 
-        <label for="Asort">Alphabetical Sort:</label>
-        <select id="Asort" name="Asort" onchange="applyFilterAndSort()">
-            <option value="">Default</option>
-            <option value="1" {{#if (eq Asort '1')}}selected{{/if}}>A to Z</option>
-            <option value="-1" {{#if (eq Asort '-1')}}selected{{/if}}>Z to A</option>
-        </select>
+                <label for="ratingSort">Sort by Rating:</label>
+                <select id="ratingSort" name="Rsort" onchange="applyFilterAndSort()">
+                    <option value="">Default</option>
+                    <option value="1" {{#if (eq Rsort '1')}}selected{{/if}}>Low to High</option>
+                    <option value="-1" {{#if (eq Rsort '-1')}}selected{{/if}}>High to Low</option>
+                </select>
 
-        <label for="inStockOnly">In Stock Only:</label>
-        <input type="checkbox" id="inStockOnly" name="inStockOnly" onchange="applyFilterAndSort()" {{#if inStockOnly}}checked{{/if}}>
-    </form>
+                <label for="Asort">Alphabetical Sort:</label>
+                <select id="Asort" name="Asort" onchange="applyFilterAndSort()">
+                    <option value="">Default</option>
+                    <option value="1" {{#if (eq Asort '1')}}selected{{/if}}>A to Z</option>
+                    <option value="-1" {{#if (eq Asort '-1')}}selected{{/if}}>Z to A</option>
+                </select>
+
+                <label for="inStockOnly">In Stock Only:</label>
+                <input type="checkbox" id="inStockOnly" name="inStockOnly" onchange="applyFilterAndSort()" {{#if inStockOnly}}checked{{/if}}>
+            </form>
         </div>
+
        
 
          <div class="product-grid">
@@ -457,22 +458,14 @@
             }
         }
 
-       function applyFilterAndSort() {
-    const form = document.getElementById('filterForm');
-    const formData = new FormData(form);
-
-    let url = '/products?page=1';
-    for (const [key, value] of formData.entries()) {
-        if (key === 'inStockOnly' && value === 'on') {
-            url += `&${key}=true`;
-        } else if (value) {
-            url += `&${key}=${value}`;
+    function applyFilterAndSort() {
+            const searchForm = document.getElementById('searchForm');
+            const filterForm = document.getElementById('filterForm');
+            const searchQuery = new URLSearchParams(new FormData(searchForm)).toString();
+            const filterParams = new URLSearchParams(new FormData(filterForm)).toString();
+            const combinedParams = searchQuery + '&' + filterParams;
+            window.location.href = `/products?${combinedParams}`;
         }
-    }
-
-    window.location.href = url;
-}
-
     function handleSearchKeyPress(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
