@@ -63,6 +63,10 @@
     <main id="main" class="main">
         <div class="container">
             <h2>Admin Orders</h2>
+              <form id="search-form" action="/admin/orders" method="GET">
+                <input type="text" id="search-query" name="query" placeholder="Search orders..." value="{{searchQuery}}">
+    <button type="submit" class="btn btn-primary ml-2">Search</button>
+            </form>
             <table>
                 <thead>
                     <tr>
@@ -96,8 +100,9 @@
                             </form>
                            <form action="/admin/orders/{{this.orderId}}/cancel" method="post" style="display:inline;">
     <button type="submit" class="cancel-btn btn btn-warning" 
-        {{#ifCond this.orderStatus '===' 'delivered'}}disabled{{/ifCond}} 
-        {{#ifCond this.orderStatus '===' 'cancelled'}}disabled{{/ifCond}}>
+        {{#ifCond this.status '===' 'delivered'}}disabled{{/ifCond}} 
+        {{#ifCond this.status '===' 'cancelled'}}disabled{{/ifCond}}
+        {{#ifCond this.status '===' 'returned'}}disabled{{/ifCond}}>
         Cancel Order
     </button>
 </form>

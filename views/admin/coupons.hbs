@@ -47,8 +47,8 @@
 
       <!-- Search Bar -->
       <form id="searchForm" action="/admin/coupons" method="GET" class="mb-3">
-        <input type="text" name="search" placeholder="Search by code" class="form-control" style="width: 300px; display: inline-block;">
-        <button type="submit" class="btn btn-primary">Search</button>
+        <input type="text" id="search-query" name="query" placeholder="Search coupons..." value="{{searchQuery}}">
+    <button type="submit" class="btn btn-primary ml-2">Search</button>
       </form>
 
       <a href="/admin/coupons/add" class="btn btn-primary mb-3">Add Coupon</a>

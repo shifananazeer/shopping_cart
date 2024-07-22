@@ -8,14 +8,23 @@ module.exports = {
         try {
             const perPage = 10; 
             const page = parseInt(req.query.page) || 1; 
+            const search = req.query.query || '';
+            const query = search ? {
+                $or: [
+                    { 'userId.name': new RegExp(search, 'i') },
+                    { 'orderId': new RegExp(search, 'i') },
+                    { 'summary.totalAmountToBePaid': parseFloat(search) || 0 } // Ensure it's a number for amount search
+                ]
+            } : {};
+           
     
-            const orders = await Order.find()
+            const orders = await Order.find(query)
                 .sort({ createdAt: -1 })
                 .skip((page - 1) * perPage)
                 .limit(perPage)
                 .populate('userId');
     
-            const totalOrders = await Order.countDocuments();
+            const totalOrders = await Order.countDocuments(query);
     
             const totalPages = Math.ceil(totalOrders / perPage);
     
@@ -23,7 +32,8 @@ module.exports = {
                 orders,
                 currentPage: page,
                 totalPages,
-                adminHeader: true
+                adminHeader: true,
+                searchQuery: search
             });
         } catch (error) {
             console.error('Error fetching orders:', error);

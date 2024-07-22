@@ -4,8 +4,33 @@ const adminOrderController = require('./adminOrderController');
 module.exports ={
     viewCopons : async (req,res) => {
         try {
-            const coupons = await Coupon.find();
-            res.render('admin/coupons', { coupons,adminHeader:true });
+            const perPage = 10; 
+            const page = parseInt(req.query.page) || 1; 
+            const search = req.query.query || '';
+
+            const query = search ? {
+                $or: [
+                    { code: new RegExp(search, 'i') },
+                    { discount: parseFloat(search) || 0 }, 
+                    { minPurchaseAmount: parseFloat(search) || 0 } 
+                ]
+            } : {};
+
+          const coupons = await Coupon.find(query)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * perPage)
+            .limit(perPage);
+
+            const totalCoupons = await Coupon.countDocuments(query);
+            const totalPages = Math.ceil(totalCoupons / perPage);
+
+            res.render('admin/coupons', { 
+                 coupons,
+            adminHeader: true,
+            currentPage: page,
+            totalPages,
+            searchQuery: search
+         });
         } catch (err) {
             res.status(500).send('Server Error');
         } 
