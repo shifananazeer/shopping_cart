@@ -58,20 +58,11 @@
             <p>Total Payable Amount: <span id="totalAmountToBePaid">{{summary.totalAmountToBePaid}}</span> ₹</p>
         </div>
 
-        <!-- Coupon Section -->
+      <!-- Coupon Section -->
         <div class="coupon-section">
             <h3>Available Coupons</h3>
-            {{#if coupons.length}}
-            <ul class="list-group" id="couponList">
-                {{#each coupons}}
-                <li class="list-group-item">
-                    <strong>{{this.code}}</strong> - {{this.discount}}% off (Min Purchase: ₹{{this.minPurchaseAmount}})
-                </li>
-                {{/each}}
-            </ul>
-            {{else}}
-            <p>No coupons available for your purchase amount.</p>
-            {{/if}}
+            <button class="btn btn-info" data-toggle="modal" data-target="#couponModal">View Coupons</button>
+           
         </div>
 
         <!-- Coupon Code Input -->
@@ -80,11 +71,15 @@
             <div class="input-group">
                 <input type="text" id="couponCode" class="form-control" placeholder="Enter coupon code">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" onclick="validateCoupon()">Apply</button>
+                   <button class="btn btn-primary" type="button" onclick="validateCoupon()">Apply</button>
                 </div>
+                
             </div>
             <p id="couponMessage" class="text-danger mt-2"></p>
+
+         <button id="remove-coupon-btn" style="display:none;">Remove Coupon</button>
         </div>
+
 
         <div class="address-selection">
             <h4>Delivery Address</h4>
@@ -118,25 +113,57 @@
 
         <button id="placeOrderButton" class="btn btn-primary">Place Order</button>
     </div>
+
+     <!-- Coupon Modal -->
+    <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="couponModalLabel">Available Coupons</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{#if coupons.length}}
+                    <ul class="list-group" id="couponList">
+                        {{#each coupons}}
+                        <li class="list-group-item">
+                            <strong>{{this.code}}</strong> - {{this.discount}}% off (Min Purchase: ₹{{this.minPurchaseAmount}})
+                        </li>
+                        {{/each}}
+                    </ul>
+                    {{else}}
+                    <p>No coupons available for your purchase amount.</p>
+                    {{/if}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-   {{!-- document.addEventListener('DOMContentLoaded', function () {
-            const walletBalance = {{walletBalance}}; // Pass wallet balance from server-side to client-side
+    let appliedCoupon = null; // Store the applied coupon details
 
-            // Check if wallet balance is greater than zero
-            if (walletBalance > 0) {
-                // Show the wallet payment option
-                document.querySelector('.wallet-option').style.display = 'block';
-            }
-        }); --}}
+    document.addEventListener('DOMContentLoaded', function() {
+        const removeCouponBtn = document.getElementById('remove-coupon-btn');
+        const couponMessage = document.getElementById('couponMessage');
 
+        if (removeCouponBtn) {
+            removeCouponBtn.addEventListener('click', function() {
+                removeCoupon();
+            });
+        }
 
+        // Log to check if DOMContentLoaded is fired
+        console.log('DOMContentLoaded');
 
-        let appliedCoupon = null; // Store the applied coupon details
-
-        async function validateCoupon() {
+        window.validateCoupon = async function() { // Make function global for the inline event handler
             const couponCode = document.getElementById('couponCode').value;
-            const couponMessage = document.getElementById('couponMessage');
+
             try {
                 const response = await fetch('/coupons');
                 const coupons = await response.json();
@@ -144,31 +171,78 @@
 
                 if (selectedCoupon) {
                     const totalPriceBeforeDiscount = parseFloat(document.getElementById('totalPriceBeforeDiscount').innerText);
-                    if (totalPriceBeforeDiscount >= selectedCoupon.minPurchaseAmount) {
-                        const discount = (totalPriceBeforeDiscount * selectedCoupon.discount) / 100;
-                        const discountedPrice = totalPriceBeforeDiscount - discount;
-                        const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
-                        const totalAmountToBePaid = discountedPrice + shippingCharge;
+                    const previousDiscount = parseFloat(document.getElementById('totalDiscount').innerText) || 0;
 
-                        // Update the summary with the coupon discount
-                        document.getElementById('totalDiscount').innerText = discount.toFixed(2);
-                        document.getElementById('discountedPrice').innerText = discountedPrice.toFixed(2);
-                        document.getElementById('totalAmountToBePaid').innerText = totalAmountToBePaid.toFixed(2);
+                    // Get the coupon discount percentage
+                    const couponDiscountPercentage = selectedCoupon.discount;
 
-                        appliedCoupon = selectedCoupon; // Store the applied coupon
-                        couponMessage.innerText = 'Coupon applied successfully!';
-                    } else {
-                        couponMessage.innerText = 'Coupon requires a minimum purchase amount of ₹' + selectedCoupon.minPurchaseAmount;
-                    }
+                    // Calculate the new coupon discount amount
+                    const couponDiscountAmount = (totalPriceBeforeDiscount * couponDiscountPercentage) / 100;
+
+                    // Calculate the new total discount
+                    const newTotalDiscount = previousDiscount + couponDiscountAmount;
+
+                    // Calculate the new discounted price
+                    const newDiscountedPrice = totalPriceBeforeDiscount - newTotalDiscount;
+
+                    // Calculate the shipping charge
+                    const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
+
+                    // Calculate the total amount to be paid
+                    const newTotalAmountToBePaid = newDiscountedPrice + shippingCharge;
+
+                    // Update the summary with the new total discount, discounted price, and total amount to be paid
+                    document.getElementById('totalDiscount').innerText = newTotalDiscount.toFixed(2);
+                    document.getElementById('discountedPrice').innerText = newDiscountedPrice.toFixed(2);
+                    document.getElementById('totalAmountToBePaid').innerText = newTotalAmountToBePaid.toFixed(2);
+
+                    // Store the applied coupon
+                    appliedCoupon = selectedCoupon;
+                    couponMessage.innerText = 'Coupon applied successfully!';
+                    document.getElementById('remove-coupon-btn').style.display = 'block';
                 } else {
-                    couponMessage.innerText = 'Invalid coupon code';
+                    couponMessage.innerText = 'Invalid coupon code or coupon has expired.';
                     appliedCoupon = null; // Clear applied coupon
                 }
             } catch (error) {
                 console.error('Error validating coupon:', error);
+                couponMessage.innerText = 'An error occurred while validating the coupon.';
+            }
+        };
+
+        function removeCoupon() {
+            if (appliedCoupon) {
+                const totalPriceBeforeDiscount = parseFloat(document.getElementById('totalPriceBeforeDiscount').innerText);
+                const couponDiscountPercentage = appliedCoupon.discount;
+
+                // Calculate the discount amount that was applied
+                const couponDiscountAmount = (totalPriceBeforeDiscount * couponDiscountPercentage) / 100;
+
+                // Subtract the discount amount from the total discount
+                const previousDiscount = parseFloat(document.getElementById('totalDiscount').innerText);
+                const newTotalDiscount = previousDiscount - couponDiscountAmount;
+
+                // Calculate the new discounted price
+                const newDiscountedPrice = totalPriceBeforeDiscount - newTotalDiscount;
+
+                // Calculate the shipping charge
+                const shippingCharge = parseFloat(document.getElementById('shippingCharge').innerText);
+
+                // Calculate the new total amount to be paid
+                const newTotalAmountToBePaid = newDiscountedPrice + shippingCharge;
+
+                // Update the summary with the new total discount, discounted price, and total amount to be paid
+                document.getElementById('totalDiscount').innerText = newTotalDiscount.toFixed(2);
+                document.getElementById('discountedPrice').innerText = newDiscountedPrice.toFixed(2);
+                document.getElementById('totalAmountToBePaid').innerText = newTotalAmountToBePaid.toFixed(2);
+
+                // Clear the applied coupon
+                appliedCoupon = null;
+                document.getElementById('couponCode').value = '';
+                document.getElementById('remove-coupon-btn').style.display = 'none';
+                couponMessage.innerText = 'Coupon removed successfully!';
             }
         }
-
         function getCartItems() {
             const rows = document.querySelectorAll('#cartItems tr');
             return Array.from(rows).map(row => {
@@ -396,7 +470,8 @@ const handlePaymentFailure = (orderId,) => {
             confirmButtonText: 'OK'
         });
     });
-};
+}
+ })
 
     </script>
 </body>
