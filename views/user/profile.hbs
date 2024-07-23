@@ -24,6 +24,25 @@
         .edit {
             font-size: 14px;
         }
+        .referral-info{
+            background-color: rgb(250, 245, 202);
+        }
+        .wallet-info{
+               background-color: rgb(250, 245, 202);
+        }
+          .transaction-item {
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    #pagination {
+        margin-top: 20px;
+    }
+
+   .custom-btn {
+    width: 20px;
+   }
     </style>
 </head>
 
@@ -44,10 +63,11 @@
                         <a href="/profile" class="btn btn-info">Personal Information</a>
                         <a href="/order-history" class="btn btn-info mt-2">My Orders</a>
                         <a href="/profile/changePassword" class="btn btn-info mt-2">Change Password</a>
-                        <div class="referral-info">
+                        <div class="referral-info p-2">
             <h2>Referral Information</h2>
             <p><strong>Your Referral Code:</strong> {{user.referralCode}}</p>
-            
+             <input type="text" id="referralLink" value="{{referralLink}}" readonly>
+        <button class="btn btn-info mt-2"  onclick="copyToClipboard()">Copy Link</button>
         </div>
                     </div>
                 </div>
@@ -73,10 +93,20 @@
                             <label class="labels">Mobile Number:</label>
                             <h6>{{user.number}}</h6>
                         </div>
-                         <div class="wallet-info">
-                         <h2>Wallet Information</h2>
-                         <p style="color: green;"><strong>Wallet Balance:</strong> ₹{{walletBalance}}</p>
-                         </div>
+                     <div class="wallet-info">
+    <h2>Wallet Information</h2>
+    <p style="color: green;"><strong>Wallet Balance:</strong> ₹{{walletBalance}}</p>
+    <button id="showTransactionsBtn" class="btn btn-info">Show Transactions</button>
+    <div id="transactionsContainer" style="display: none;">
+        <h3>Transaction History</h3>
+        <div id="transactionsList">
+           
+        </div>
+        <div id="pagination">
+            <!-- Pagination controls will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
                     </div>
                     <!-- Addresses section -->
                     {{#each addresses}}
@@ -112,6 +142,85 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+          document.getElementById('showTransactionsBtn').addEventListener('click', function() {
+        const transactionsContainer = document.getElementById('transactionsContainer');
+        transactionsContainer.style.display = transactionsContainer.style.display === 'none' ? 'block' : 'none';
+        
+        if (transactionsContainer.style.display === 'block') {
+            fetchTransactions(1); // Fetch the first page of transactions
+        }
+    });
+
+    function fetchTransactions(page) {
+        fetch(`/transactions?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                const transactionsList = document.getElementById('transactionsList');
+                const pagination = document.getElementById('pagination');
+                
+                // Clear previous transactions
+                transactionsList.innerHTML = '';
+                pagination.innerHTML = '';
+
+                // Insert transactions into the list
+                data.transactions.forEach(transaction => {
+                    const transactionItem = document.createElement('div');
+                    transactionItem.classList.add('transaction-item');
+                    transactionItem.innerHTML = `
+                        <p><strong>Date:</strong> ${new Date(transaction.date).toLocaleDateString()}</p>
+                        <p><strong>Amount:</strong> ₹${transaction.amount}</p>
+                        <p><strong>Description:</strong> ${transaction.description}</p>
+                    `;
+                    transactionsList.appendChild(transactionItem);
+                });
+
+                // Insert pagination controls
+                if (data.totalPages > 1) {
+                    for (let i = 1; i <= data.totalPages; i++) {
+                        const pageButton = document.createElement('button');
+                        pageButton.classList.add('btn', 'btn-secondary','custom-btn', 'me-2');
+                        pageButton.style.width = '50px'; // Adjust the width as needed
+                        pageButton.textContent = i;
+                        pageButton.addEventListener('click', () => fetchTransactions(i));
+                        pagination.appendChild(pageButton);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching transactions:', error);
+            });
+    }
+          function copyToClipboard() {
+        // Get the referral link input element
+        const referralLinkInput = document.getElementById('referralLink');
+        
+        // Select the text field
+        referralLinkInput.select();
+        referralLinkInput.setSelectionRange(0, 99999); // For mobile devices
+
+        // Attempt to copy the text
+        navigator.clipboard.writeText(referralLinkInput.value)
+            .then(() => {
+                // Success
+                Swal.fire({
+                    title: 'Copied!',
+                    text: 'Referral link copied to clipboard.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            })
+            .catch(err => {
+                // Failure
+                Swal.fire({
+                    title: 'Failed!',
+                    text: 'Failed to copy referral link. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                console.error('Failed to copy text: ', err);
+            });
+    }
         function confirmDelete(event, element) {
             event.preventDefault(); // Prevent the default link behavior
 

@@ -118,5 +118,5 @@ router.get('/orders/:orderId/return',middleware.isVerified, orderController.rend
 
 router.post('/orders/:orderId/return',middleware.isVerified, orderController.handleReturnOrder);
 
-
+router.get('/transactions',middleware.isVerified,profileController.walletTransaction )
 module.exports = router;

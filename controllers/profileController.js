@@ -28,8 +28,12 @@ module.exports = {
               
               // Fetch user addresses
               const addresses = await Address.find({ userId: _id });
+
+               // Generate the referral link
+    const referralLink = `${req.protocol}://${req.get('host')}/signup?referralCode=${user.referralCode}`;
+
         
-              res.render('user/profile', { user, addresses ,userHeader:true,walletBalance});
+              res.render('user/profile', { user, addresses ,userHeader:true,walletBalance,referralLink});
             } else {
               res.redirect('/login');
             }
@@ -210,6 +214,38 @@ module.exports = {
     } catch (error) {
         console.error(error);
         res.redirect('/profile/changePassword?error=Internal server error');
+    }
+  },
+
+  walletTransaction :async (req,res) => {
+   
+    const userId = req.session.user._id; 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 3; 
+    const skip = (page - 1) * limit;
+
+    try {
+        // Find wallet for the user
+        const wallet = await Wallet.findOne({ userId }).select('transactions').exec();
+        if (!wallet) {
+            return res.status(404).json({ error: 'Wallet not found' });
+        }
+       console.log(wallet)
+        // Get total number of transactions
+        const totalTransactions = wallet.transactions.length;
+
+        // Get transactions for the current page
+        const transactions = wallet.transactions.slice(skip, skip + limit);
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalTransactions / limit);
+     console.log("trans",transactions)
+        res.json({
+            transactions,
+            totalPages
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while fetching transactions.' });
     }
   }
          

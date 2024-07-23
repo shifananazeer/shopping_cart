@@ -69,6 +69,22 @@
 </section>
 
 <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to get URL parameters
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Get referral code from URL
+        const referralCode = getQueryParam('referralCode');
+
+        // If referral code exists, set it in the input field
+        if (referralCode) {
+            document.getElementById('referralCode').value = referralCode;
+        }
+    });
     var errorName = document.getElementById('name')
     var errorEmail = document.getElementById('email')
     var errorPassword = document.getElementById('passwords')
