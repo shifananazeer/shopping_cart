@@ -468,6 +468,25 @@ repay : async (req,res) => {
         console.error('Error processing return order:', error);
         res.status(500).send('Internal Server Error');
     }
+},
+
+invoice :async(req,res)=> {
+    const orderId = req.params.orderId;
+  try {
+    // Fetch the order details from the database
+    const order = await Order.findOne({orderId})
+                             .populate('items.productId')
+                             .populate('userId')
+                             .populate('addressId');
+                             console.log(order)
+    if (order && order.status === 'delivered') {
+      res.render('user/invoice', { order ,userHeader:true});
+    } else {
+      res.status(404).send('Order not found or not delivered');
+    }
+  } catch (error) {
+    res.status(500).send('Error generating invoice');
+  }
 }
 
 

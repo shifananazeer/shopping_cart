@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <link rel="stylesheet" href="/path/to/bootstrap.css"> <!-- Add your path to Bootstrap CSS -->
+  <style>
+    .invoice-section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" style="background-color: bisque;">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Invoice</h1>
+        <p>Order ID: {{order.orderId}}</p>
+        <p>Status: {{order.status}}</p>
+        <p>Date: {{formatDate order.createdAt}}</p>
+      </div>
+    </div>
+    
+    <div class="row invoice-section">
+      <div class="col-md-6">
+        <h2>Billed To</h2>
+        <p><strong>Name:</strong> {{order.userId.name}}</p>
+        <p><strong>Email:</strong> {{order.userId.email}}</p>
+        <p><strong>Phone:</strong> {{order.userId.number}}</p>
+      </div>
+      <div class="col-md-6">
+        <h2>Shipped To</h2>
+        <p><strong>Address:</strong> {{order.addressId.street}}, {{order.addressId.district}}, {{order.addressId.state}}, {{order.addressId.pincode}}, {{order.addressId.addressType}}</p>
+      </div>
+    </div>
+
+    <div class="row invoice-section">
+      <div class="col-12">
+        <h2>Payment Method</h2>
+        <p>{{order.paymentMethod}}</p>
+      </div>
+    </div>
+
+    <div class="row invoice-section">
+      <div class="col-12">
+        <h2>Items</h2>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Quantity</th>
+              <th>Price per item</th>
+             <th>Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each order.items}}
+              <tr>
+                <td>{{this.productId.name}}</td>
+                <td>{{this.quantity}}</td>
+                <td>{{this.price}}</td>
+                 <td>{{multiply this.quantity this.price}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row invoice-section">
+      <div class="col-12">
+        <h3>Summary</h3>
+        <table class="table">
+          <tr>
+            <td>Total Price Before Discount:</td>
+            <td>{{order.summary.totalPriceBeforeDiscount}}</td>
+          </tr>
+          <tr>
+            <td>Total Discount:</td>
+            <td>{{order.summary.totalDiscount}}</td>
+          </tr>
+          <tr>
+            <td>Discounted Price:</td>
+            <td>{{order.summary.discountedPrice}}</td>
+          </tr>
+          <tr>
+            <td>Delivery Charge:</td>
+            <td>{{order.summary.shippingCharge}}</td>
+          </tr>
+          <tr>
+            <td><strong>Total Amount To Be Paid:</strong></td>
+            <td><strong>{{order.summary.totalAmountToBePaid}}</strong></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+     <div class="row">
+      <div class="col-12 text-center">
+        <button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+          <button class="btn btn-secondary" onclick="downloadExcel()">Download Excel</button>
+      </div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+ <script>
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Title
+      doc.setFontSize(18);
+      doc.text('Invoice', 14, 22);
+
+      // Order Details
+      doc.setFontSize(12);
+      doc.text(`Order ID: {{order.orderId}}`, 14, 30);
+      doc.text(`Status: {{order.status}}`, 14, 36);
+      doc.text(`Date: {{formatDate order.createdAt}}`, 14, 42);
+
+      // Billed To
+      doc.text('Billed To:', 14, 50);
+      doc.text(`Name: {{order.userId.name}}`, 14, 56);
+      doc.text(`Email: {{order.userId.email}}`, 14, 62);
+      doc.text(`Phone: {{order.userId.phone}}`, 14, 68);
+
+      // Shipped To
+      doc.text('Shipped To:', 14, 76);
+      doc.text(`Address: {{order.addressId.street}}, {{order.addressId.city}}, {{order.addressId.zipCode}}`, 14, 82);
+
+      // Payment Method
+      doc.text('Payment Method:', 14, 90);
+      doc.text(`{{order.paymentMethod}}`, 14, 96);
+
+      // Items
+      const headers = ['Product Name', 'Quantity', 'Price',  'Total Amount'];
+      const data = [];
+      {{#each order.items}}
+      data.push([
+        "{{this.productId.name}}",
+        "{{this.quantity}}",
+        "{{this.price}}",
+        
+        "{{multiply this.quantity this.price}}"
+      ]);
+      {{/each}}
+
+      doc.autoTable({
+        head: [headers],
+        body: data,
+        startY: 104,
+        styles: { fontSize: 10 },
+        columnStyles: { 0: { cellWidth: 50 }, 1: { cellWidth: 20 }, 2: { cellWidth: 20 }, 3: { cellWidth: 20 }, 4: { cellWidth: 30 } }
+      });
+
+      // Summary
+      let startY = doc.autoTable.previous.finalY + 10;
+      doc.text('Summary:', 14, startY);
+      doc.text(`Total Price Before Discount: {{order.summary.totalPriceBeforeDiscount}}`, 14, startY + 10);
+      doc.text(`Total Discount: {{order.summary.totalDiscount}}`, 14, startY + 20);
+      doc.text(`Discounted Price: {{order.summary.discountedPrice}}`, 14, startY + 30);
+      doc.text(`Delivery Charge: {{order.summary.shippingCharge}}`, 14, startY + 40);
+      doc.text(`Total Amount To Be Paid: {{order.summary.totalAmountToBePaid}}`, 14, startY + 50);
+
+      doc.save('invoice.pdf');
+    }
+
+
+
+    function downloadExcel() {
+      const wb = XLSX.utils.book_new();
+      wb.Props = {
+        Title: "Invoice",
+        Subject: "Invoice Data",
+        Author: "Your Company",
+        CreatedDate: new Date()
+      };
+
+      // Create a worksheet
+      const ws_data = [
+        ["Invoice"],
+        [],
+        ["Order ID:", "{{order.orderId}}"],
+        ["Status:", "{{order.status}}"],
+        ["Date:", "{{formatDate order.createdAt}}"],
+        [],
+        ["Billed To"],
+        ["Name:", "{{order.userId.name}}"],
+        ["Email:", "{{order.userId.email}}"],
+        ["Phone:", "{{order.userId.phone}}"],
+        [],
+        ["Shipped To"],
+        ["Address:", "{{order.addressId.street}}, {{order.addressId.city}}, {{order.addressId.zipCode}}"],
+        [],
+        ["Payment Method:", "{{order.paymentMethod}}"],
+        [],
+        ["Items"],
+        ["Product Name", "Quantity", "Price", "Discount", "Total Amount"],
+        {{#each order.items}}
+        ["{{this.productId.name}}", "{{this.quantity}}", "{{this.price}}", "{{this.discount}}", "{{multiply this.quantity this.price}}"],
+        {{/each}}
+        [],
+        ["Summary"],
+        ["Total Price Before Discount:", "{{order.summary.totalPriceBeforeDiscount}}"],
+        ["Total Discount:", "{{order.summary.totalDiscount}}"],
+        ["Discounted Price:", "{{order.summary.discountedPrice}}"],
+        ["Shipping Charge:", "{{order.summary.shippingCharge}}"],
+        ["Total Amount To Be Paid:", "{{order.summary.totalAmountToBePaid}}"]
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Invoice");
+
+      // Save to file
+      XLSX.writeFile(wb, "invoice.xlsx");
+    }
+  </script>
+  
+</body>
+</html>

@@ -123,4 +123,6 @@ router.get('/transactions',middleware.isVerified,profileController.walletTransac
 router.get('/cart/count',middleware.isVerified,cartController.cartCount)
 
 router.get('/wishlist/count', middleware.isVerified,wishlistController.wishlistCount)
+
+router.get('/invoice/:orderId',middleware.isVerified,orderController.invoice)
 module.exports = router;

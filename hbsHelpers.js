@@ -38,6 +38,9 @@ module.exports = {
         let discountedPrice = price - (price * (maxDiscount / 100));
         return isNaN(discountedPrice) ? price : Math.round(discountedPrice);
     },
+    multiply: function(quantity, price) {
+        return quantity * price;
+     },
     add: function(value1, value2) {
         return value1 + value2;
     },

@@ -49,7 +49,9 @@
                             <th>Total Amount</th>
                             <th>Status</th>
                             <th>Payment Status</th>
-                            <th>Action</th>
+                            <th>Details/Cancel</th>
+                            <th>Return/Invoice</th>
+                            <th>Repay</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,20 +74,27 @@
                                     <td>{{ ../paymentStatus }}</td>
                                     <td>
                                         <a href="/order-details/{{ ../orderId }}" class="btn btn-primary m-2">View Details</a>
-                                    </td>
-                                    <td>
-                                       {{#if (and (eq ../status "pending") (or (eq ../paymentStatus "pending") (eq ../paymentStatus "success")))}}
+                                     {{#if (and (eq ../status "pending") (or (eq ../paymentStatus "pending") (eq ../paymentStatus "success")))}}
                                               <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel</button>
                                       {{/if}}
+                                    </td>
+                                    <td>
+                                      
                                         {{#if (eq ../status 'delivered')}}
                                             <a href="/orders/{{../orderId}}/return" class="return-btn btn">Return Order</a>
                                         {{/if}}
+
+                                             {{#if (eq ../status 'delivered')}}
+                            <a href="/invoice/{{../orderId}}" class=" mt-2 btn btn-warning">Invoice</a>
+                                  {{/if}}
                                     </td>
                                     <td>
                                         {{#if (eq ../paymentStatus "failed")}}
                                             <button class="btn btn-repay" onclick="handleRepay('{{../orderId}}')">Repay</button>
                                         {{/if}}
+                                     
                                     </td>
+                                   
                                 </tr>
                             {{/each}}
                         {{/each}}
