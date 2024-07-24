@@ -216,6 +216,7 @@ async function deleteItem(productId, element) {
             }
             successAlert(data.message);
             updateCartSummary(); // Update summary after deletion
+               updateCartCount();
         } else {
             errorAlert(data.message);
         }

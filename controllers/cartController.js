@@ -273,6 +273,20 @@ module.exports = {
             return res.json({ success: false, message: 'Server error' });
         }
    
+},
+
+cartCount : async (req,res)=> {
+    try {
+        const userId = req.session.user._id;
+        const cart = await Cart.findOne({ userId });
+        console.log(cart)
+        const itemCount = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
+        console.log("count",itemCount)
+        res.json({ count: itemCount });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
 }
 }
 

@@ -119,4 +119,8 @@ router.get('/orders/:orderId/return',middleware.isVerified, orderController.rend
 router.post('/orders/:orderId/return',middleware.isVerified, orderController.handleReturnOrder);
 
 router.get('/transactions',middleware.isVerified,profileController.walletTransaction )
+
+router.get('/cart/count',middleware.isVerified,cartController.cartCount)
+
+router.get('/wishlist/count', middleware.isVerified,wishlistController.wishlistCount)
 module.exports = router;

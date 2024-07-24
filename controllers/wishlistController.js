@@ -68,6 +68,18 @@ getWishlist : async (req,res) => {
         res.status(500).send('Error viewing wishlist');
     }
 },
- 
+wishlistCount :async (req,res) => {
+    try {
+       
+        const wishlist = await Wishlist.findOne({ userId: req.session.user._id });
+        if (!wishlist) {
+            return res.json({ count: 0 });
+        }
+        res.json({ count: wishlist.items.length });
+    } catch (error) {
+        console.error('Error fetching wishlist count:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
    
 }

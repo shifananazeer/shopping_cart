@@ -440,6 +440,7 @@
                             popup: 'swal2-popup-custom'
                         }
                     });
+                       updateCartCount();
                 } else if (data.message === 'User not logged in') {
                     Swal.fire({
                         text: 'You must be logged in to add products to the cart',
@@ -491,6 +492,7 @@ async function addToWishlist(productId) {
                 showConfirmButton: false,
                 timer: 2000,
             });
+            updateWishlistCount();
             document.querySelector(`#wishlist-btn-${productId}`).innerHTML = '<span>Added to wishlist</span>';
             document.querySelector(`#wishlist-btn-${productId}`).setAttribute('onclick', `removeFromWishlist('${productId}')`);
         } else {

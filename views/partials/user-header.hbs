@@ -118,7 +118,7 @@
                     <a href="/wishlist" title="Wishlist">
                         <div class="icon">
                             <i class="icon-heart-o"></i>
-                          
+                            <span id="wishlist-count" class="wishlist-count">0</span>
                         </div>
                         <p>Wishlist</p>
                     </a>
@@ -129,7 +129,7 @@
                         <div class="icon">
                             
                             <i class="icon-shopping-cart"></i>
-                            
+                           <span id="cart-count" class="cart-count">0</span>
                              
                         </div>
                         <p>Cart</p>
@@ -246,10 +246,44 @@
 
 
 
-{{!-- footer --}}
-
-</script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-   
+    $(document).ready(function() {
+    // Fetch cart count on page load
+    updateCartCount();
+});
+
+$(document).ready(function() {
+    updateWishlistCount();
+});
+
+ function updateCartCount() {
+    $.ajax({
+        url: '/cart/count',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            console.log('Cart count fetched successfully:', data.count);
+            $('#cart-count').text(data.count);
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to fetch cart count:', error);
+        }
+    });
+}
+
+function updateWishlistCount() {
+    $.ajax({
+        url: '/wishlist/count',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            $('#wishlist-count').text(data.count);
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to fetch wishlist count:', error);
+        }
+    });
+}
 </script>

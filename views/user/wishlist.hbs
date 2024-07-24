@@ -163,6 +163,7 @@
                 timer: 2000,
                 showConfirmButton: false,
             });
+             updateCartCount();
         } else {
             Swal.fire({
                 icon: 'error',
@@ -201,7 +202,7 @@ async function removeFromWishlist(productId) {
                 showConfirmButton: false,
                 timer: 2000,
             });
-        
+        updateWishlistCount();
         } else {
             alert(result.message);
         }
