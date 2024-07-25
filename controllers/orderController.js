@@ -43,6 +43,11 @@ placeOrder: async (req, res) => {
                 return res.status(400).json({ message: 'Invalid coupon' });
             }
         }
+           // Check if payment method is COD and total amount is 1000 or more
+           if (paymentMethod === 'cash_on_delivery' && totalAmount >= 1000) {
+            return res.status(400).json({ message: 'Cash on Delivery is only available for purchases below 1000.' });
+        }
+
         // Handle Wallet Payment
         if (paymentMethod === 'wallet') {
             const wallet = await Wallet.findOne({ userId });
@@ -74,7 +79,7 @@ placeOrder: async (req, res) => {
 
         for (const item of cartItems) {
             await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stock: -item.quantity }
+                $inc: {purchaseCount:item.quantity, stock: -item.quantity }
             });
         }
 

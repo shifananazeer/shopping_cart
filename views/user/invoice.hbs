@@ -98,7 +98,7 @@
      <div class="row">
       <div class="col-12 text-center">
         <button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
-          <button class="btn btn-secondary" onclick="downloadExcel()">Download Excel</button>
+       
       </div>
     </div>
   </div>
@@ -169,54 +169,7 @@
 
 
 
-    function downloadExcel() {
-      const wb = XLSX.utils.book_new();
-      wb.Props = {
-        Title: "Invoice",
-        Subject: "Invoice Data",
-        Author: "Your Company",
-        CreatedDate: new Date()
-      };
-
-      // Create a worksheet
-      const ws_data = [
-        ["Invoice"],
-        [],
-        ["Order ID:", "{{order.orderId}}"],
-        ["Status:", "{{order.status}}"],
-        ["Date:", "{{formatDate order.createdAt}}"],
-        [],
-        ["Billed To"],
-        ["Name:", "{{order.userId.name}}"],
-        ["Email:", "{{order.userId.email}}"],
-        ["Phone:", "{{order.userId.phone}}"],
-        [],
-        ["Shipped To"],
-        ["Address:", "{{order.addressId.street}}, {{order.addressId.city}}, {{order.addressId.zipCode}}"],
-        [],
-        ["Payment Method:", "{{order.paymentMethod}}"],
-        [],
-        ["Items"],
-        ["Product Name", "Quantity", "Price", "Discount", "Total Amount"],
-        {{#each order.items}}
-        ["{{this.productId.name}}", "{{this.quantity}}", "{{this.price}}", "{{this.discount}}", "{{multiply this.quantity this.price}}"],
-        {{/each}}
-        [],
-        ["Summary"],
-        ["Total Price Before Discount:", "{{order.summary.totalPriceBeforeDiscount}}"],
-        ["Total Discount:", "{{order.summary.totalDiscount}}"],
-        ["Discounted Price:", "{{order.summary.discountedPrice}}"],
-        ["Shipping Charge:", "{{order.summary.shippingCharge}}"],
-        ["Total Amount To Be Paid:", "{{order.summary.totalAmountToBePaid}}"]
-      ];
-      const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-      // Add the worksheet to the workbook
-      XLSX.utils.book_append_sheet(wb, ws, "Invoice");
-
-      // Save to file
-      XLSX.writeFile(wb, "invoice.xlsx");
-    }
+   
   </script>
   
 </body>

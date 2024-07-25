@@ -13,6 +13,8 @@ const {upload,categoryUpload,brandUpload} = require('../public/javascripts/fileu
 
 router.get('/',adminsessionHandler,adminController.getDashboard)
 
+router.get('/dashboard-data',adminsessionHandler,adminController.dashboardData)
+
 router.get('/adminlogin', adminController.loginLoad);
 
 router.post ('/adminlogin',adminController.verifyLogin)

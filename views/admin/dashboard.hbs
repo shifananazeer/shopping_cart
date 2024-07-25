@@ -1,214 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-  <title>Dashboard - NiceAdmin Bootstrap Template</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
-  <link href="/assets2/img/favicon.png" rel="icon">
-  <link href="/assets2/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="/assets2/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/assets2/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="/assets2/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <link href="/assets2/vendor/quill/quill.snow.css" rel="stylesheet">
-  <link href="/assets2/vendor/quill/quill.bubble.css" rel="stylesheet">
-  <link href="/assets2/vendor/remixicon/remixicon.css" rel="stylesheet">
-  <link href="/assets2/vendor/simple-datatables/style.css" rel="stylesheet">
-
-  <!-- Template Main CSS File -->
+  <title>Dashboard</title>
   <link href="/assets2/css/style.css" rel="stylesheet">
-
-  <!-- =======================================================
-  * Template Name: NiceAdmin - v2.4.0
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .card { margin-bottom: 20px; }
+    #line-chart { height: 400px; }
+    .filter { margin-bottom: 20px; }
+    .filter label { margin-right: 10px; }
+    #line-chart {
+  height: 400px;
+  width: 100%;
+}
+  </style>
 </head>
-
 <body>
-
-
-
-
   <main id="main" class="main">
-
     <div class="pagetitle">
       <h1>Dashboard</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
         </ol>
       </nav>
-    </div><!-- End Page Title -->
+    </div>
+
+    <div class="filter mb-3">
+      <label for="date-range" class="form-label">Custom Date Range:</label>
+      <input type="date" id="start-date" class="form-control d-inline-block" style="width: auto; display: inline;">
+      <span class="mx-2">to</span>
+      <input type="date" id="end-date" class="form-control d-inline-block" style="width: auto; display: inline;">
+      <button onclick="filterReport()" class="btn btn-primary">Filter</button>
+      <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
+    </div>
+
+    <div class="filter mb-3">
+      <label for="preset-range" class="form-label">Preset Date Range:</label>
+      <select id="preset-range" class="form-select d-inline-block" style="width: auto; display: inline;" onchange="presetFilter()">
+        <option value="">Select Preset</option>
+        <option value="1-day">1 Day</option>
+        <option value="1-week">1 Week</option>
+        <option value="1-month">1 Month</option>
+        <option value="1-year">1 Year</option>
+      </select>
+    </div>
 
     <section class="section dashboard">
       <div class="row">
-
-        <!-- Left side columns -->
-        <div class="col-lg-12">
+        <div class="col-12">
           <div class="row">
-
-            <!-- Sales Card -->
-            <div class="col-xxl-4 col-md-6">
+            <div class="col-lg-4">
               <div class="card info-card sales-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#"></a></li>
-                    <li><a class="dropdown-item" href="#"></a></li>
-                    <li><a class="dropdown-item" href="#"></a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
-                  <h5 class="card-title"> <span> </span></h5>
-
+                  <h5 class="card-title">Sales Count <span>| <span id="filterPeriod">Today</span></span></h5>
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                     <i class="fa-solid fa-indian-rupee-sign"></i>
+                      <i class="bi bi-currency-dollar"></i>
                     </div>
                     <div class="ps-3">
-                      <h6></h6>
-                      
-
+                      <h6 id="salesCount">0</h6>
                     </div>
                   </div>
                 </div>
-
               </div>
-            </div><!-- End Sales Card -->
-
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card revenue-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#"></a></li>
-                    <li><a class="dropdown-item" href="#"></a></li>
-                    <li><a class="dropdown-item" href="#"></a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title"></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                     <i class="fa-brands fa-product-hunt"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6></h6>
-                     
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Revenue Card -->
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#"></a></li>
-                    <li><a class="dropdown-item" href="#"></a></li>
-                    <li><a class="dropdown-item" href="#"></a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title"> <span></span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6></h6>
-                     
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div><!-- End Customers Card -->
-
-            <!-- Reports -->
-            <div class="col-12">
-              <div class="card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li class="dropdown-item" ></li>
-                    <li class="dropdown-item"></li>
-                    <li class="dropdown-item"  ></li>
-                  </ul>
-                </div>
-
-                <div class="card-body ">
-                  <h5 class="card-title"> <span></span></h5>
-
-                  <!-- Line Chart -->
-                  <canvas id="line-chart" ></canvas>
-
-                 
-                    <script>
-                            
-
-              </script>
-
             </div>
-          </div><!-- End Budget Report -->
 
-          
+            <div class="col-lg-4">
+              <div class="card info-card revenue-card">
+                <div class="card-body">
+                  <h5 class="card-title">Total Revenue <span>| <span id="filterPeriod2">Today</span></span></h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 id="totalRevenue">$0</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Revenue Chart <span>| <span id="filterPeriod3">Today</span></span></h5>
+              <canvas id="line-chart"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
+  </main>
 
-  </main><!-- End #main -->
+  <script src="/assets2/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <script>
+ async function fetchDashboardData(startDate = '', endDate = '', presetRange = '') {
+    const queryParams = new URLSearchParams();
+    if (startDate) queryParams.append('startDate', startDate);
+    if (endDate) queryParams.append('endDate', endDate);
+    if (presetRange) queryParams.append('presetRange', presetRange);
 
+    try {
+        const response = await fetch(`/admin/dashboard-data?${queryParams.toString()}`);
+        const data = await response.json();
+
+        // Update dashboard with fetched data
+        document.getElementById('salesCount').innerText = data.totalSalesCount;
+        document.getElementById('totalRevenue').innerText = `$${data.totalRevenue.toFixed(2)}`;
+
+        // Update filter periods shown on the page
+        const periodText = startDate && endDate ? `${startDate} to ${endDate}` : (presetRange || 'Today');
+        document.getElementById('filterPeriod').innerText = periodText;
+        document.getElementById('filterPeriod2').innerText = periodText;
+        document.getElementById('filterPeriod3').innerText = periodText;
+
+        // Example chart update
+        const ctx = document.getElementById('line-chart').getContext('2d');
+
+        // Destroy previous chart instance if exists
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+
+        // Initialize new chart
+        window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.chartData.labels || [], // Default to empty array if undefined
+                datasets: [{
+                    label: 'Revenue',
+                    data: data.chartData.values || [], // Default to empty array if undefined
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue'
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+    }
+}
+
+function filterReport() {
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    fetchDashboardData(startDate, endDate);
+}
+
+function presetFilter() {
+    const presetRange = document.getElementById('preset-range').value;
+    fetchDashboardData('', '', presetRange);
+}
+
+function clearFilters() {
+    document.getElementById('start-date').value = '';
+    document.getElementById('end-date').value = '';
+    document.getElementById('preset-range').value = '';
+    fetchDashboardData(); // Fetch with no filters
+}
+
+function setFilterValues() {
+    const { startDate, endDate, presetRange } = getQueryParams();
+    fetchDashboardData(startDate, endDate, presetRange);
+}
+
+function getQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        startDate: params.get('startDate') || '',
+        endDate: params.get('endDate') || '',
+        presetRange: params.get('presetRange') || ''
+    };
+}
+
+window.onload = setFilterValues;
+
+  </script>
 </body>
-
 </html>
