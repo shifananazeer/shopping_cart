@@ -17,7 +17,7 @@ const brandSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  
+  salesCount: { type: Number, default: 0 }, 
 }, { timestamps: true });
 
 module.exports = mongoose.model('Brand', brandSchema);

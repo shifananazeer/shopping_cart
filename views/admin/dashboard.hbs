@@ -59,7 +59,7 @@
                   <h5 class="card-title">Sales Count <span>| <span id="filterPeriod">Today</span></span></h5>
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-currency-dollar"></i>
+                      <i class="fa-brands fa-product-hunt"></i>
                     </div>
                     <div class="ps-3">
                       <h6 id="salesCount">0</h6>
@@ -75,7 +75,7 @@
                   <h5 class="card-title">Total Revenue <span>| <span id="filterPeriod2">Today</span></span></h5>
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-currency-dollar"></i>
+                     <i class="fa-solid fa-indian-rupee-sign"></i>
                     </div>
                     <div class="ps-3">
                       <h6 id="totalRevenue">$0</h6>
@@ -85,6 +85,26 @@
               </div>
             </div>
 
+  <div class="col-lg-4">
+              <div class="card info-card user-card">
+                <div class="card-body">
+                  <h5 class="card-title">Total Users <span>| <span id="filterPeriod2"></span></span></h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                     <i class="bi bi-people"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 id="totalRevenue">{{userCount}}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
           </div>
         </div>
 
@@ -92,6 +112,7 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Revenue Chart <span>| <span id="filterPeriod3">Today</span></span></h5>
+              <i class="bi bi-graph-up"></i>
               <canvas id="line-chart"></canvas>
             </div>
           </div>

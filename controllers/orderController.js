@@ -6,6 +6,8 @@ const Coupon = require('../models/couponmodel')
 const Wallet = require('../models/walletmodel')
 const Return = require('../models/returnmodel')
 const User = require('../models/usermodel');
+const Brand = require('../models/brandmodel')
+const Category = require('../models/categorymodel')
 const Razorpay = require('razorpay');
 
 const crypto = require('crypto');
@@ -77,12 +79,41 @@ placeOrder: async (req, res) => {
 
         await newOrder.save();
 
+        // Update stock and sales count
         for (const item of cartItems) {
-            await Product.findByIdAndUpdate(item.productId, {
-                $inc: {purchaseCount:item.quantity, stock: -item.quantity }
-            });
+            const product = await Product.findById(item.productId);
+            if (product) {
+                console.log(`Updating product ${item.productId} - Initial Sales Count: ${product.purchaseCount}`);
+        
+                // Perform the update
+                product.stock -= item.quantity;
+                product.purchaseCount += item.quantity;
+        
+                // Save the changes
+                await product.save();
+                console.log('Product updated and saved:', product);
+        
+                if (product.brand) {
+                    const brand = await Brand.findById(product.brand);
+                    if (brand) {
+                        brand.salesCount += item.quantity;
+                        await brand.save();
+                        console.log('Brand updated and saved:', brand);
+                    }
+                }
+        
+                if (product.category) {
+                    const category = await Category.findById(product.category);
+                    if (category) {
+                        category.salesCount += item.quantity;
+                        await category.save();
+                        console.log('Category updated and saved:', category);
+                    }
+                }
+            } else {
+                console.error(`Product not found: ${item.productId}`);
+            }
         }
-
         await Cart.deleteMany({ userId: req.session.user._id });
 
         res.status(201).json({ message: 'Order placed successfully', orderId: newOrder.orderId });
@@ -313,10 +344,40 @@ createOrder : async (req, res) => {
             paymentStatus: paymentMethod === 'online_payment' ? 'failed' : 'success', 
         });
         await newOrder.save();
-        for (const item of cartItems) {
-            await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stock: -item.quantity }
-            });
+         // Update stock and sales count
+         for (const item of cartItems) {
+            const product = await Product.findById(item.productId);
+            if (product) {
+                console.log(`Updating product ${item.productId} - Initial Sales Count: ${product.purchaseCount}`);
+        
+                // Perform the update
+                product.stock -= item.quantity;
+                product.purchaseCount += item.quantity;
+        
+                // Save the changes
+                await product.save();
+                console.log('Product updated and saved:', product);
+        
+                if (product.brand) {
+                    const brand = await Brand.findById(product.brand);
+                    if (brand) {
+                        brand.salesCount += item.quantity;
+                        await brand.save();
+                        console.log('Brand updated and saved:', brand);
+                    }
+                }
+        
+                if (product.category) {
+                    const category = await Category.findById(product.category);
+                    if (category) {
+                        category.salesCount += item.quantity;
+                        await category.save();
+                        console.log('Category updated and saved:', category);
+                    }
+                }
+            } else {
+                console.error(`Product not found: ${item.productId}`);
+            }
         }
         await Cart.deleteMany({ userId: req.session.user._id });
         res.json({

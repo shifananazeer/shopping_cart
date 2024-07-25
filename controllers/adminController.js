@@ -8,9 +8,9 @@ let credentials = {
 
 
   //render Dashboard
-const getDashboard = (req,res) => { 
-
-  res.render('admin/dashboard',{adminHeader:true})
+const getDashboard =async (req,res) => { 
+  const userCount = await User.countDocuments().exec();
+  res.render('admin/dashboard',{adminHeader:true,userCount})
 }
 
 
@@ -20,31 +20,45 @@ const dashboardData = async (req, res) => {
   try {
     const { startDate, endDate, presetRange } = req.query;
     let filter = { status: 'delivered' };
+    const now = new Date();
+    let labels = [];
 
+    // Handle date range and preset range queries
     if (startDate && endDate) {
       filter.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
+      labels = generateDateLabels(new Date(startDate), new Date(endDate));
     } else if (presetRange) {
-      const now = new Date();
       let pastDate;
 
       switch (presetRange) {
         case '1-day':
           pastDate = new Date(now.setDate(now.getDate() - 1));
+          labels = generateDateLabels(pastDate, new Date(), 1);
           break;
         case '1-week':
           pastDate = new Date(now.setDate(now.getDate() - 7));
+          labels = generateDateLabels(pastDate, new Date(), 2); // Show every 2nd day
           break;
         case '1-month':
           pastDate = new Date(now.setMonth(now.getMonth() - 1));
+          labels = generateDateLabels(pastDate, new Date(), 5); // Show every 5th day
           break;
         case '1-year':
           pastDate = new Date(now.setFullYear(now.getFullYear() - 1));
+          labels = generateDateLabels(pastDate, new Date(), 30); // Show every 30th day (approximately monthly)
           break;
         default:
+          // Default case: Show today's data
           pastDate = new Date(now.setHours(0, 0, 0, 0)); // Start from the beginning of today
+          labels = generateDateLabels(pastDate, new Date(), 1);
           break;
       }
       filter.createdAt = { $gte: pastDate };
+    } else {
+      // No date or range provided, default to today's data
+      const today = new Date();
+      filter.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)), $lte: new Date(today.setHours(23, 59, 59, 999)) };
+      labels = generateDateLabels(new Date(), new Date(), 1); // Show today's date
     }
 
     const orders = await Order.find(filter).exec();
@@ -75,16 +89,12 @@ const dashboardData = async (req, res) => {
       totalCouponDiscount,
       totalRevenue
     });
-
-    const chartData = orders.reduce((acc, order) => {
-      const date = new Date(order.createdAt).toISOString().slice(0, 10);
-      if (!acc.labels.includes(date)) {
-        acc.labels.push(date);
-        acc.values.push((Number(order.summary.totalAmountToBePaid) || 0) - (Number(order.summary.totalDiscount) || 0));
-      } else {
-        const index = acc.labels.indexOf(date);
-        acc.values[index] += (Number(order.summary.totalAmountToBePaid) || 0) - (Number(order.summary.totalDiscount) || 0);
-      }
+    
+    const chartData = labels.reduce((acc, label) => {
+      const dateOrders = orders.filter(order => order.createdAt.toISOString().slice(0, 10) === label);
+      const dailyRevenue = dateOrders.reduce((sum, order) => sum + (Number(order.summary.totalAmountToBePaid) || 0) - (Number(order.summary.totalDiscount) || 0), 0);
+      acc.labels.push(label);
+      acc.values.push(dailyRevenue);
       return acc;
     }, { labels: [], values: [] });
 
@@ -101,6 +111,19 @@ const dashboardData = async (req, res) => {
     res.status(500).json({ message: 'Error fetching dashboard data', error: err.message });
   }
 };
+
+// Helper function to generate date labels between two dates
+function generateDateLabels(startDate, endDate, step = 1) {
+  const labels = [];
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    labels.push(new Date(currentDate).toISOString().slice(0, 10));
+    currentDate.setDate(currentDate.getDate() + step);
+  }
+
+  return labels;
+}
 
 
   //render admin login page 
