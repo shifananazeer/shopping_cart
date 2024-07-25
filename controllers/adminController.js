@@ -1,5 +1,8 @@
 const User = require('../models/usermodel')
 const Order = require('../models/ordermodel')
+const Product = require('../models/productmodel')
+const Brand = require('../models/brandmodel')
+const Category = require('../models/categorymodel')
 let credentials = {
     password: 'shifa',
     email:'abc@gmail.com'
@@ -199,6 +202,56 @@ const unBlockUser = async(req,res) =>  {
   }
 }
 
+
+const bestSellingProducts = async(req,res) => {
+  try {
+    // Fetch top products based on purchaseCount
+    const topProducts = await Product.find().sort({ purchaseCount: -1 }).limit(10); // Fetch top 5 products
+
+    const labels = topProducts.map(product => product.name);
+    const values = topProducts.map(product => product.purchaseCount);
+
+    const pieChartData = { labels, values };
+    
+    res.status(200).json(pieChartData);
+  } catch (error) {
+    console.error('Error fetching pie chart data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+const  getTopBrands = async(req,res) => {
+  try {
+   
+    const brands = await Brand.find().sort({ salesCount: -1 })
+    const data = {
+      labels: brands.map(brand => brand.name),
+      values: brands.map(brand => brand.salesCount)
+    };
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching top brands:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+const getTopCategories = async(req,res) => {
+  try {
+    const categories = await Category.find().sort({ salesCount: -1 }).limit(10);
+    const data = {
+      labels: categories.map(category => category.name),
+      values: categories.map(category => category.salesCount)
+    };
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching top categories:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+
 //logout admin
 const logout = (req,res) => {
   req.session.destroy();
@@ -214,4 +267,7 @@ module.exports ={
   unBlockUser,
   logout,
   dashboardData,
+  bestSellingProducts,
+  getTopBrands,
+  getTopCategories,
 }

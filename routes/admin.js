@@ -83,8 +83,15 @@ router.post('/coupons/activate/:id',adminsessionHandler, admincouponController.a
 
 router.get('/coupons/edit/:id',adminsessionHandler, admincouponController.getEditCoupon);
 
-
 router.post('/coupons/edit/:id',adminsessionHandler, admincouponController.updateCoupon);
 
 router.get("/salesReport",adminsessionHandler, adminsalesController.salesReport);
+
+router.get('/best-products',adminsessionHandler,adminController.bestSellingProducts);
+
+router.get('/top-brands',adminsessionHandler,adminController. getTopBrands);
+
+
+router.get('/top-categories',adminsessionHandler,adminController. getTopCategories);
+
 module.exports = router;

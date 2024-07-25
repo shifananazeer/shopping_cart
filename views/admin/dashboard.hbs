@@ -11,10 +11,14 @@
     #line-chart { height: 400px; }
     .filter { margin-bottom: 20px; }
     .filter label { margin-right: 10px; }
-    #line-chart {
-  height: 400px;
-  width: 100%;
-}
+   #line-chart { height: 200px; width: 50%; }
+    #pie-chart {height:100px; width: 50%;}
+    .spl{
+       box-shadow: 0 8px 16px 0 
+            rgba(0, 0,0, 0.24),0 17px 50px 0 
+            rgba(0, 0,0,0.19);  
+          
+    }
   </style>
 </head>
 <body>
@@ -28,8 +32,8 @@
         </ol>
       </nav>
     </div>
-
-    <div class="filter mb-3">
+<div class="p-3 m-2 spcl" style="background-color:#e4eafa;">
+    <div class="filter mb-3 ">
       <label for="date-range" class="form-label">Custom Date Range:</label>
       <input type="date" id="start-date" class="form-control d-inline-block" style="width: auto; display: inline;">
       <span class="mx-2">to</span>
@@ -38,7 +42,7 @@
       <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
     </div>
 
-    <div class="filter mb-3">
+    <div class="filter mb-3 ">
       <label for="preset-range" class="form-label">Preset Date Range:</label>
       <select id="preset-range" class="form-select d-inline-block" style="width: auto; display: inline;" onchange="presetFilter()">
         <option value="">Select Preset</option>
@@ -48,7 +52,7 @@
         <option value="1-year">1 Year</option>
       </select>
     </div>
-
+</div>
     <section class="section dashboard">
       <div class="row">
         <div class="col-12">
@@ -78,7 +82,7 @@
                      <i class="fa-solid fa-indian-rupee-sign"></i>
                     </div>
                     <div class="ps-3">
-                      <h6 id="totalRevenue">$0</h6>
+                      <h6 id="totalRevenue">0</h6>
                     </div>
                   </div>
                 </div>
@@ -100,23 +104,53 @@
                 </div>
               </div>
             </div>
+  </div>
+</div>
 
 
 
+        
+        
+         <div class="row">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Revenue Chart <span>| <span id="filterPeriod3">Today</span></span></h5>
+        <i class="bi bi-graph-up"></i>
+        <canvas id="line-chart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-6">
+    <div class="card align-items-center">
+      <div class="card-body">
+        <h5 class="card-title">Best Selling Products</h5>
+        <i class="bi bi-pie-chart"></i>
+        <canvas id="pie-chart" width="350" height="350" style="display: block; box-sizing: border-box;"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
 
-
-          </div>
+ <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Top Selling Brands</h5>
+          <canvas id="pie-chart-brands" width="350" height="350" style="display: block; box-sizing: border-box;"></canvas>
         </div>
-
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Revenue Chart <span>| <span id="filterPeriod3">Today</span></span></h5>
-              <i class="bi bi-graph-up"></i>
-              <canvas id="line-chart"></canvas>
-            </div>
-          </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Top Selling Categories</h5>
+          <canvas id="pie-chart-categories" width="350" height="350" style="display: block; box-sizing: border-box;"></canvas>
         </div>
+      </div>
+    </div>
+
+
+
       </div>
     </section>
   </main>
@@ -124,108 +158,170 @@
   <script src="/assets2/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <script>
- async function fetchDashboardData(startDate = '', endDate = '', presetRange = '') {
+ 
+ <script>
+  async function fetchDashboardData(startDate = '', endDate = '', presetRange = '') {
     const queryParams = new URLSearchParams();
     if (startDate) queryParams.append('startDate', startDate);
     if (endDate) queryParams.append('endDate', endDate);
     if (presetRange) queryParams.append('presetRange', presetRange);
 
     try {
-        const response = await fetch(`/admin/dashboard-data?${queryParams.toString()}`);
-        const data = await response.json();
+      const response = await fetch(`/admin/dashboard-data?${queryParams.toString()}`);
+      const data = await response.json();
 
-        // Update dashboard with fetched data
-        document.getElementById('salesCount').innerText = data.totalSalesCount;
-        document.getElementById('totalRevenue').innerText = `$${data.totalRevenue.toFixed(2)}`;
+      // Update dashboard with fetched data
+      document.getElementById('salesCount').innerText = data.totalSalesCount;
+      document.getElementById('totalRevenue').innerText = `${data.totalRevenue.toFixed(2)}`;
 
-        // Update filter periods shown on the page
-        const periodText = startDate && endDate ? `${startDate} to ${endDate}` : (presetRange || 'Today');
-        document.getElementById('filterPeriod').innerText = periodText;
-        document.getElementById('filterPeriod2').innerText = periodText;
-        document.getElementById('filterPeriod3').innerText = periodText;
+      // Update filter periods shown on the page
+      const periodText = startDate && endDate ? `${startDate} to ${endDate}` : (presetRange || 'Today');
+      document.getElementById('filterPeriod').innerText = periodText;
+      document.getElementById('filterPeriod2').innerText = periodText;
+      document.getElementById('filterPeriod3').innerText = periodText;
 
-        // Example chart update
-        const ctx = document.getElementById('line-chart').getContext('2d');
-
-        // Destroy previous chart instance if exists
-        if (window.myChart) {
-            window.myChart.destroy();
+      // Update line chart
+      const lineCtx = document.getElementById('line-chart').getContext('2d');
+      if (window.myLineChart) window.myLineChart.destroy();
+      window.myLineChart = new Chart(lineCtx, {
+        type: 'line',
+        data: {
+          labels: data.chartData.labels || [],
+          datasets: [{
+            label: 'Revenue',
+            data: data.chartData.values || [],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Date'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Revenue'
+              }
+            }
+          }
         }
+      });
 
-        // Initialize new chart
-        window.myChart = new Chart(ctx, {
-            type: 'line',
+      // Fetch and update pie chart data
+      const pieResponse = await fetch('/admin/best-products');
+      const pieData = await pieResponse.json();
+
+      const pieCtx = document.getElementById('pie-chart').getContext('2d');
+      if (window.myPieChart) window.myPieChart.destroy();
+      window.myPieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: pieData.labels,
+          datasets: [{
+            data: pieData.values,
+           backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+              borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)'],
+             
+          }]
+        },
+        options: {
+          responsive: false, // Disable responsiveness to respect the set size
+    maintainAspectRatio: true // Maintain aspect ratio of the chart
+    
+        }
+      });
+
+ // Fetch and update pie chart data for brands
+        const pieBrandsResponse = await fetch('/admin/top-brands');
+        const pieBrandsData = await pieBrandsResponse.json();
+        const pieBrandsCtx = document.getElementById('pie-chart-brands').getContext('2d');
+        if (window.myPieBrandsChart) window.myPieBrandsChart.destroy();
+        window.myPieBrandsChart = new Chart(pieBrandsCtx, {
+            type: 'pie',
             data: {
-                labels: data.chartData.labels || [], // Default to empty array if undefined
+                labels: pieBrandsData.labels,
                 datasets: [{
-                    label: 'Revenue',
-                    data: data.chartData.values || [], // Default to empty array if undefined
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: true
+                    data: pieBrandsData.values,
+                    backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)']
                 }]
             },
             options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue'
-                        }
-                    }
-                }
+                responsive: false,
+                maintainAspectRatio: true
             }
         });
 
-    } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-    }
-}
+        // Fetch and update pie chart data for categories
+        const pieCategoriesResponse = await fetch('/admin/top-categories');
+        const pieCategoriesData = await pieCategoriesResponse.json();
+        const pieCategoriesCtx = document.getElementById('pie-chart-categories').getContext('2d');
+        if (window.myPieCategoriesChart) window.myPieCategoriesChart.destroy();
+        window.myPieCategoriesChart = new Chart(pieCategoriesCtx, {
+            type: 'pie',
+            data: {
+                labels: pieCategoriesData.labels,
+                datasets: [{
+                    data: pieCategoriesData.values,
+                    backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: true
+            }
+        });
 
-function filterReport() {
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  }
+
+  function filterReport() {
     const startDate = document.getElementById('start-date').value;
     const endDate = document.getElementById('end-date').value;
     fetchDashboardData(startDate, endDate);
-}
+  }
 
-function presetFilter() {
+  function presetFilter() {
     const presetRange = document.getElementById('preset-range').value;
     fetchDashboardData('', '', presetRange);
-}
+  }
 
-function clearFilters() {
+  function clearFilters() {
     document.getElementById('start-date').value = '';
     document.getElementById('end-date').value = '';
     document.getElementById('preset-range').value = '';
     fetchDashboardData(); // Fetch with no filters
-}
+  }
 
-function setFilterValues() {
+  function setFilterValues() {
     const { startDate, endDate, presetRange } = getQueryParams();
     fetchDashboardData(startDate, endDate, presetRange);
-}
+  }
 
-function getQueryParams() {
+  function getQueryParams() {
     const params = new URLSearchParams(window.location.search);
     return {
-        startDate: params.get('startDate') || '',
-        endDate: params.get('endDate') || '',
-        presetRange: params.get('presetRange') || ''
+      startDate: params.get('startDate') || '',
+      endDate: params.get('endDate') || '',
+      presetRange: params.get('presetRange') || ''
     };
-}
+  }
 
-window.onload = setFilterValues;
+  window.onload = setFilterValues;
+</script>
 
-  </script>
 </body>
 </html>

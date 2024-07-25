@@ -29,7 +29,9 @@
         .cancel-order-button:hover {
             background-color: #c82333;
         }
-       
+         .wide-table {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +49,7 @@
                             <th>Order ID</th>
                             <th>Date</th>
                             <th>Total Amount</th>
+                            <th>payment Method</th>
                             <th>Status</th>
                             <th>Payment Status</th>
                             <th>Details/Cancel</th>
@@ -70,6 +73,7 @@
                                     <td>{{ ../orderId }}</td>
                                     <td>{{ formatDate ../createdAt }}</td>
                                     <td>{{ ../summary.totalAmountToBePaid }} ₹</td>
+                                    <td>{{../paymentMethod}}</td>
                                     <td>{{ ../status }}</td>
                                     <td>{{ ../paymentStatus }}</td>
                                     <td>
