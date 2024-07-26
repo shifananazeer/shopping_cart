@@ -47,6 +47,11 @@
 </head>
 
 <body>
+     <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">My Profile <span></span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
     <div class="container cprofile rounded bg-white mt-5 mb-5">
         <div class="row">
             <!-- Left column with user info -->
@@ -76,7 +81,7 @@
             <div class="col-md-9">
                 <div class="p-3 py-5">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="text-right">My Profile</h2>
+                        <h2 class="text-right"></h2>
                         <a href="/edit-profile" class="btn btn-primary">✎ Edit</a>
                     </div>
                     <!-- User information section -->
@@ -103,7 +108,7 @@
            
         </div>
         <div id="pagination">
-            <!-- Pagination controls will be dynamically inserted here -->
+          
         </div>
     </div>
 </div>
@@ -128,7 +133,7 @@
                     <!-- Add new address button -->
                     <div class="row">
                         <div class="col-md-12">
-                            <a href="/profile/add-address" class="btn btn-success mt-5">Add New Address</a>
+                            <a href="/profile/add-address" class="btn btn-success mt-5">+ Add New Address</a>
                         </div>
                     </div>
                 </div>
@@ -136,33 +141,30 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle (Bootstrap JS and Popper.js) -->
+   
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-
+//wallet Transactions ---------------
           document.getElementById('showTransactionsBtn').addEventListener('click', function() {
         const transactionsContainer = document.getElementById('transactionsContainer');
         transactionsContainer.style.display = transactionsContainer.style.display === 'none' ? 'block' : 'none';
         
         if (transactionsContainer.style.display === 'block') {
-            fetchTransactions(1); // Fetch the first page of transactions
+            fetchTransactions(1); 
         }
     });
-
     function fetchTransactions(page) {
         fetch(`/transactions?page=${page}`)
             .then(response => response.json())
             .then(data => {
                 const transactionsList = document.getElementById('transactionsList');
                 const pagination = document.getElementById('pagination');
-                
                 // Clear previous transactions
                 transactionsList.innerHTML = '';
                 pagination.innerHTML = '';
-
                 // Insert transactions into the list
                 data.transactions.forEach(transaction => {
                     const transactionItem = document.createElement('div');
@@ -174,13 +176,12 @@
                     `;
                     transactionsList.appendChild(transactionItem);
                 });
-
                 // Insert pagination controls
                 if (data.totalPages > 1) {
                     for (let i = 1; i <= data.totalPages; i++) {
                         const pageButton = document.createElement('button');
                         pageButton.classList.add('btn', 'btn-secondary','custom-btn', 'me-2');
-                        pageButton.style.width = '50px'; // Adjust the width as needed
+                        pageButton.style.width = '10px'; 
                         pageButton.textContent = i;
                         pageButton.addEventListener('click', () => fetchTransactions(i));
                         pagination.appendChild(pageButton);
@@ -191,18 +192,14 @@
                 console.error('Error fetching transactions:', error);
             });
     }
-          function copyToClipboard() {
-        // Get the referral link input element
-        const referralLinkInput = document.getElementById('referralLink');
-        
-        // Select the text field
-        referralLinkInput.select();
-        referralLinkInput.setSelectionRange(0, 99999); // For mobile devices
 
-        // Attempt to copy the text
+    //copy refferal code --------------------
+          function copyToClipboard() {
+        const referralLinkInput = document.getElementById('referralLink');
+        referralLinkInput.select();
+        referralLinkInput.setSelectionRange(0, 99999); 
         navigator.clipboard.writeText(referralLinkInput.value)
             .then(() => {
-                // Success
                 Swal.fire({
                     title: 'Copied!',
                     text: 'Referral link copied to clipboard.',
@@ -211,7 +208,6 @@
                 });
             })
             .catch(err => {
-                // Failure
                 Swal.fire({
                     title: 'Failed!',
                     text: 'Failed to copy referral link. Please try again.',
@@ -222,7 +218,7 @@
             });
     }
         function confirmDelete(event, element) {
-            event.preventDefault(); // Prevent the default link behavior
+            event.preventDefault(); 
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -235,7 +231,6 @@
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirect to the href of the link if the user confirms
                     window.location.href = element.href;
                 }
             });

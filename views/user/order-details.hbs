@@ -35,8 +35,13 @@
     </style>
 </head>
 <body>
+      <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Orders <span>Details</span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
     <div class="order-status-container">
-        <h2>Order Status</h2>
+        {{!-- <h2>Order Status</h2> --}}
         {{#if order}}
             <div class="order-status-result">
                 <h3>Order ID: {{ order.orderId}}</h3>

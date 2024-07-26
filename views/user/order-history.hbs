@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/path/to/your/styles.css">
+    
     <style>
         /* Custom styles */
         .return-btn {
@@ -32,16 +32,25 @@
          .wide-table {
             width: 100%;
         }
+        .conta{
+            width: 90%;
+           margin: auto;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container mt-5">
+    <div class="conta mt-5">
+          <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Orders <span>History</span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
         {{#if orders.length}}
-            <h1 class="mb-4">Order History</h1>
+            {{!-- <h1 class="mb-4">Order History</h1> --}}
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
-                    <thead>
+                    <thead class="table-dark">
                         <tr>
                             <th>Image</th>
                             <th>Product Name</th>
@@ -170,7 +179,7 @@
 
             // Repay function
             window.handleRepay = function(orderId) {
-                alert('handleRepay called'); // Debug alert
+                {{!-- alert('handleRepay called');  --}}
                 
                 console.log('Initiating repayment for Order ID:', orderId);
                 
@@ -185,7 +194,7 @@
                     if (data.success) {
                         const options = {
                             key: data.razorpayKeyId,
-                            amount: data.totalAmountToBePaid * 100, // Amount in paise
+                            amount: data.totalAmountToBePaid * 100, 
                             currency: 'INR',
                             name: 'Your Website Name',
                             description: 'Purchase Order',

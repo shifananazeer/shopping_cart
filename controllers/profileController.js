@@ -115,6 +115,30 @@ module.exports = {
       const user = req.session.user
         res.render('user/add-address',{userHeader:true,user})
     },
+    checkoutAddress: (req,res) => {
+      res.render('user/checkoutaddress',{userHeader:true})
+    },
+    checkAddressPost :async(req,res) => {
+      try{
+        const { houseName ,street,district,state,pincode,addressType} = req.body
+        const userId = req.session.user._id
+        const user = await User.findOne({userId})
+        const address = new Address({
+           userId:userId,
+           houseName:houseName,
+           street:street,
+           district:district,
+           state:state,
+           pincode:pincode,
+           addressType:addressType,
+        })
+        await address.save();
+       res.redirect('/checkout')
+        }catch(error){
+        console.log(error)
+        res.redirect('/error')
+        }
+    },
 
     postAddAddress :async (req,res) => {
      try{

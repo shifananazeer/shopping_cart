@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Products</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/path/to/your/css/styles.css">
+   
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -141,7 +141,7 @@
     }
 
     .filter-sort-dropdown label {
-        margin-bottom: 5px; /* Adjust label spacing */
+        margin-bottom: 5px; 
     }
   
     .filter-sort-dropdown select,
@@ -160,7 +160,7 @@
    
 
     .filter-sort-dropdown label {
-        margin-bottom: 5px; /* Adjust label spacing */
+        margin-bottom: 5px; 
     }
 }
 
@@ -190,7 +190,7 @@
     border: 1px solid #ddd;
     border-radius: 5px;
     transition: border-color 0.3s;
-    width: 150px; /* Set a consistent width */
+    width: 150px; 
 }
 
 .filter-sort-dropdown select:hover {
@@ -200,7 +200,7 @@
 .filter-sort-dropdown input[type="checkbox"] {
     margin-left: 5px;
 }
- /* Your existing styles */
+
         .product-grid {
             display: flex;
             flex-wrap: wrap;
@@ -230,15 +230,11 @@
                 max-width: 100%;
             }
         }
-       
-/* Basic styling for the search form */
 .search-form {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
-
-/* Styling for the search input */
 .search-form input[type="text"] {
     width: 300px;
     padding: 10px;
@@ -247,13 +243,9 @@
     outline: none;
     transition: border-color 0.3s;
 }
-
-/* Change border color on focus */
 .search-form input[type="text"]:focus {
     border-color: #007bff;
 }
-
-/* Styling for the search button */
 .search-form button {
     padding: 10px 20px;
     border: 2px solid #007bff;
@@ -263,39 +255,36 @@
     cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s;
 }
-
-/* Change background and border color on hover */
 .search-form button:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
-
-/* Optional: Responsive adjustments */
 @media (max-width: 600px) {
     .search-form {
         flex-direction: column;
         align-items: center;
     }
-
     .search-form input[type="text"],
     .search-form button {
         width: 100%;
         border-radius: 4px;
         margin: 5px 0;
     }
-
     .search-form button {
         border-radius: 4px;
     }
 }
-
     </style>
+
 </head>
 <body>
+     <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Explore <span>Products</span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
     <div class="container">
-        <div class="heading">
-            <h2>All Products</h2>
-        </div>
+      
           <form id="searchForm" class="search-form" onsubmit="event.preventDefault(); applyFilterAndSort();">
             <input type="text" name="searchQuery" placeholder="Search products..." class="inputSearch" value="{{filter.searchQuery}}">
             <button type="submit" class="searchbtn">Search</button>
@@ -341,7 +330,7 @@
                 </select>
 
                 <label for="inStockOnly">In Stock Only:</label>
-                <input type="checkbox" id="inStockOnly" name="inStockOnly" onchange="applyFilterAndSort()" {{#if inStockOnly}}checked{{/if}}>
+                 <input type="checkbox" id="inStockOnly" name="inStockOnly" value="true" onchange="applyFilterAndSort()" {{#if (eq filter.inStockOnly 'true')}}checked{{/if}}>
             </form>
         </div>
 
@@ -420,6 +409,8 @@
     <!-- Script for adding to cart -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        //add product to cart-----------------------
         async function addToCart(button) {
             const productId = button.getAttribute('data-product-id');
 
@@ -458,7 +449,7 @@
                 console.error('Error adding to cart:', error);
             }
         }
-
+//filter apply and sorting --------------------------
     function applyFilterAndSort() {
             const searchForm = document.getElementById('searchForm');
             const filterForm = document.getElementById('filterForm');
@@ -474,6 +465,8 @@
             }
         }
 
+
+//add products to wishlist------------------------------
 async function addToWishlist(productId) {
     try {
         const response = await fetch(`/wishlist/add/${productId}`, {
@@ -503,6 +496,7 @@ async function addToWishlist(productId) {
     }
 }
 
+//remove products from wishlist -----------------------------
 async function removeFromWishlist(productId) {
     try {
         const response = await fetch(`/wishlist/remove/${productId}`, {
@@ -511,7 +505,6 @@ async function removeFromWishlist(productId) {
                 'Content-Type': 'application/json'
             }
         });
-
         const result = await response.json();
         if (result.success) {
              Swal.fire({

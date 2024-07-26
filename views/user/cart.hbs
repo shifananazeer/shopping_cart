@@ -10,15 +10,25 @@
             rgba(0, 0,0, 0.24),0 17px 50px 0 
             rgba(0, 0,0,0.19);  
     }
+    .btn{
+         box-shadow: 0 8px 16px 0 
+            rgba(0, 0,0, 0.24),0 17px 50px 0 
+            rgba(0, 0,0,0.19);  
+    }
 </style>
 
-
+   <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Shopping<span>Cart</span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
 <div class="container">
+    
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="/products">Products</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+            <li class="breadcrumb-item active" aria-current="page"> Cart Items</li>
         </ol>
     </nav>
 
@@ -117,7 +127,7 @@
                 </div>
             <div style="text-align: center; margin-top: 20%;">
    <div style="text-align: center; margin-top: 20%;">
-    <a href="/checkout" id="checkoutButton" >CHECKOUT</a>
+    <a href="/checkout" id="checkoutButton" class="btn btn-warning"  >CHECKOUT</a>
 </div>
 </div>
                 {{else}}
@@ -128,6 +138,8 @@
     </div>
 </div>
 <script>
+
+    //sweet allert for  success and error
 function successAlert(message) {
     Swal.fire({
         icon: 'success',
@@ -146,6 +158,9 @@ function errorAlert(message) {
     });
 }
 
+
+
+//increment cart items quantity .  maximum quantity per each person 5
 async function incrementItem(productId, element) {
     try {
         const response = await fetch('/incrementItem', {
@@ -170,6 +185,10 @@ async function incrementItem(productId, element) {
     }
 }
 
+
+
+
+// decrement the cart item quantity  if quantity reach to 0 it will delete automatically from cart
 async function decrementItem(productId, element) {
     try {
         const response = await fetch('/decrementItem', {
@@ -179,7 +198,7 @@ async function decrementItem(productId, element) {
         });
         const data = await response.json();
         if (data.success) {
-            const currentQuantityElement = element.nextElementSibling; // span element
+            const currentQuantityElement = element.nextElementSibling; 
             const currentQuantity = parseInt(currentQuantityElement.textContent);
             const newQuantity = currentQuantity - 1;
             if (newQuantity > 0) {
@@ -226,7 +245,7 @@ async function deleteItem(productId, element) {
     }
 }
 
-
+// Call this function to update the summary on page load or when the cart changes
 async function updateCartSummary() {
     try {
         const response = await fetch('/getCartSummary', {
@@ -253,5 +272,5 @@ async function updateCartSummary() {
     }
 }
 
-updateCartSummary(); // Call this function to update the summary on page load or when the cart changes
+updateCartSummary(); 
 </script>

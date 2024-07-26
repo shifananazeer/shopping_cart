@@ -54,6 +54,10 @@ router.post('/update-profile',middleware.isVerified, profileUpload.single('profi
 
 router.get("/profile/add-address",middleware.isVerified, profileController.addAddress);
 
+router.get('/checkout-add-address',middleware.isVerified,profileController.checkoutAddress)
+
+router.post('/address-post',middleware.isVerified,profileController.checkAddressPost)
+
 router .post ('/profile/add-address',middleware.isVerified,profileController.postAddAddress)
 
 router.get('/edit-address',middleware.isVerified,profileController.editAddress)
