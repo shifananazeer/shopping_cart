@@ -5,27 +5,36 @@ const Brand = require('../models/brandmodel')
 const bcrypt = require('bcrypt');
 const Wallet = require('../models/walletmodel')
 const Product = require('../models/productmodel')
+const Wishlist = require('../models/wishlistmodel')
 const crypto = require('crypto');
 
 //Get Home with newly arrived products ,category ,brand
 const getHomePage = async (req, res) => {
  const user = req.session.user;
-const categories = await Category.find({}).lean();
+ const popularCategories = await Category.find({ is_deleted: false })
+ .sort({ saleCount: -1 })
+ .limit(6);
+
  const products = await Product.find({is_deleted:false })
                                 .sort({ createdAt: -1 }) 
                                 .limit(4); 
- const highOfferProducts = await Product.find({ 
-  is_deleted: false,
-   discount: { $gt: 30 } 
-                      })
- .sort({ discount: -1 }) // Sort by highest discount
- .limit(4)
-.lean();     
+const bestSelling = await Product.find({ 
+                                  is_deleted: false
+                                })
+                                .sort({ purchaseCount: -1 }) 
+                                .limit(8); 
+
+// Retrieve the user's wishlist
+let wishlistItems = [];
+if (user) {
+  const wishlist = await Wishlist.findOne({ userId: user._id }).populate('items');
+  wishlistItems = wishlist ? wishlist.items.map(item => item._id.toString()) : [];
+}
 const brands = await Brand .find({
   is_deleted:false,
 
 })                   
-res.render('user/home', { user,products,categories,highOfferProducts,brands,userHeader:true});   
+res.render('user/home', { user,products,popularCategories,brands,userHeader:true,wishlistItems, bestSelling});   
 };
 
 

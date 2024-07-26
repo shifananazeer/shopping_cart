@@ -139,7 +139,26 @@
                 </div><!-- End .cat-blocks-container -->
             </div><!-- End .container -->
 
-
+             <!-- Popular Categories Section -->
+            <div class="container">
+                <h2 class="title text-center mb-4">Explore Popular Categories</h2><!-- End .title text-center -->
+                <div class="cat-blocks-container">
+                    <div class="row">
+                        {{#each popularCategories}}
+                        <div class="col-6 col-sm-4 col-lg-2">
+                            <a href="/products?category={{this.name}}" class="cat-block">
+                                <figure>
+                                    <span>
+                                        <img src="/{{this.image}}" style="width:150px ;" alt="Category image">
+                                    </span>
+                                </figure>
+                                <h3 class="cat-block-title">{{this.name}}</h3><!-- End .cat-block-title -->
+                            </a>
+                        </div><!-- End .col-sm-4 col-lg-2 -->
+                        {{/each}}
+                    </div><!-- End .row -->
+                </div><!-- End .cat-blocks-container -->
+            </div><!-- End .container -->
 
 
             <div class=" pt-5 pb-10 mb-3 mt-2">
@@ -189,8 +208,15 @@
                                         </a>
 
                                         <div class="product-action-vertical">
-                                            <a href="/homewishlist/{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable"><span>add
-                                                    to wishlist</span></a>
+                                              {{#contains this._id ../wishlistItems}}
+            <a href="#" id="wishlist-btn-{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable" style="float: right; margin-top: 5px;" onclick="removeFromWishlist('{{this._id}}')">
+                <span>Added to wishlist</span>
+            </a>
+        {{else}}
+            <a href="#" id="wishlist-btn-{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable" style="float: right; margin-top: 5px;" onclick="addToWishlist('{{this._id}}')">
+                <span>Add to wishlist</span>
+            </a>
+        {{/contains}}
                                         </div><!-- End .product-action-vertical -->
                                     </figure><!-- End .product-media -->
 
@@ -243,6 +269,101 @@
                     </div><!-- End .tab-content -->
                 </div><!-- End .container -->
             </div><!-- End .bg-light -->
+              <div class=" pt-5 pb-10 mb-3 mt-2">
+                <div class="container">
+                    <div class="heading heading-center mb-3">
+                        <h2 class="title-lg">Best Selling Products</h2>
+                    </div>
+                    <div class="tab-content tab-content-carousel">
+                        <div class="tab-pane tab-pane-shadow p-0 fade show active" id="high-offer-tab" role="tabpanel"
+                            aria-labelledby="high-offer-link">
+                            <div class="owl-carousel owl-simple carousel-equal-height" data-toggle="owl"
+                                data-owl-options='{
+                                    "nav": false, 
+                                    "dots": true,
+                                    "margin": 0,
+                                    "loop": false,
+                                    "responsive": {
+                                        "0": {
+                                            "items":2
+                                        },
+                                        "480": {
+                                            "items":2
+                                        },
+                                        "768": {
+                                            "items":3
+                                        },
+                                        "992": {
+                                            "items":4
+                                        },
+                                        "1200": {
+                                            "items":4,
+                                            "nav": true
+                                        }
+                                    }
+                                }'>
+                                {{#each bestSelling  }}
+                                <div class="product product-3 text-center ml-5">
+                                    <figure class="product-media">
+                                        <a href="/product-details/{{this._id}}">
+                                            <img src="/{{this.images.[0]}}" alt="Product image" class="product-image">
+                                        </a>
+                                        <div class="product-action-vertical">
+                                            {{#contains this._id ../wishlistItems}}
+                                            <a href="#" id="wishlist-btn-{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable" style="float: right; margin-top: 5px;" onclick="removeFromWishlist('{{this._id}}')">
+                                                <span>Added to wishlist</span>
+                                            </a>
+                                            {{else}}
+                                            <a href="#" id="wishlist-btn-{{this._id}}" class="btn-product-icon btn-wishlist btn-expandable" style="float: right; margin-top: 5px;" onclick="addToWishlist('{{this._id}}')">
+                                                <span>Add to wishlist</span>
+                                            </a>
+                                            {{/contains}}
+                                        </div>
+                                    </figure>
+                                    <div class="product-body">
+                                        <div class="product-cat">
+                                            <a href="#">{{this.brand.name}}</a>
+                                        </div>
+                                        <h3 class="product-title"><a href="product.html">{{this.name}}</a></h3>
+                                        <div class="product-price text-dark">
+                                            {{#if this.discount}}
+                                            <span style="font-weight: bolder;" class="product-discounted-price mr-2">₹ {{calcDiscountedPrice this.price this.discount}}</span>
+                                            <div>
+                                                <span style="color: red;" class="product-original-price">
+                                                    <del> ₹ {{this.price}}</del>
+                                                </span>
+                                                <span class="text-success ml-3"> {{ this.discount}}%Off</span>
+                                            </div>
+                                            {{/if}}
+                                        </div>
+                                    </div>
+                                  <div class="product-footer">
+                                        {{#if this.stock}}
+                                        {{#if this.cartPresent}}
+                                        <div class="product-action">
+                                           <a href="/cart/{{this._id}}" type="button" class="btn btn-secondary btn-lg btn-block"
+                                                >Go to cart</a>
+                                        </div>
+                                        {{else}}
+                                        <div>
+                                            <button type="button" class="btn btn-secondary btn-lg btn-block"
+                                               data-product-id="{{this._id}}" onclick="addToCart(this)">Add to cart</button>
+                                        </div><!-- End .product-action -->
+                                        {{/if}}
+                                        {{else}}
+                                        <div>
+                                        <button type="button" class="btn btn-danger btn-lg btn-block" disabled
+                                                >Out of stock</button>
+                                        </div>
+                                        {{/if}}
+                                    </div><!-- End .product-footer -->
+                                </div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main><!-- End .main -->
     </div><!-- End .page-wrapper -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -284,6 +405,63 @@
                 console.error('Error adding to cart:', error);
             }
         }
+
+
+        async function addToWishlist(productId) {
+    try {
+        const response = await fetch(`/wishlist/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+           
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Wishlist!',
+                showConfirmButton: false,
+                timer: 2000,
+            });
+            updateWishlistCount();
+            document.querySelector(`#wishlist-btn-${productId}`).innerHTML = '<span>Added to wishlist</span>';
+            document.querySelector(`#wishlist-btn-${productId}`).setAttribute('onclick', `removeFromWishlist('${productId}')`);
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error);
+    }
+}
+
+async function removeFromWishlist(productId) {
+    try {
+        const response = await fetch(`/wishlist/remove/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+             Swal.fire({
+                icon: 'success',
+                title: 'Removed from Wishlist!',
+                showConfirmButton: false,
+                timer: 2000,
+            });
+            document.querySelector(`#wishlist-btn-${productId}`).innerHTML = '<span>Add to wishlist</span>';
+            document.querySelector(`#wishlist-btn-${productId}`).setAttribute('onclick', `addToWishlist('${productId}')`);
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error removing from wishlist:', error);
+    }
+}
 
     </script>
 </body>
