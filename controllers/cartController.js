@@ -7,11 +7,10 @@ const Coupon = require ('../models/couponmodel')
 const Wallet = require('../models/walletmodel')
 
 module.exports = {
-    //add products to cart
+    //add products to cart---------------------------------------------------------------
     addToCart: async (req, res) => {
         try {
             if (req.session && req.session.user) {
-                // Check if productId is from URL parameters or query parameters
                 const productId = req.params.productId || req.query.productId;
                 const userId = req.session.user._id;
     
@@ -54,7 +53,7 @@ module.exports = {
         }
     },
     
-  // list cart items in cart page
+  // list cart items in cart page---------------------------------------------------------
     listCart: async (req, res) => {
         try {
             if (!req.session || !req.session.user) {
@@ -80,7 +79,7 @@ module.exports = {
         }
     },
 
-//quantity incriment in cart
+//quantity incriment in cart------------------------------------------------------------------
     incrementItem: async (req, res) => {
         try {
             const { productId } = req.body;
@@ -117,7 +116,8 @@ module.exports = {
             res.json({ success: false, message: 'Server error' });
         }
     },
-    //decrement quantity in cart
+
+    //decrement quantity in cart------------------------------------------------------------
     decrementItem: async (req, res) => {
         try {
             const { productId } = req.body;
@@ -151,7 +151,7 @@ module.exports = {
         }
     },
 
-    //delete cart item
+    //delete cart item---------------------------------------------------------------------
     deleteItem: async (req, res) => {
         try {
             const { productId } = req.body;
@@ -177,7 +177,7 @@ module.exports = {
         }
     },
 
-    //get cart summary 
+    //get cart summary -------------------------------------------------------------
     getCartSummary: async (req, res) => {
         try {
             const cartItems = await Cart.findOne({ userId: req.session.user._id }).populate('items.productId');
@@ -194,7 +194,7 @@ module.exports = {
         }
     },
 
-    //checkout
+    //checkout page with cart items and summary-------------------------------------------------------------
     checkout :async (req,res) => {
         const userId = req.session.user._id;
         const user = req.session.user
@@ -229,10 +229,12 @@ module.exports = {
     
         res.render('user/checkout', { cartItems, summary ,addresses,user,userHeader:true,coupons,walletBalance});
     },
+
+    //wishlisted product to cart-------------------------------------------------------------
     addWishlistToCart : async (req, res) => {
         try {
             if (req.session && req.session.user) {
-                const productId = req.params.productId; // Use params for cleaner URL
+                const productId = req.params.productId; 
                 const userId = req.session.user._id;
     
                 const product = await Product.findById(productId);
@@ -275,6 +277,7 @@ module.exports = {
    
 },
 
+//incriment cart count-------------------------------------------------------------
 cartCount : async (req,res)=> {
     try {
         const userId = req.session.user._id;
@@ -290,7 +293,7 @@ cartCount : async (req,res)=> {
 }
 }
 
-//summary calculation function
+//summary calculation function---------------------------------------
 const calculateCartSummary = (items) => {
     let totalPriceBeforeDiscount = 0;
     let totalDiscount = 0;

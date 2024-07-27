@@ -3,20 +3,20 @@ const Product = require('../models/productmodel')
 
 module.exports = {
 
-    //get all order list
+    //get all order list in admin side----------------------------------------------
     listOrders: async (req, res) => {
         try {
             const perPage = 10; 
             const page = parseInt(req.query.page) || 1; 
             const search = req.query.query || '';
+            //search with name, orderId, amount
             const query = search ? {
                 $or: [
                     { 'userId.name': new RegExp(search, 'i') },
                     { 'orderId': new RegExp(search, 'i') },
-                    { 'summary.totalAmountToBePaid': parseFloat(search) || 0 } // Ensure it's a number for amount search
+                    { 'summary.totalAmountToBePaid': parseFloat(search) || 0 } 
                 ]
             } : {};
-           
     
             const orders = await Order.find(query)
                 .sort({ createdAt: -1 })
@@ -40,7 +40,8 @@ module.exports = {
             res.status(500).send('Internal Server Error');
         }
     },
-    //changeing order status
+
+    //changeing order status------------------------------------------------------
     changeOrderStatus: async (req, res) => {
         try {
             const { orderId } = req.params;
@@ -69,7 +70,7 @@ module.exports = {
         }
     },
 
-    //cancel order
+    //cancel order and change status to cancelled----------------------------------------------------------------
     cancelOrder: async (req, res) => {
         try {
             const { orderId } = req.params;

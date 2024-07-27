@@ -10,12 +10,12 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: { 
         type: String, 
         required: true, 
-        enum: ['cash_on_delivery', 'online_payment','wallet'] // Ensure this includes the new payment method
+        enum: ['cash_on_delivery', 'online_payment','wallet'] 
     },
     onlinePaymentDetails: {
         razorpayOrderId:{type:String},
-        razorpaySignature:{type:String}, // For storing transaction ID or other online payment details
-        paymentStatus: { type: String }  // For storing status of online payment (e.g., completed, pending)
+        razorpaySignature:{type:String}, 
+        paymentStatus: { type: String }  
     },
     items: [
         {

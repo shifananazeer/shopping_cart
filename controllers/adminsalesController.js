@@ -2,12 +2,12 @@ const Order = require('../models/ordermodel')
 
 
 module.exports = {
+
+    //sales report for admin ----------------------------------------------------------------
     salesReport : async(req,res) => {
         try {
             const { startDate, endDate, presetRange } = req.query;
             let filter = { status: 'delivered' }; 
-    
-            // Handling date range
             if (startDate && endDate) {
                 filter.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
             } else if (presetRange) {

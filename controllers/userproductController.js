@@ -4,7 +4,7 @@ const Brand = require('../models/brandmodel')
 const Order = require('../models/ordermodel')
 const Wishlist = require('../models/wishlistmodel')
 
-
+// get all products in user products page----------------------------------------------
 const getAllProducts = async (req, res) => {
     const user = req.session.user;
     const page = parseInt(req.query.page) || 1;
@@ -99,6 +99,7 @@ const getAllProducts = async (req, res) => {
     }
   };
   
+  //products details page -------------------------------------------------------------------------
         const productdetails = async (req, res) => {
             try {
                 const productId = req.params.id;
@@ -112,8 +113,6 @@ const getAllProducts = async (req, res) => {
         
                 const { avgRating } = product;
                 console.log(product);
-        
-                // Fetch related products (same category)
                 const relatedProducts = await Product.find({
                     _id: { $ne: productId },
                     category: product.category
@@ -128,7 +127,7 @@ const getAllProducts = async (req, res) => {
                     avgRating,
                     relatedProducts,
                     userHeader: true,
-                    // orders // Pass orders to the template
+                    
                 });
             } catch (error) {
                 console.error('Error fetching product details:', error);
@@ -137,7 +136,7 @@ const getAllProducts = async (req, res) => {
         };
         
        
-        //rating submision
+        //rating submision--------------------------------------------------------------------
         const submitRating = async (req, res) => {
             const { productId, rating, comment } = req.body;
         
@@ -172,7 +171,7 @@ const getAllProducts = async (req, res) => {
             }
         };
         
-        //fetching review 
+        //fetching review ------------------------------------------------------------------------
     const fetchReviews = async (req, res) => {
         try {
             const productId = req.query.productId; 

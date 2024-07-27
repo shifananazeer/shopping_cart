@@ -2,6 +2,8 @@ const Coupon = require ('../models/couponmodel');
 const adminOrderController = require('./adminOrderController');
 
 module.exports ={
+
+    //view all coupons in admin side with search and pagination-------------------------------------------------------
     viewCopons : async (req,res) => {
         try {
             const perPage = 10; 
@@ -35,10 +37,13 @@ module.exports ={
             res.status(500).send('Server Error');
         } 
     },
+
+    //render coupon adding page ---------------------------------------------------------
    addCouponPage : (req, res) => {
         res.render('admin/addCoupon',{adminHeader:true});
     },
     
+    // posting coupon details ----------------------------------------------------------
     addCoupon : async (req, res) => {
         const { code, discount, minPurchaseAmount, expirationDate } = req.body;
         try {
@@ -56,7 +61,8 @@ module.exports ={
         }
     },
 
-deactivateCoupon : async (req, res) => {
+    //deactivating coupon change isActive : false-------------------------------------------------------------------------
+  deactivateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
             await Coupon.findByIdAndUpdate(id, { isActive: false });
@@ -67,7 +73,7 @@ deactivateCoupon : async (req, res) => {
         }
     },
     
-   
+   //activating coupon change isActive :true------------------------------------------------
    activateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
@@ -79,6 +85,7 @@ deactivateCoupon : async (req, res) => {
         }
     },
 
+    //getting coupon editing page with coupon details---------------------------------------
     getEditCoupon : async (req, res) => {
         try {
             const { id } = req.params;
@@ -90,7 +97,7 @@ deactivateCoupon : async (req, res) => {
         }
     },
     
-   
+   //upadating that edited coupon in database---------------------------------------------------
     updateCoupon : async (req, res) => {
         try {
             const { id } = req.params;
@@ -102,7 +109,6 @@ deactivateCoupon : async (req, res) => {
                 minPurchaseAmount,
                 expirationDate
             });
-    
             res.redirect('/admin/coupons'); 
         } catch (error) {
             console.error('Error updating coupon:', error);

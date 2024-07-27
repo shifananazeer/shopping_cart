@@ -46,8 +46,8 @@ app.use(flash());
 app.engine('hbs', exphbs.engine({
   extname: '.hbs',
   defaultLayout: 'layout',
-  layoutsDir: path.join(__dirname, 'views', 'layout'), // Ensure correct folder name
-  partialsDir: path.join(__dirname, 'views', 'partials'), // Ensure correct folder name
+  layoutsDir: path.join(__dirname, 'views', 'layout'), 
+  partialsDir: path.join(__dirname, 'views', 'partials'), 
   helpers: helpers ,
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,

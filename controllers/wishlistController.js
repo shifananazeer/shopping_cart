@@ -1,6 +1,7 @@
 const Wishlist = require('../models/wishlistmodel')
 const Product = require('../models/productmodel')
 module.exports = {
+    //add to wishlist------------------------------------------------------
     addToWishlist: async (req, res) => {
         const userId = req.session.user._id;
         const productId = req.params.productId;
@@ -24,6 +25,8 @@ module.exports = {
         }
     },
 
+
+    //remove from wishlist--------------------------------------------------------------
     removeFromWishlist: async (req, res) => {
         const userId = req.session.user._id;
         const productId = req.params.productId;
@@ -44,6 +47,7 @@ module.exports = {
         }
 },
 
+//getting wishlist ----------------------------------------------------------------------
 getWishlist : async (req,res) => {
     const userId = req.session.user._id;
 
@@ -68,6 +72,8 @@ getWishlist : async (req,res) => {
         res.status(500).send('Error viewing wishlist');
     }
 },
+
+//wishlist count display-------------------------------------------------------------
 wishlistCount :async (req,res) => {
     try {
        

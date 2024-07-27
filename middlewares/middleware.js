@@ -29,6 +29,8 @@ const isLogin = (req,res,next) => {
     }
     next()
   }
+
+
   const adminsessionHandler = (req, res, next) => {
     if (req.session.adminLogged) {
       next()
@@ -40,13 +42,8 @@ const isLogin = (req,res,next) => {
 
   const fetchCartDetails = async (req, res, next) => {
     try {
-        // Assuming you have a Cart model and it's associated with Product model
         const cartItems = await Cart.find({ userId: req.session.user._id }).populate('productId');
-
-        // Calculate cart summary
-        const cartSummary = calculateCartSummary(cartItems); // Implement this function to calculate summary
-
-        // Attach cart details and summary to request object
+        const cartSummary = calculateCartSummary(cartItems); 
         req.cart = {
             items: cartItems,
             summary: cartSummary
@@ -55,7 +52,6 @@ const isLogin = (req,res,next) => {
         next();
     } catch (error) {
         console.error('Error fetching cart details:', error);
-        // Handle error (redirect or show error page)
         res.status(500).send('Internal Server Error');
     }
 };

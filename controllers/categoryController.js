@@ -4,12 +4,10 @@ const mongoose = require('mongoose');
 const fs = require('fs')
 const path = require('path')
 module.exports = {
-//admin Category page
+//admin Category page with search and pagination-----------------------------------------
 categoryPage: async (req, res) => {
   const page = parseInt(req.query.page) || 1; 
   const search = req.query.search || '';
-
-  // Create a search query
   const query = search ? { name: new RegExp(search, 'i') } : {};
 
   try {
@@ -35,13 +33,14 @@ categoryPage: async (req, res) => {
       res.redirect('/admin/view-category');
   }
 },
-    // render category add page
+
+    // render category add page---------------------------------------------------------
     addCategoryPage :(req,res) => {
      res.render('admin/add-category',{adminHeader:true, error: req.flash('error') })
      req.flash('error', null)
     },
 
-//add category posting
+//add category posting---------------------------------------------------------------
     postAddCategory : async (req, res) => {
       try {
         const { name,discount } = req.body;
@@ -51,8 +50,6 @@ categoryPage: async (req, res) => {
             req.flash('error', 'Name and image are required');
             return res.redirect('/admin/add-category'); 
           }
-      
-        
           const existingCategory = await Category.findOne({ name });
           if (existingCategory) {
             req.flash('error', 'Category with this name already exists');
@@ -78,7 +75,7 @@ categoryPage: async (req, res) => {
         }
       },
     
-      // edit category page render
+      // edit category page render with category details--------------------------------------------------------
      getEditCategory : async (req, res) => {
       const categoryId = req.query.id;
       console.log(categoryId)
@@ -97,7 +94,7 @@ categoryPage: async (req, res) => {
       }
     },
 
-//edit category posting
+//edit category posting--------------------------------------------------------------
    editCategory : async (req, res) => {
     const categoryId = req.params.id;
     const { name,discount } = req.body;
@@ -138,7 +135,7 @@ categoryPage: async (req, res) => {
     }
 },    
 
-//category deleting
+//category deleting ----------------------------------------------------------
 deleteCategory: async (req, res) => {
   const categoryId = req.params.id;
   const currentPage = req.query.page || 1;
@@ -164,9 +161,9 @@ deleteCategory: async (req, res) => {
     console.error(error);
     res.json({ success: false, message: 'An error occurred while deleting the category' });
   }
-}
-  ,
-//category restoring
+},
+
+//category restoring---------------------------------------------------------------
 restoreCategory: async (req, res) => {
   const categoryId = req.params.id;
   try {

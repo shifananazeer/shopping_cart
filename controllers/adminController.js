@@ -10,15 +10,15 @@ let credentials = {
 
 
 
-  //render Dashboard
+  //render Dashboard---------------------------------------------------------
 const getDashboard =async (req,res) => { 
   const userCount = await User.countDocuments().exec();
   res.render('admin/dashboard',{adminHeader:true,userCount})
 }
 
-
+//giving admin dashboard data for revenue chart --------------------------------
 const dashboardData = async (req, res) => {
-  console.log('Dashboard data route hit'); // Ensure this log appears
+  console.log('Dashboard data route hit');
 
   try {
     const { startDate, endDate, presetRange } = req.query;
@@ -29,79 +29,81 @@ const dashboardData = async (req, res) => {
     // Handle date range and preset range queries
     if (startDate && endDate) {
       filter.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
-      labels = generateDateLabels(new Date(startDate), new Date(endDate));
+      labels = generateDateLabels(new Date(startDate), new Date(endDate), 'daily');
     } else if (presetRange) {
       let pastDate;
 
       switch (presetRange) {
         case '1-day':
+          labels = generateDayLabels();
           pastDate = new Date(now.setDate(now.getDate() - 1));
-          labels = generateDateLabels(pastDate, new Date(), 1);
+          filter.createdAt = { $gte: pastDate };
           break;
         case '1-week':
           pastDate = new Date(now.setDate(now.getDate() - 7));
-          labels = generateDateLabels(pastDate, new Date(), 2); // Show every 2nd day
+          labels = generateDateLabels(pastDate, new Date(), 'daily');
+          filter.createdAt = { $gte: pastDate };
           break;
         case '1-month':
           pastDate = new Date(now.setMonth(now.getMonth() - 1));
-          labels = generateDateLabels(pastDate, new Date(), 5); // Show every 5th day
+          labels = generateDateLabels(pastDate, new Date(), 'weekly');
+          filter.createdAt = { $gte: pastDate };
           break;
         case '1-year':
           pastDate = new Date(now.setFullYear(now.getFullYear() - 1));
-          labels = generateDateLabels(pastDate, new Date(), 30); // Show every 30th day (approximately monthly)
+          labels = generateDateLabels(pastDate, new Date(), 'monthly');
+          filter.createdAt = { $gte: pastDate };
           break;
         default:
-          // Default case: Show today's data
-          pastDate = new Date(now.setHours(0, 0, 0, 0)); // Start from the beginning of today
-          labels = generateDateLabels(pastDate, new Date(), 1);
+          pastDate = new Date(now.setHours(0, 0, 0, 0));
+          labels = generateDateLabels(pastDate, new Date(), 'daily');
+          filter.createdAt = { $gte: pastDate };
           break;
       }
-      filter.createdAt = { $gte: pastDate };
     } else {
-      // No date or range provided, default to today's data
       const today = new Date();
       filter.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)), $lte: new Date(today.setHours(23, 59, 59, 999)) };
-      labels = generateDateLabels(new Date(), new Date(), 1); // Show today's date
+      labels = generateDayLabels();
     }
 
+    console.log('Filter:', filter);
+
     const orders = await Order.find(filter).exec();
-    console.log('Orders:', orders); // Check if orders are being fetched
+    console.log('Orders:', orders);
 
     const totalSalesCount = orders.length;
     const totalOrderAmount = orders.reduce((sum, order) => {
-      console.log(`Order ${order._id} - Total Amount To Be Paid: ${order.summary.totalAmountToBePaid}`);
       return sum + (Number(order.summary.totalAmountToBePaid) || 0);
     }, 0);
 
     const totalDiscount = orders.reduce((sum, order) => {
-      console.log(`Order ${order._id} - Total Discount: ${order.summary.totalDiscount}`);
       return sum + (Number(order.summary.totalDiscount) || 0);
     }, 0);
 
     const totalCouponDiscount = orders.reduce((sum, order) => {
-      console.log(`Order ${order._id} - Coupon Discount: ${order.coupon.discountAmount}`);
       return sum + (Number(order.coupon.discountAmount) || 0);
     }, 0);
 
     const totalRevenue = totalOrderAmount - totalDiscount - totalCouponDiscount;
-
-    // Debug log for total calculations
     console.log({
       totalOrderAmount,
       totalDiscount,
       totalCouponDiscount,
       totalRevenue
     });
-    
+
     const chartData = labels.reduce((acc, label) => {
-      const dateOrders = orders.filter(order => order.createdAt.toISOString().slice(0, 10) === label);
-      const dailyRevenue = dateOrders.reduce((sum, order) => sum + (Number(order.summary.totalAmountToBePaid) || 0) - (Number(order.summary.totalDiscount) || 0), 0);
+      const dateOrders = orders.filter(order => {
+        if (presetRange === '1-year') {
+          return order.createdAt.toISOString().slice(0, 7) === label;
+        }
+        return order.createdAt.toISOString().slice(0, 10) === label;
+      });
+      const periodRevenue = dateOrders.reduce((sum, order) => sum + (Number(order.summary.totalAmountToBePaid) || 0) - (Number(order.summary.totalDiscount) || 0), 0);
       acc.labels.push(label);
-      acc.values.push(dailyRevenue);
+      acc.values.push(periodRevenue);
       return acc;
     }, { labels: [], values: [] });
-
-    // Debug log for chart data
     console.log('Chart Data:', chartData);
 
     res.json({
@@ -110,31 +112,51 @@ const dashboardData = async (req, res) => {
       chartData
     });
   } catch (err) {
-    console.error('Error in dashboard data route:', err); // Improved error logging
+    console.error('Error in dashboard data route:', err);
     res.status(500).json({ message: 'Error fetching dashboard data', error: err.message });
   }
 };
 
-// Helper function to generate date labels between two dates
-function generateDateLabels(startDate, endDate, step = 1) {
+// Helper function to generate day labels for today and yesterday----------------------------------------
+function generateDayLabels() {
+  const labels = [];
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  labels.push(today.toISOString().slice(0, 10));  
+  labels.push(yesterday.toISOString().slice(0, 10));  
+
+  return labels;
+}
+
+// Helper function to generate date labels between two dates----------------------------------------
+function generateDateLabels(startDate, endDate, format) {
   const labels = [];
   let currentDate = new Date(startDate);
 
   while (currentDate <= endDate) {
-    labels.push(new Date(currentDate).toISOString().slice(0, 10));
-    currentDate.setDate(currentDate.getDate() + step);
+    if (format === 'daily') {
+      labels.push(new Date(currentDate).toISOString().slice(0, 10)); 
+      currentDate.setDate(currentDate.getDate() + 1);
+    } else if (format === 'weekly') {
+      labels.push(new Date(currentDate).toISOString().slice(0, 10)); 
+      currentDate.setDate(currentDate.getDate() + 7);
+    } else if (format === 'monthly') {
+      labels.push(new Date(currentDate).toISOString().slice(0, 7)); 
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
   }
 
   return labels;
 }
 
-
-  //render admin login page 
+  //render admin login page --------------------------------------------------------
 const loginLoad = async(req,res) => {
     res.render('admin/login-log')
  }
   
- //login verifying
+ //login verifying-------------------------------------------------------------------
  const verifyLogin = (req,res) =>{
   if (!req.body.email || !req.body.password) {
     req.session.err = "Please enter email and password";
@@ -149,7 +171,7 @@ const loginLoad = async(req,res) => {
 }
 }
 
-//get all users
+//get all users--------------------------------------------------------------------
 const getAllUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const search = req.query.search || '';
@@ -162,7 +184,6 @@ const getAllUsers = async (req, res) => {
         ]
       }
     : {};
-
   const user = await User.find(query)
     .skip((page - 1) * 5)
     .limit(5)
@@ -179,7 +200,7 @@ const getAllUsers = async (req, res) => {
   });
 };
 
-//Block User
+//Block User----------------------------------------------------------
 const blockUser = async (req,res) => {
   const userId = req.params.id;
   try {
@@ -190,7 +211,7 @@ const blockUser = async (req,res) => {
   }
 }
 
-//Unblock User
+//Unblock User----------------------------------------------------------
 const unBlockUser = async(req,res) =>  {
   const userId = req.params.id;
   try {
@@ -202,11 +223,11 @@ const unBlockUser = async(req,res) =>  {
   }
 }
 
-
+//getting best selling products by purchase count------------------------------------------
 const bestSellingProducts = async(req,res) => {
   try {
     // Fetch top products based on purchaseCount
-    const topProducts = await Product.find().sort({ purchaseCount: -1 }).limit(10); // Fetch top 5 products
+    const topProducts = await Product.find().sort({ purchaseCount: -1 }).limit(10); 
 
     const labels = topProducts.map(product => product.name);
     const values = topProducts.map(product => product.purchaseCount);
@@ -220,6 +241,7 @@ const bestSellingProducts = async(req,res) => {
   }
 }
 
+//getting top brands by sales count ----------------------------------------------------
 const  getTopBrands = async(req,res) => {
   try {
    
@@ -236,6 +258,7 @@ const  getTopBrands = async(req,res) => {
   }
 }
 
+//getting topcategories by sales count -------------------------------------------------
 const getTopCategories = async(req,res) => {
   try {
     const categories = await Category.find().sort({ salesCount: -1 }).limit(10);
@@ -251,8 +274,7 @@ const getTopCategories = async(req,res) => {
   }
 }
 
-
-//logout admin
+//logout admin-------------------------------------------------------------------
 const logout = (req,res) => {
   req.session.destroy();
      

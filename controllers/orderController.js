@@ -11,17 +11,17 @@ const Category = require('../models/categorymodel')
 const Razorpay = require('razorpay');
 
 const crypto = require('crypto');
+
+//razorpay instance----------------------------------------------
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
 
-
-
-
 module.exports = {
-//order creation
+
+//order creation in cash on delivery and wallet-----------------------------------------------
 placeOrder: async (req, res) => {
     console.log("Request body:", req.body);
     const { addressId, paymentMethod, cartItems, orderSummary,coupon } = req.body;
@@ -29,9 +29,7 @@ placeOrder: async (req, res) => {
     if (!addressId || !paymentMethod || !cartItems || !orderSummary) {
         return res.status(400).json({ message: 'Missing required fields' });
     }
-
     try {
-
         const userId = req.session.user._id;
         let totalAmount = orderSummary.totalAmountToBePaid;
         let couponDetails = null;
@@ -61,7 +59,6 @@ placeOrder: async (req, res) => {
             await wallet.save();
         }
         const uniqueOrderId = generateUniqueOrderId();
-
         const newOrder = new Order({
             userId: req.session.user._id,
             addressId,
@@ -78,7 +75,6 @@ placeOrder: async (req, res) => {
         });
 
         await newOrder.save();
-
         // Update stock and sales count
         for (const item of cartItems) {
             const product = await Product.findById(item.productId);
@@ -123,8 +119,9 @@ placeOrder: async (req, res) => {
     }
 },
 
+//get cart items for payment---------------------------------
 getCartItems: async(req,res) => {
-    const userId = req.session.user._id; // Get the user ID from session
+    const userId = req.session.user._id; 
     try {
         const cart = await Cart.findOne({ userId: userId }).populate('items.productId');
 
@@ -164,6 +161,7 @@ getCartItems: async(req,res) => {
     }
 },
 
+//order confirmation page with order details-----------------------------------------------
 orderConfirmation: async (req, res) => {
     const { orderId } = req.params;
     try {
@@ -188,7 +186,8 @@ orderConfirmation: async (req, res) => {
        
     }
 },
-//order cancel,stock manege,payed amount credit in wallet
+
+//order cancel,stock manege,payed amount credit in wallet------------------------------------------
 cancelOrder : async(req,res) => {
     const { orderId } = req.params; 
     console.log("orderId:", orderId);
@@ -239,7 +238,6 @@ cancelOrder : async(req,res) => {
 
         await order.save();
       
-
         res.json({ success: true, message: 'Order has been cancelled successfully' });
     } catch (error) {
         console.error('Error cancelling order:', error);
@@ -247,7 +245,7 @@ cancelOrder : async(req,res) => {
     }
 },
 
-//order History
+//order History---------------------------------------------------------------------
 orderHistory : async(req,res) => {
     const userId = req.session.user._id;
     try {
@@ -281,7 +279,7 @@ orderHistory : async(req,res) => {
     }
 },
 
-//orderDetails page
+//orderDetails page------------------------------------------------------------------------
 orderDetails :async (req,res) => {
     const { orderId } = req.params; 
     console.log(orderId)
@@ -299,7 +297,8 @@ orderDetails :async (req,res) => {
         res.render('user/order-details', { error: 'Error fetching order details' });
     }
 },
-// Fetch active coupons
+
+// Fetch active coupons-------------------------------------------------------
 getCoupon : async (req,res) => {
     try {
         const coupons = await Coupon.find({ isActive: true });
@@ -311,7 +310,7 @@ getCoupon : async (req,res) => {
     }
 },
 
-//online payment order creation
+//online payment order creation-------------------------------------------------------
 createOrder : async (req, res) => {
     console.log("body",req.body)
     const { addressId, cartItems, orderSummary, appliedCoupon ,paymentMethod} = req.body;
@@ -394,7 +393,7 @@ createOrder : async (req, res) => {
     }
 },
 
-//payment verification
+//payment verification---------------------------------------------------------
 verifyPayment :async (req, res) => {
     console.log("verify",req.body)
     try {
@@ -414,7 +413,8 @@ verifyPayment :async (req, res) => {
         res.status(500).json({ success: false, message: 'Error saving payment details.' });
     }
 },
- //updationg payment status
+
+ //updationg payment status--------------------------------------------------------
 updatePaymentStatus : async (req, res) => {
     const { orderId, paymentStatus } = req.body;
 
@@ -438,6 +438,8 @@ updatePaymentStatus : async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 },
+
+//repayment for failed payments--------------------------------------------------
 repay : async (req,res) => {
     const { orderId } = req.params;
     console.log('Repay Order ID:', orderId);
@@ -476,7 +478,8 @@ repay : async (req,res) => {
         res.status(500).json({ success: false, message: 'An error occurred while initiating repayment' });
     }
 },
-//return order
+
+//return order-----------------------------------------------------------
        renderReturnPage : (req, res) => {
     const orderId = req.params.orderId;
     res.render('user/return-order', { orderId ,userHeader:true});
@@ -536,10 +539,10 @@ repay : async (req,res) => {
     }
 },
 
+//invoice for deliverd orders----------------------------------------------------------
 invoice :async(req,res)=> {
     const orderId = req.params.orderId;
   try {
-    // Fetch the order details from the database
     const order = await Order.findOne({orderId})
                              .populate('items.productId')
                              .populate('userId')
@@ -555,12 +558,11 @@ invoice :async(req,res)=> {
   }
 }
 
-
 }
 
 
 
-
+//generating unique order Id--------------------------------------------------
 const generateUniqueOrderId = () => {
     return 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 };

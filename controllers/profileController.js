@@ -7,13 +7,11 @@ const Wallet = require('../models/walletmodel')
 
 module.exports = {
 
-    //get profile page with user information 
+    //get profile page with user information -------------------------------------------
     getProfile : async(req,res) => {
         try {
             if (req.session && req.session.user) {
               const { _id, email } = req.session.user;
-        
-              // Fetch user data
               const user = await User.findById(_id);
               if (!user) {
                 return res.redirect('/login');
@@ -25,14 +23,8 @@ module.exports = {
                   walletBalance = wallet.balance ? wallet.balance.toFixed(2) : 'Wallet empty';
               }
               
-              
-              // Fetch user addresses
               const addresses = await Address.find({ userId: _id });
-
-               // Generate the referral link
-    const referralLink = `${req.protocol}://${req.get('host')}/signup?referralCode=${user.referralCode}`;
-
-        
+              const referralLink = `${req.protocol}://${req.get('host')}/signup?referralCode=${user.referralCode}`;
               res.render('user/profile', { user, addresses ,userHeader:true,walletBalance,referralLink});
             } else {
               res.redirect('/login');
@@ -43,13 +35,11 @@ module.exports = {
           }
         },
 
-        //get editprofile page with user information
+        //get editprofile page with user information-------------------------------------------------
         getEditProfile : async(req,res) => {
             try {
                 if (req.session && req.session.user) {
                   const userId = req.session.user._id;
-            
-                  // Fetch user data
                   const user = await User.findById(userId);
             
                   if (!user) {
@@ -66,7 +56,7 @@ module.exports = {
               }
         },
 
-        //update user edited information and profile pic
+        //update user edited information and profile pic----------------------------------------------------
         updateProfile:async(req,res) => {
             try {
                 if (req.session && req.session.user) {
@@ -111,13 +101,18 @@ module.exports = {
               }
     },
 
+    //address adding in profile--------------------------------------------------------------
     addAddress : (req,res)=>{
       const user = req.session.user
         res.render('user/add-address',{userHeader:true,user})
     },
+
+    //address adding in checkout------------------------------------------------------
     checkoutAddress: (req,res) => {
       res.render('user/checkoutaddress',{userHeader:true})
     },
+
+    //save that added address in database----------------------------------------------
     checkAddressPost :async(req,res) => {
       try{
         const { houseName ,street,district,state,pincode,addressType} = req.body
@@ -140,6 +135,7 @@ module.exports = {
         }
     },
 
+    //save added address in database----------------------------------------------
     postAddAddress :async (req,res) => {
      try{
      const { houseName ,street,district,state,pincode,addressType} = req.body
@@ -162,6 +158,7 @@ module.exports = {
      }
     },
 
+    //editing address---------------------------------------------------
     editAddress : async(req,res) => {
         try{
             const addId = req.query.id;
@@ -175,13 +172,12 @@ module.exports = {
         }
     },
 
+    //update that edited address in database---------------------------------------------
     updateAddress : async(req,res) => {
         try {
             const addId = req.query.id;
             console.log(addId)
             const { houseName, street, district, state, pincode, addressType } = req.body;
-    
-            // Update the address in the database
             await Address.updateOne(
                 { _id: addId },
                 { $set: { houseName, street, district, state, pincode, addressType } }
@@ -194,6 +190,7 @@ module.exports = {
         }
     },
 
+    //deleting address---------------------------------------------------------------------
     deleteAddress : async(req,res) => {
         try{
             const addId = req.query.id;
@@ -206,6 +203,7 @@ module.exports = {
         }
     },
 
+    //change password----------------------------------------------------------------
      changePassword : async(req,res) => {
         if (req.session && req.session.user) {
           const user = req.session.user
@@ -215,6 +213,7 @@ module.exports = {
         }
     },
 
+    //update changed password-------------------------------------------------------
     updatePassword : async(req,res) => {
       const { currentPassword, newPassword } = req.body;
       const userId = req.session.user._id;
@@ -224,7 +223,6 @@ module.exports = {
         if (!user) {
             return res.redirect('/profile/changePassword?error=User not found');
         }
-
         // Check if the current password matches
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
@@ -241,27 +239,21 @@ module.exports = {
     }
   },
 
+  //wallet transaction display in profile------------------------------------------------------
   walletTransaction :async (req,res) => {
-   
     const userId = req.session.user._id; 
     const page = parseInt(req.query.page) || 1;
     const limit = 3; 
     const skip = (page - 1) * limit;
 
     try {
-        // Find wallet for the user
         const wallet = await Wallet.findOne({ userId }).select('transactions').exec();
         if (!wallet) {
             return res.status(404).json({ error: 'Wallet not found' });
         }
        console.log(wallet)
-        // Get total number of transactions
         const totalTransactions = wallet.transactions.length;
-
-        // Get transactions for the current page
         const transactions = wallet.transactions.slice(skip, skip + limit);
-
-        // Calculate total pages
         const totalPages = Math.ceil(totalTransactions / limit);
      console.log("trans",transactions)
         res.json({

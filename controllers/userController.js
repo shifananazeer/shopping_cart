@@ -8,7 +8,7 @@ const Product = require('../models/productmodel')
 const Wishlist = require('../models/wishlistmodel')
 const crypto = require('crypto');
 
-//Get Home with newly arrived products ,category ,brand
+//Get Home with newly arrived products ,category ,brand--------------------------------------------------
 const getHomePage = async (req, res) => {
  const user = req.session.user;
  const popularCategories = await Category.find({ is_deleted: false })
@@ -38,7 +38,7 @@ res.render('user/home', { user,products,popularCategories,brands,userHeader:true
 };
 
 
-//get login page
+//get login page----------------------------------------------------------
   const getLogin = (req,res) =>{
     try {
       res.render("user/login",{ error: req.flash('error'),userHeader:true});
@@ -49,13 +49,13 @@ res.render('user/home', { user,products,popularCategories,brands,userHeader:true
   }
 
 
-//get signup page
+//get signup page--------------------------------------------------------------
   const getSignupPage = (req,res) => {
     res.render('user/signup',{ error: req.flash('error'),userHeader:true})
   }
 
 
-  //mail function
+  //mail function---------------------------------------------------------------
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -64,16 +64,17 @@ res.render('user/home', { user,products,popularCategories,brands,userHeader:true
     },
   });
 
-//otp generating function
+//otp generating function---------------------------------------------------------
   const generateOTP = () => {
     return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
+//generate refferal code---------------------------------------------------------
 const generateReferralCode = () => {
   return crypto.randomBytes(4).toString('hex').toUpperCase();
 };
 
-//post signup function
+//post signup function------------------------------------------------------------
 const postSignup = async (req, res) => {
   console.log("signup",req.body)
   const { name, email, number, password,referralCode } = req.body;
@@ -122,18 +123,12 @@ const postSignup = async (req, res) => {
           await newWallet.save();
       }
   }
-
-
-
     req.user = {
       id: newUser._id,
       name: newUser.name,
-      email: newUser.email,
-      
+      email: newUser.email,   
     };
-
     req.session.user = req.user;
-
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -150,14 +145,14 @@ const postSignup = async (req, res) => {
   }
 };
 
-//get otp verifying page
+//get otp verifying page---------------------------------------------------------------
 const getVerifyOtpPage = (req, res) => {
   const { email } = req.query;
   res.render('user/validateOtp', { email, error: req.flash('error') ,userHeader:true});
 };
 
 
-//checking otp 
+//checking otp -------------------------------------------------------------------------
 const postVerifyOtp = async (req, res) => {
   const { email, otp } = req.body;
   try {
@@ -200,7 +195,7 @@ const postVerifyOtp = async (req, res) => {
 };
 
 
-//resend Otp function
+//resend Otp function-----------------------------------------------------------------------
 const resendOTP = async (req, res) => {
   const { email } = req.query; 
   try {
@@ -235,7 +230,7 @@ const resendOTP = async (req, res) => {
 };
 
 
-//post login page and checking if the email and password is correct or not
+//post login page and checking if the email and password is correct or not---------------------------------
 const postLogin = async (req, res) => {
   const { email, password } = req.body;
 
@@ -280,7 +275,7 @@ const postLogin = async (req, res) => {
   }
 };
 
-//logout user
+//logout user----------------------------------------------------------
 const logout = async (req, res) => {
   try {
       const userId = req.session.user._id;
@@ -304,7 +299,8 @@ const logout = async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 };
-//rendering otp page 
+
+//rendering otp page ----------------------------------------------------------------------
 const otpPage = (req,res) => {
         res.render('user/generateOtp')
       }
@@ -342,7 +338,7 @@ const otpPage = (req,res) => {
       }
 
 
-     //googlr authendication 
+     //googlr authendication -----------------------------------------------------------------
       const googleAuth = (req, res) => {
         try {
           req.session.user = req.user

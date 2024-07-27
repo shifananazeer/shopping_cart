@@ -4,7 +4,8 @@ const fs = require('fs')
 const path = require('path')
 
 module.exports = {
-  //view all brands
+
+  //view all brands in admin side with search and pagination--------------------------------------------------
   viewBrand: async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || '';
@@ -34,14 +35,15 @@ module.exports = {
     }
 },
 
-    //brand add page render
+    //brand add page render-----------------------------------------------------------
     addBrandPage : (req,res) => {
         res.render('admin/add-brand',{adminHeader:true, error: req.flash('error'),
           success: req.flash('success') })
           req.flash('error', null);
           req.flash('success', null);
     },
-    //brand add in database
+
+    //brand add in database-------------------------------------------------------------
     addBrand: async (req, res) => {
         try {
             const { name } = req.body;
@@ -50,8 +52,6 @@ module.exports = {
               req.flash('error', 'Brand name and image are required');
               return res.redirect('/admin/add-brand');
             }
-        
-            
             const existingBrand = await Brand.findOne({ name });
             console.log('Existing brand:', existingBrand); 
             if (existingBrand) {
@@ -76,7 +76,7 @@ module.exports = {
           }
         },
 
-        //delete brand
+        //delete brand---------------------------------------------------------------
         deleteBrand: async (req, res) => {
           const brandId = req.params.id;
           const currentPage = req.query.page || 1;
@@ -96,7 +96,7 @@ module.exports = {
                 return res.json({ success: false, message: 'Cannot delete brand because there are active products under this brand' });
               }
             }
-        
+      
             brand.is_deleted = true;
             await brand.save();
         
@@ -107,7 +107,7 @@ module.exports = {
           }
         } ,
         
-        //restore brand
+        //restore brand-------------------------------------------------------------
         restoreBrand: async (req, res) => {
           const brandId = req.params.id;
         

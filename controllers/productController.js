@@ -4,7 +4,7 @@ const Brand = require('../models/brandmodel')
 const fs = require('fs');
 const path = require('path');
 module.exports ={
-  //get all products in admin
+  //get all products in admin------------------------------------------------------------
   adminProduct: async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
@@ -45,14 +45,14 @@ module.exports ={
     }
   },
   
-//add product page render
+//add product page render--------------------------------------------------------
   addProduct : async (req,res )=> {
     const categories = await Category.find()
     const brands = await Brand .find()
    res.render('admin/add-product',{adminHeader:true,categories,brands, error: req.flash('error')})
   },
 
-//product updation 
+//product updation -------------------------------------------------------------
   updateProduct : async (req, res) => {
     try {
       const { name,description, price, discount,stock, category,brand } = req.body;
@@ -83,7 +83,8 @@ module.exports ={
       res.redirect('/admin/add-product');
     }
   },
-//edit product page render with current product information
+
+//edit product page render with current product information----------------------------------------------------
   editProductPage :async (req,res) =>{
     const productId = req.params.id;
     const product = await Product.findById(productId)
@@ -102,7 +103,8 @@ module.exports ={
       brands:brands
      })
   },
-//post the edited product details
+
+//post the edited product details-------------------------------------------------------
   editproduct : async(req,res) => {
     const proId = req.params.id
     const { name, category, description, price, discount, stock,brand, deletedImages } = req.body;
@@ -146,7 +148,7 @@ module.exports ={
         res.redirect('/admin/viewproducts');
   },
 
-  //delete product
+  //delete product-----------------------------------------------------------------------
   deleteProduct: async (req, res) => {
     const productId = req.params.id;
     try {
@@ -168,7 +170,7 @@ module.exports ={
     }
   },
 
-  //restore products
+  //restore products--------------------------------------------------------------------
   restoreProduct: async (req, res) => {
     const productId = req.params.id;
     try {

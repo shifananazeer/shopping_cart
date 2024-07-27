@@ -46,7 +46,7 @@ const productSchema = new mongoose.Schema({
     {
         user: {
             type: Schema.Types.ObjectId,
-            ref: 'User' // Reference to the User model if you have one
+            ref: 'User' 
         },
         rating: {
             type: Number,
@@ -59,7 +59,7 @@ const productSchema = new mongoose.Schema({
 ],
 avgRating: {
     type: Number,
-    default: 0 // Default average rating
+    default: 0 
 },
 purchaseCount: {
   type: Number,
