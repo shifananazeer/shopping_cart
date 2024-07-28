@@ -12,9 +12,9 @@
   </style>
 </head>
 <body>
-  <div class="container" style="background-color: bisque;">
+  <div class="container " style="background-color: rgb(247, 244, 240);">
     <div class="row">
-      <div class="col-12 text-center">
+      <div class="col-12 text-center m-5">
         <h1>Invoice</h1>
         <p>Order ID: {{order.orderId}}</p>
         <p>Status: {{order.status}}</p>
@@ -45,7 +45,7 @@
     <div class="row invoice-section">
       <div class="col-12">
         <h2>Items</h2>
-        <table class="table table-bordered">
+        <table class="table table-bordered text-center">
           <thead>
             <tr>
               <th>Product Name</th>
@@ -97,7 +97,7 @@
     </div>
      <div class="row">
       <div class="col-12 text-center">
-        <button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+        <button class="btn btn-primary m-2" onclick="downloadPDF()">Download PDF</button>
        
       </div>
     </div>

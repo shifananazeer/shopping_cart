@@ -21,8 +21,16 @@
     </style>
 </head>
 <body>
+      <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Orders <span>Confirmation</span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
     <div class="container">
-        <h2>Order Confirmation</h2>
+        {{!-- <h2>Order Confirmation</h2> --}}
+
+         <h1 style="color: green;">Thank you for your order!</h1>
+    <p style="color: green;">Your order has been placed successfully.</p>
 
         <div class="order-details">
             <h3>Order Details</h3>
@@ -62,6 +70,17 @@
                 {{/if}}
             </p>
         </div>
+
+
+         <h3>Expected Delivery Date:</h3>
+      <p>
+        {{#if expectedDeliveryStartDate}} 
+          {{formatDate expectedDeliveryStartDate}} 
+          {{#if expectedDeliveryEndDate}} 
+            - {{formatDate expectedDeliveryEndDate}} 
+          {{/if}} 
+        {{/if}}
+      </p>
 
         <div class="order-management">
             <h3>Order Management</h3>

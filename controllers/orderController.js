@@ -170,16 +170,42 @@ orderConfirmation: async (req, res) => {
             .populate('items.productId'); 
 
         if (!order) {
-            return res.status(404).render('404', { message: 'Order not found' });
+            return res.status(404).render('error', { message: 'Order not found' });
         }
         const address = await Address.findById(order.addressId);
+
+          // Standard delivery time range in days
+          const minDeliveryDays = 3;
+          const maxDeliveryDays = 5;
+  
+          // Calculate the expected delivery dates
+          const calculateExpectedDeliveryDate = (daysToAdd) => {
+              const date = new Date();
+              let count = 0;
+              while (count < daysToAdd) {
+                  date.setDate(date.getDate() + 1);
+                  // Skip weekends
+                  if (date.getDay() !== 0 && date.getDay() !== 6) {
+                      count++;
+                  }
+              }
+              return date;
+          };
+  
+          const minDeliveryDate = calculateExpectedDeliveryDate(minDeliveryDays);
+          const maxDeliveryDate = calculateExpectedDeliveryDate(maxDeliveryDays);
+  
+
+
         res.render('user/order-confirmation', {
             order: order,
             address: address,
             products: order.items,
             formatDate: (date) => new Date(date).toLocaleDateString(), 
             totalAmount: order.totalAmount,
-            userHeader:true
+            userHeader:true,
+            expectedDeliveryStartDate: minDeliveryDate,
+            expectedDeliveryEndDate: maxDeliveryDate,
         });
     } catch (error) {
         console.error('Error fetching order details:', error);
@@ -314,9 +340,10 @@ getCoupon : async (req,res) => {
 createOrder : async (req, res) => {
     console.log("body",req.body)
     const { addressId, cartItems, orderSummary, appliedCoupon ,paymentMethod} = req.body;
+    const amountInPaise = Math.round(orderSummary.totalAmountToBePaid * 100);
     try {
         const options = {
-            amount: orderSummary.totalAmountToBePaid * 100, 
+            amount: amountInPaise,
             currency: 'INR',
             receipt: `receipt_${Date.now()}`,
         };
