@@ -194,10 +194,40 @@ const getAllProducts = async (req, res) => {
             res.json({ success: false, message: 'Error fetching reviews' });
         }
     };
+
+    const verifyPurchase = async (req,res) => {
+      const userId = req.session.user ? req.session.user._id : null; // Assuming user is authenticated
+    
+      const productId = req.params.productId;
+      console.log("purchase verify",productId)
+  
+      if (!userId) {
+          return res.json({ success: false, message: 'User not logged in' });
+      }
+  
+      try {
+          // Find orders where the user has purchased the product
+          const order = await Order.findOne({
+            userId,
+            'items.productId': productId,
+            paymentStatus: { $in: ['success', 'credited in wallet'] } // Only consider completed orders
+        });
+
+        if (order) {
+            return res.json({ success: true });
+        } else {
+            return res.json({ success: false });
+        }
+    } catch (error) {
+        console.error("Error verifying purchase:", error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+    }
     
         module.exports = {
             getAllProducts,
             productdetails,
             submitRating,
             fetchReviews,
+            verifyPurchase,
         }

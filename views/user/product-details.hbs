@@ -184,20 +184,23 @@
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
 
                 
-    <h5 style="margin-top: 1%;">Give Your Rating</h5>
-    <div class="product-rate-review d-flex flex-wrap align-items-center">
-        <div class="rate" id="rating">
-            <i class="fas fa-star" data-value="1"></i>
-            <i class="fas fa-star" data-value="2"></i>
-            <i class="fas fa-star" data-value="3"></i>
-            <i class="fas fa-star" data-value="4"></i>
-            <i class="fas fa-star" data-value="5"></i>
-        </div>
-        <div class="comment-section" style="display: flex; flex-direction: column;">
-            <textarea id="comment" style="background-color: burlywood;" placeholder="Write your comment here..."></textarea>
-            <button id="submit-review">Submit</button>
-        </div>
-    </div>
+      <!-- Check purchase status -->
+                        <div id="review-section" style="display: none;">
+                            <h5 style="margin-top: 1%;">Give Your Rating</h5>
+                            <div class="product-rate-review d-flex flex-wrap align-items-center">
+                                <div class="rate" id="rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <div class="comment-section" style="display: flex; flex-direction: column;">
+                                    <textarea id="comment" style="background-color: burlywood;" placeholder="Write your comment here..."></textarea>
+                                    <button id="submit-review">Submit</button>
+                                </div>
+                            </div>
+                        </div>
 
 
                             <h5 style="margin-top: 1%; text-decoration: underline;">Other's Rating</h5>
@@ -246,12 +249,36 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
+
+    var productId = "{{product._id}}";
+        $.ajax({
+            url: "/verify-purchase/" + productId,
+            method: "GET",
+            success: function(response) {
+                console.log(response); // Debugging: Log the response
+                if (response.success) {
+                    $("#review-section").show();
+                } else {
+                    $("#review-section").hide();
+                }
+            },
+            error: function(error) {
+                console.log("Error:", error); // Debugging: Log any error
+            }
+        });
+
+
+
     // Thumbnail click to change main image
     $('.thumbnail-image').on('click', function() {
         var newImageSrc = $(this).data('src');
         $('.main-img img').attr('src', newImageSrc);
     });
 
+
+
+   // Check if the user has purchased the product
+  
     // Star rating system
     const stars = document.querySelectorAll('.rate .fa-star');
     const submitButton = document.getElementById('submit-review');

@@ -107,7 +107,6 @@ router.get('/get-cart-items',middleware.isVerified,orderController.getCartItems)
 
 router.get('/order-confirmation/:orderId',middleware.isVerified, orderController.orderConfirmation);
 
-
 router.get('/coupons',middleware.isVerified,orderController.getCoupon )
 
 router.post('/create-order',middleware.isVerified,orderController.createOrder)
@@ -129,4 +128,6 @@ router.get('/cart/count',middleware.isVerified,cartController.cartCount)
 router.get('/wishlist/count', middleware.isVerified,wishlistController.wishlistCount)
 
 router.get('/invoice/:orderId',middleware.isVerified,orderController.invoice)
+
+router.get('/verify-purchase/:productId', middleware.isVerified,userproductController. verifyPurchase);
 module.exports = router;
