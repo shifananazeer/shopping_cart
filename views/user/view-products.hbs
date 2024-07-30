@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Products</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
    
     <style>
         body {
@@ -23,7 +17,7 @@
         .filter-sort-dropdown label {
             margin-right: 10px;
         }
-
+        
         .filter-sort-dropdown select,
         .filter-sort-dropdown input[type="checkbox"] {
             margin-right: 10px;
@@ -102,6 +96,17 @@
             rgba(0, 0,0,0.19); 
 
         } --}}
+        .product {
+           box-shadow: 0 8px 16px 0 
+            rgba(0, 0,0, 0.24),0 17px 50px 0 
+            rgba(0, 0,0,0.19);   
+            border-radius: 10px;
+        }
+         .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
         .pagination a {
             margin: 0 5px;
             padding: 8px 16px;
@@ -111,6 +116,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             transition: background-color 0.3s;
+            
         }
 
         .pagination a:hover {
@@ -230,66 +236,67 @@
                 max-width: 100%;
             }
         }
-.search-form {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-.search-form input[type="text"] {
-    width: 300px;
-    padding: 10px;
-    border: 2px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    outline: none;
-    transition: border-color 0.3s;
-}
-.search-form input[type="text"]:focus {
-    border-color: #007bff;
-}
-.search-form button {
-    padding: 10px 20px;
-    border: 2px solid #007bff;
-    background-color: #007bff;
-    color: white;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s;
-}
-.search-form button:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-@media (max-width: 600px) {
-    .search-form {
-        flex-direction: column;
-        align-items: center;
-    }
-    .search-form input[type="text"],
-    .search-form button {
-        width: 100%;
-        border-radius: 4px;
-        margin: 5px 0;
-    }
-    .search-form button {
-        border-radius: 4px;
-    }
-}
+  .search-form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .search-form input[type="text"] {
+            width: 500px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 6px 0 0 6px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-form input[type="text"]:focus {
+            border-color: #007bff;
+        }
+        .search-form button {
+            padding: 10px 20px;
+            border: 2px solid #066689;
+            background-color: #247197;
+            color: white;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            font-size: 16px; /* Adjust font size */
+            font-weight: bold; /* Make text bold */
+            text-transform: uppercase; /* Capitalize text */
+            letter-spacing: 1px; /* Add letter spacing */
+        }
+        .search-form button:hover {
+            background-color: #04070b;
+            border-color: #7aace1;
+        }
+        @media (max-width: 600px) {
+            .search-form {
+                flex-direction: column;
+                align-items: center;
+            }
+            .search-form input[type="text"],
+            .search-form button {
+                width: 100%;
+                border-radius: 4px;
+                margin: 5px 0;
+            }
+            .search-form button {
+                border-radius: 4px;
+            }
+        }
     </style>
 
-</head>
-<body>
-     <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+
+
+  <div class="page-header text-center" style="background-image: url('images/header.jpg')">
                 <div class="container">
                     <h1 class="page-title">Explore <span>Products</span></h1>
                 </div><!-- End .container -->
             </div><!-- End .page-header -->
-    <div class="container">
-      
-          <form id="searchForm" class="search-form" onsubmit="event.preventDefault(); applyFilterAndSort();">
-            <input type="text" name="searchQuery" placeholder="Search products..." class="inputSearch" value="{{filter.searchQuery}}">
-            <button type="submit" class="searchbtn">Search</button>
-        </form>
 
+   
+        <div class="container">
+         
        <div class="filter-sort-dropdown">
             <form id="filterForm">
                 <label for="categoryFilter">Filter by Category:</label>
@@ -332,9 +339,15 @@
                 <label for="inStockOnly">In Stock Only:</label>
                  <input type="checkbox" id="inStockOnly" name="inStockOnly" value="true" onchange="applyFilterAndSort()" {{#if (eq filter.inStockOnly 'true')}}checked{{/if}}>
             </form>
-        </div>
 
-       
+        </div>
+         <form id="searchForm" class="search-form mt-5" onsubmit="event.preventDefault(); applyFilterAndSort();">
+            <input type="text" name="searchQuery" placeholder="Search products..." class="inputSearch " value="{{filter.searchQuery}}">
+            <button type="submit" class="searchbtn">Search</button>
+        </form>
+
+
+      
 
          <div class="product-grid">
             {{#each products}}
@@ -379,7 +392,7 @@
                <div class="product-foot">
     {{#if this.stock}}
         <div>
-            <button type="button" class="btn btn-secondary btn-lg btn-block" data-product-id="{{this._id}}" onclick="addToCart(this)">Add to cart</button>
+            <button type="button" class="btn btn-secondary  btn-block" data-product-id="{{this._id}}" onclick="addToCart(this)">Add to cart</button>
         </div>
     {{else}}
         <div>
@@ -523,10 +536,8 @@ async function removeFromWishlist(productId) {
     }
 }
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+   
 
 
-</html>
+
+
