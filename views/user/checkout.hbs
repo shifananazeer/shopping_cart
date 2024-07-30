@@ -6,6 +6,7 @@
     <title>Checkout</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+      
         #paymentMethod {
             width: 300px;
         }
@@ -20,11 +21,17 @@
         }
          .wallet-balance {
             font-size: 1.2rem;
-            color: #28a745;
+            color: #011606;
+        }
+        .summary{
+            background-color: rgb(217, 243, 243);
+            border-color: black;
+           
         }
     </style>
 </head>
 <body>
+   
       <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
                 <div class="container">
                     <h1 class="page-title">Checkout<span></span></h1>
@@ -33,8 +40,8 @@
     <div class="container">
         {{!-- <h2>Checkout</h2> --}}
 
-        <table class="table" id="cartTable">
-            <thead >
+        <table class="table table-striped table-bordered text-center" id="cartTable">
+            <thead  class="table-dark  " >
                 <tr>
                     <th scope="col">Product Name</th>
                     <th scope="col">Quantity</th>
@@ -55,7 +62,7 @@
         </table>
 
         <div class="summary">
-            <h4>Order Summary</h4>
+            <h4>Order Summary   <i class="fas fa-chart-bar"></i></h4>
             <p>Total Price Before Discount: <span id="totalPriceBeforeDiscount">{{summary.totalPriceBeforeDiscount}}</span> ₹</p>
             <p>Total Discount: <span id="totalDiscount">{{summary.totalDiscount}}</span> ₹</p>
             <p>Discounted Price: <span id="discountedPrice">{{summary.discountedPrice}}</span> ₹</p>
@@ -65,8 +72,8 @@
 
       <!-- Coupon Section -->
         <div class="coupon-section">
-            <h3>Available Coupons</h3>
-            <button class="btn btn-info" data-toggle="modal" data-target="#couponModal">View Coupons</button>
+            <h3>Available Coupons  <i class="fas fa-gift coupon-icon"></i> </h3>
+            <button class="btn btn-info" data-toggle="modal" data-target="#couponModal">View Coupons <i class="fas fa-tag coupon-icon"></i> </button>
            
         </div>
 
@@ -95,27 +102,28 @@
                     {{this.houseName}}, {{this.street}}, {{this.district}}, {{this.state}}, {{this.pincode}}
                 </label>
                 <br>
-                 <a href="/edit-address?id={{this._id}}" class="btn btn-sm btn-primary edit">✎ Edit Address</a>
+                 <a href="/edit-address?id={{this._id}}" class="btn btn-sm btn-info ">✎ Edit Address</a>
             </div>
               {{/each}}
-              <br>
-               <button class=" btn-success" onclick="addNewAddress()">+Add New Address</button>
+            <br>
+            <br>
+               <button class="btn btn-success " onclick="addNewAddress()">+Add New Address</button>
             <input type="hidden" id="selectedAddressId" name="selectedAddressId" value="">
         </div>
            <div class="wallet-balance m-4">
-            <strong style="font-size: larger;">Wallet Balance:</strong> {{walletBalance}} ₹
+            <strong style="font-size: larger;"><i class="fas fa-wallet wallet-icon"></i>  Wallet Balance:</strong> {{walletBalance}} ₹
         </div>
         <div class="mb-3">
             <label for="paymentMethod" class="form-label">Select Payment Method</label>
             <select class="form-select" id="paymentMethod" name="paymentMethod" required>
                 <option value="">Select Payment Method</option>
-                <option value="cash_on_delivery">Cash On Delivery</option>
+                <option value="cash_on_delivery">Cash On Delivery </option>
                 <option value="online_payment">Online Payment</option>
                  <option value="wallet" class="wallet-option">Wallet Payment</option>
             </select>
         </div>
 
-        <button id="placeOrderButton" class="btn btn-primary">Place Order</button>
+        <button id="placeOrderButton" class="btn btn-warning"> <i class="fas fa-receipt"></i> Place Order</button>
     </div>
 
      <!-- Coupon Modal -->
@@ -134,7 +142,7 @@
                     {{#each coupons}}
                     <li class="list-group-item">
                         <strong>{{this.code}}</strong> - {{this.discount}}% off (Min Purchase: ₹{{this.minPurchaseAmount}})
-                        <button class="btn btn-primary btn-sm float-right apply-coupon" data-coupon-code="{{this.code}}">Apply</button>
+                        <button class="btn btn-info btn-sm float-right apply-coupon" data-coupon-code="{{this.code}}">Apply</button>
                     </li>
                     {{/each}}
                 </ul>
