@@ -284,6 +284,7 @@
                 border-radius: 4px;
             }
         }
+        
     </style>
 
 
@@ -392,7 +393,7 @@
                <div class="product-foot">
     {{#if this.stock}}
         <div>
-            <button type="button" class="btn btn-secondary  btn-block" data-product-id="{{this._id}}" onclick="addToCart(this)">Add to cart</button>
+            <button type="button" class="btn btn-secondary  btn-block" data-product-id="{{this._id}}" onclick="addToCart(this)"> <i class="fas fa-shopping-cart"></i>Add to cart</button>
         </div>
     {{else}}
         <div>

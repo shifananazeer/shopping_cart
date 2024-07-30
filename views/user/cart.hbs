@@ -15,6 +15,10 @@
             rgba(0, 0,0, 0.24),0 17px 50px 0 
             rgba(0, 0,0,0.19);  
     }
+     .icon-button:hover {
+            color: #390606;
+        }
+        
 </style>
  <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
                 <div class="container">
@@ -23,13 +27,13 @@
             </div><!-- End .page-header -->
 <div class="container">
     
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/products">Products</a></li>
-            <li class="breadcrumb-item active" aria-current="page"> Cart Items</li>
-        </ol>
-    </nav>
+ <nav aria-label="breadcrumb">
+  <ol class="breadcrumb bg-light p-2 rounded">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/products">Products</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Cart Items</li>
+  </ol>
+</nav>
 
     <div class="card">
         <div class="row">
@@ -37,7 +41,7 @@
                 <div class="title">
                     <div class="row">
                         <div class="col ">
-                            <h4 class="mt-3 text-center"><b>Shopping Cart</b></h4>
+                            <h4 class="mt-3 text-center"><b> <i class="fas fa-shopping-cart"></i>Shopping Cart</b></h4>
                         </div>
                     </div>
                 </div>
@@ -51,12 +55,12 @@
                             <div class="row">{{this.productId.category.name}}</div>
                         </div>
                         <div class="col">
-                            <a href="javascript:void(0);" onclick="decrementItem('{{this.productId._id}}', this)">-</a>
-                            <span>{{this.quantity}}</span>
-                         <a href="javascript:void(0);" onclick="incrementItem('{{this.productId._id}}', this)">+</a>
+                            <a href="javascript:void(0);" class="icon-button" onclick="decrementItem('{{this.productId._id}}', this)">  <i class="fas fa-minus"></i></a>
+                            <span class="text-bold">{{this.quantity}}</span>
+                         <a href="javascript:void(0);" class="icon-button" onclick="incrementItem('{{this.productId._id}}', this)">  <i class="fas fa-plus"></i></a>
 
                         </div>
-                        <div class="col">{{this.productId.price}} ₹<a href="javascript:void(0);" onclick="deleteItem('{{this.productId._id}}', this)" class="close">&#10005;</a></div>
+                        <div class="col" >{{this.productId.price}} ₹<a href="javascript:void(0);" onclick="deleteItem('{{this.productId._id}}', this)" class="close">&#10005;</a></div>
                     </div>
                 </div>
                 {{/each}}
@@ -75,7 +79,7 @@
             <div class="col-md-4 summary mt-5 text-cente">
                 {{#if items.length}}
                 <div>
-                    <h5><b>Summary</b></h5>
+                    <h5><b><i class="fas fa-file-alt"></i> Summary</b></h5>
                 </div>
                 <hr>
                 <div style="overflow: hidden;">
@@ -126,7 +130,7 @@
                 </div>
             <div style="text-align: center; margin-top: 20%;">
    <div style="text-align: center; margin-top: 20%;">
-    <a href="/checkout" id="checkoutButton" class="btn btn-warning"  >CHECKOUT</a>
+    <a href="/checkout" id="checkoutButton" class="btn btn-warning"  > <i class="fas fa-credit-card"></i>CHECKOUT</a>
 </div>
 </div>
                 {{else}}
