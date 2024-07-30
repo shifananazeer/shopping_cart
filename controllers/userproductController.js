@@ -3,7 +3,8 @@ const Category = require('../models/categorymodel')
 const Brand = require('../models/brandmodel')
 const Order = require('../models/ordermodel')
 const Wishlist = require('../models/wishlistmodel')
-
+const Cart = require('../models/cartmodel')
+const User = require('../models/usermodel')
 // get all products in user products page----------------------------------------------
 const getAllProducts = async (req, res) => {
     const user = req.session.user;
@@ -104,7 +105,10 @@ const getAllProducts = async (req, res) => {
             try {
                 const productId = req.params.id;
                 const user = req.session.user || {};
+                const userId = user._id
+               
                 console.log(productId);
+                
         
                 const product = await Product.findById(productId).lean();
                 if (!product) {
@@ -117,7 +121,18 @@ const getAllProducts = async (req, res) => {
                     _id: { $ne: productId },
                     category: product.category
                 }).limit(4).lean();
-        
+              
+
+                  // Initialize isInCart as false
+        let isInCart = false;
+
+        // Check if user is logged in and fetch cart
+        if (userId) {
+            const cart = await Cart.findOne({ userId }).populate('items.productId').exec();
+            if (cart) {
+                isInCart = cart.items.some(item => item.productId._id.toString() === productId);
+            }
+        }
                 // // Fetch user orders to check for purchased products
                 // const orders = await Order.find({ userId: user._id }).populate('products.productId').lean();
         
@@ -126,6 +141,7 @@ const getAllProducts = async (req, res) => {
                     user,
                     avgRating,
                     relatedProducts,
+                    isInCart,
                     userHeader: true,
                     
                 });
