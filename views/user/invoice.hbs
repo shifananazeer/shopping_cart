@@ -15,7 +15,8 @@
   <div class="container " style="background-color: rgb(247, 244, 240);">
     <div class="row">
       <div class="col-12 text-center m-5">
-        <h1>Invoice</h1>
+        <h1> <i class="fas fa-file-invoice" title="Invoice"></i> Invoice</h1>
+        <br>
         <p>Order ID: {{order.orderId}}</p>
         <p>Status: {{order.status}}</p>
         <p>Date: {{formatDate order.createdAt}}</p>
@@ -45,13 +46,13 @@
     <div class="row invoice-section">
       <div class="col-12">
         <h2>Items</h2>
-        <table class="table table-bordered text-center">
-          <thead>
+        <table class="table table-bordered text-center ">
+          <thead class="table-dark">
             <tr>
-              <th>Product Name</th>
-              <th>Quantity</th>
-              <th>Price per item</th>
-             <th>Total Price</th>
+              <th>Product Name <i class="fas fa-box" title="Product"></i></th>
+              <th>Quantity <i class="fas fa-sort-numeric-up" title="Quantity"></i></th>
+              <th>Price per item <i class="fas fa-tag" title="Price"></i></th>
+             <th>Total Price <i class="fas fa-dollar-sign" title="Total Price"></i></th>
             </tr>
           </thead>
           <tbody>
@@ -73,19 +74,19 @@
         <h3>Summary</h3>
         <table class="table">
           <tr>
-            <td>Total Price Before Discount:</td>
+            <td> <i class="fas fa-money-bill-wave" ></i> Total Price Before Discount:</td>
             <td>{{order.summary.totalPriceBeforeDiscount}}</td>
           </tr>
           <tr>
-            <td>Total Discount:</td>
+            <td> <i class="fas fa-percent" title="Discount"></i> Total Discount:</td>
             <td>{{order.summary.totalDiscount}}</td>
           </tr>
           <tr>
-            <td>Discounted Price:</td>
+            <td> <i class="fas fa-tag" ></i> Discounted Price:</td>
             <td>{{order.summary.discountedPrice}}</td>
           </tr>
           <tr>
-            <td>Delivery Charge:</td>
+            <td> <i class="fas fa-truck" ></i> Delivery Charge:</td>
             <td>{{order.summary.shippingCharge}}</td>
           </tr>
           <tr>
