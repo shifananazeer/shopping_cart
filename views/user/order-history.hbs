@@ -36,6 +36,23 @@
             width: 90%;
            margin: auto;
         }
+          .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination li {
+            margin: 0 5px;
+        }
+        .page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #070707;
+    border-color: #0e0f10;
+}
+.page-link{
+    color: black;
+}
     </style>
 </head>
 <body>
@@ -52,13 +69,13 @@
                 <table class="table table-bordered table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>Image</th>
-                            <th>Product Name</th>
-                            <th>Product Price</th>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Total Amount</th>
-                            <th>payment Method</th>
+                            <th>Image  <i class="fas fa-image"></i></th>
+                            <th>Product Name <i class="fas fa-box" ></i> </th>
+                            <th>Product Price <i class="fas fa-dollar-sign"></i> </th>
+                            <th>Order ID  <i class="fas fa-hashtag" ></i> </th>
+                            <th>Date   <i class="fas fa-calendar" ></i> </th>
+                            <th>Total Amount  <i class="fas fa-money-bill-wave" ></i> </th>
+                            <th>payment Method  <i class="fas fa-credit-card" ></i> </th>
                             <th>Status</th>
                             <th>Payment Status</th>
                             <th>Details/Cancel</th>
@@ -83,27 +100,47 @@
                                     <td>{{ formatDate ../createdAt }}</td>
                                     <td>{{ ../summary.totalAmountToBePaid }} ₹</td>
                                     <td>{{../paymentMethod}}</td>
-                                    <td>{{ ../status }}</td>
-                                    <td>{{ ../paymentStatus }}</td>
+                                    <td> {{#if (eq ../status 'pending')}}
+                            <i class="fas fa-hourglass-half" title="Pending" style="color: blue;"></i> Pending
+                        {{else if (eq ../status 'shipped')}}
+                            <i class="fas fa-truck" title="Shipped"></i> Shipped
+                        {{else if (eq ../status 'delivered')}}
+                            <i class="fas fa-check-circle" title="Delivered" style="color: green;"></i> Delivered
+                        {{else if (eq ../status 'cancelled')}}
+                            <i class="fas fa-times-circle" title="Cancelled" style="color: red;"></i> Cancelled
+                        {{else}}
+                            <i class="fas fa-question-circle" title="Unknown"></i> Unknown
+                        {{/if}}</td>
+                                    <td> {{#if (eq ../paymentStatus 'pending')}}
+                            <i class="fas fa-hourglass-half" title="Pending"></i> Pending
+                        {{else if (eq ../paymentStatus 'success')}}
+                            <i class="fas fa-check-circle" title="Success" style="color: green;"></i> Success
+                        {{else if (eq ../paymentStatus 'failed')}}
+                            <i class="fas fa-times-circle" title="Failed" style="color: red;"></i> Failed
+                        {{else if (eq ../paymentStatus 'credited in wallet')}}
+                            <i class="fas fa-wallet" title="Credited in Wallet"></i> Credited in Wallet
+                        {{else}}
+                            <i class="fas fa-question-circle" title="Unknown"></i> Unknown
+                        {{/if}}</td>
                                     <td>
-                                        <a href="/order-details/{{ ../orderId }}" class="btn btn-primary m-2">View Details</a>
+                                        <a href="/order-details/{{ ../orderId }}" class="btn btn-primary m-2">View Details<i class="fas fa-eye" ></i></a>
                                      {{#if (and (eq ../status "pending") (or (eq ../paymentStatus "pending") (eq ../paymentStatus "success")))}}
-                                              <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel</button>
+                                              <button class="btn cancel-order-button" data-order-id="{{../orderId}}">Cancel <i class="fas fa-times" ></i></button>
                                       {{/if}}
                                     </td>
                                     <td>
                                       
                                         {{#if (eq ../status 'delivered')}}
-                                            <a href="/orders/{{../orderId}}/return" class="return-btn btn">Return Order</a>
+                                            <a href="/orders/{{../orderId}}/return" class="return-btn btn">Return Order <i class="fas fa-undo" ></i></a>
                                         {{/if}}
 
                                              {{#if (eq ../status 'delivered')}}
-                            <a href="/invoice/{{../orderId}}" class=" mt-2 btn btn-warning">Invoice</a>
+                            <a href="/invoice/{{../orderId}}" class=" mt-2 btn btn-warning">Invoice <i class="fas fa-file-invoice" ></i></a>
                                   {{/if}}
                                     </td>
                                     <td>
                                         {{#if (eq ../paymentStatus "failed")}}
-                                            <button class="btn btn-repay" onclick="handleRepay('{{../orderId}}')">Repay</button>
+                                            <button class="btn btn-repay" onclick="handleRepay('{{../orderId}}')">Repay <i class="fas fa-credit-card"></i></button>
                                         {{/if}}
                                      
                                     </td>
@@ -114,6 +151,28 @@
                     </tbody>
                 </table>
             </div>
+             <!-- Pagination Controls -->
+            <nav>
+                <ul class="pagination">
+                    {{#if (gt currentPage 1)}}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{subtract currentPage 1}}&limit=10">Previous</a>
+                        </li>
+                    {{/if}}
+
+                    {{#each (range 1 totalPages)}}
+                        <li class="page-item {{#if (eq ../currentPage this)}}active{{/if}}">
+                            <a class="page-link" href="?page={{this}}&limit=10">{{this}}</a>
+                        </li>
+                    {{/each}}
+
+                    {{#if (lt currentPage totalPages)}}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{add currentPage 1}}&limit=10">Next</a>
+                        </li>
+                    {{/if}}
+                </ul>
+            </nav>
         {{else}}
             <p>No orders found.</p>
         {{/if}}

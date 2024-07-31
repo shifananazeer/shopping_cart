@@ -274,10 +274,17 @@ cancelOrder : async(req,res) => {
 //order History---------------------------------------------------------------------
 orderHistory : async(req,res) => {
     const userId = req.session.user._id;
+    const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
+    const limit = 10; // Number of orders per page
+
     try {
+        const totalOrders = await Order.countDocuments({ userId }); // Total number of orders for the user
+        const totalPages = Math.ceil(totalOrders / limit); // Total number of pages
         const orders = await Order.find({ userId })
             .sort({ createdAt: -1 })
-            .populate('items.productId'); 
+            .skip((page - 1) * limit) // Skip orders for previous pages
+            .limit(limit) // Limit to the number of orders per page
+            .populate('items.productId'); // Populate product details
 
         const user = req.session.user;
 
@@ -298,7 +305,13 @@ orderHistory : async(req,res) => {
             };
         });
 
-        res.render('user/order-history', { orders: ordersWithItemDetails, userHeader: true, user });
+        res.render('user/order-history', { 
+            orders: ordersWithItemDetails,
+             userHeader: true,
+              user,
+              currentPage: page,
+              totalPages: totalPages
+             });
     } catch (error) {
         console.error('Error fetching order history:', error);
         res.status(500).send('Internal Server Error');
