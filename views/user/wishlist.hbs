@@ -52,13 +52,13 @@
 
             <div class="page-content">
                 <div class="container">
-                    <table class="table table-wishlist table-mobile">
-                        <thead>
+                    <table class="table table-wishlist table-mobile  text-center">
+                        <thead class="table-dark  ">
                             <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Offer&nbsp;Price</th>
-                                <th>Stock Status</th>
+                                <th>Product <i class="fas fa-box"></i></th>
+                                <th>Price <i class="fas fa-tag price-icon"></i></th>
+                                <th>Offer&nbsp;Price <i class="fas fa-percentage"></i></th>
+                                <th>Stock Status <i class="fas fa-boxes"></i></th>
 
 
                                 <th></th>
@@ -118,7 +118,7 @@
                                 </td>
 
                                 <td class="remove-col"> <a href=""><button
-                                            class="btn-remove" onclick="removeFromWishlist('{{this._id}}')"><i class="icon-close"></i></button> </a></td>
+                                            class="btn-remove" onclick="removeFromWishlist('{{this._id}}')"><i class="fas fa-trash"></i></button> </a></td>
 
                             </tr>
                             {{/each}}

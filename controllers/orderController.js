@@ -339,7 +339,8 @@ getCoupon : async (req,res) => {
 //online payment order creation-------------------------------------------------------
 createOrder : async (req, res) => {
     console.log("body",req.body)
-    const { addressId, cartItems, orderSummary, appliedCoupon ,paymentMethod} = req.body;
+    const { addressId, cartItems, orderSummary, coupon ,paymentMethod} = req.body;
+
     const amountInPaise = Math.round(orderSummary.totalAmountToBePaid * 100);
     try {
         const options = {
@@ -347,6 +348,18 @@ createOrder : async (req, res) => {
             currency: 'INR',
             receipt: `receipt_${Date.now()}`,
         };
+        let totalAmount = orderSummary.totalAmountToBePaid;
+        let couponDetails = null;
+        let discountAmount = 0;
+        if (coupon && coupon._id) {
+             couponDetails = await Coupon.findById(coupon._id);
+            if (couponDetails) {
+             discountAmount = (couponDetails.discount / 100) * totalAmount;
+                totalAmount -= discountAmount;
+            } else {
+                return res.status(400).json({ message: 'Invalid coupon' });
+            }
+        }
         // Create order with Razorpay
         const order = await razorpay.orders.create(options);
         const uniqueOrderId = generateUniqueOrderId();
@@ -364,7 +377,10 @@ createOrder : async (req, res) => {
                 shippingCharge: orderSummary.shippingCharge,
                 totalAmountToBePaid: orderSummary.totalAmountToBePaid
             },
-             coupon: appliedCoupon,
+            coupon: {
+                code: couponDetails ? couponDetails.code : null,
+                discountAmount: discountAmount
+            },
             razorpayOrderId: order.id,
             status: 'pending',
             paymentStatus: paymentMethod === 'online_payment' ? 'failed' : 'success', 
