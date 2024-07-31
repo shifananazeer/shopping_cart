@@ -11,7 +11,7 @@
             max-width: 600px;
             margin: 50px auto;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 2px solid #000000;
             border-radius: 8px;
             background-color: #f9f9f9;
         }
@@ -23,8 +23,8 @@
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
-            background-color: #007bff;
-            color: white;
+            background-color: #e6f114;
+            color: rgb(4, 4, 4);
             text-decoration: none;
             cursor: pointer;
             transition: background-color 0.3s;
@@ -43,7 +43,7 @@
     <div class="order-status-container">
         {{!-- <h2>Order Status</h2> --}}
         {{#if order}}
-            <div class="order-status-result">
+            <div class="order-status-result text-center">
                 <h3>Order ID: {{ order.orderId}}</h3>
                 <p><strong>Date:</strong> {{ formatDate order.createdAt }}</p>
                   {{#each order.products}}
@@ -51,7 +51,16 @@
                 {{/each}}
                 <p><strong>Total Amount:</strong> {{ order.summary.totalAmountToBePaid }} ₹</p>
                 <p><strong>Status:</strong> {{ order.status }}</p>
-                <a href="/order-history" class="btn">Back To Order History</a>
+                 <h3><i class="fas fa-calendar-check" title="Delivery Date"></i> Expected Delivery Date:</h3>
+      <p style="color: green;">
+        {{#if expectedDeliveryStartDate}} 
+          {{formatDate expectedDeliveryStartDate}} 
+          {{#if expectedDeliveryEndDate}} 
+            - {{formatDate expectedDeliveryEndDate}} 
+          {{/if}} 
+        {{/if}}
+      </p>
+                <a href="/order-history" class="btn"><i class="fas fa-arrow-left" title="Back"></i> Back To Order History</a>
             </div>
         {{else if error}}
             <p>{{ error }}</p>

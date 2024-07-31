@@ -32,7 +32,7 @@
          <h1 style="color: green;">Thank you for your order!</h1>
     <p style="color: green;">Your order has been placed successfully.</p>
 
-        <div class="order-details">
+        <div class="order-details text-center m-5 p-5" style="background-color: aliceblue;">
             <h3>Order Details</h3>
             <p><strong>Order ID:</strong> {{order.orderId}}</p>
             <p><strong>Order Date:</strong> {{formatDate order.createdAt}}</p>
@@ -43,11 +43,11 @@
 
             <h4>Products Ordered:</h4>
             <table class="table">
-                <thead>
+                <thead class="table-dark">
                     <tr>
-                        <th>Product Name</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
+                        <th><i class="fas fa-box" title="Product"></i> Product Name</th>
+                        <th><i class="fas fa-sort-numeric-up" title="Quantity"></i> Quantity</th>
+                        <th><i class="fas fa-tag" title="Discount Price"></i> Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,7 +62,7 @@
             </table>
 
             <h4>Order Summary</h4>
-            <p>
+            <p style="color: red;">
                 {{#if (eq order.paymentMethod "razorpay")}}
                     Paid Amount: ₹{{totalAmount}}
                 {{else}}
@@ -72,8 +72,8 @@
         </div>
 
 
-         <h3>Expected Delivery Date:</h3>
-      <p>
+         <h3><i class="fas fa-calendar-check" title="Delivery Date"></i> Expected Delivery Date:</h3>
+      <p style="color: green;">
         {{#if expectedDeliveryStartDate}} 
           {{formatDate expectedDeliveryStartDate}} 
           {{#if expectedDeliveryEndDate}} 
@@ -82,13 +82,13 @@
         {{/if}}
       </p>
 
-        <div class="order-management">
+        <div class="order-management p-5 text-center">
             <h3>Order Management</h3>
             <p>Manage your order with the following options:</p>
             {{#if (or (eq order.status "pending") (eq order.status "placed"))}}
-                <button class="cancel-order-button btn btn-secondary" data-order-id="{{order.orderId}}">Cancel Order</button>
+                <button class="cancel-order-button btn btn-secondary" data-order-id="{{order.orderId}}"><i class="fas fa-times-circle" title="Cancel"></i> Cancel Order</button>
             {{/if}}
-            <a href="/order-history" class="btn btn-secondary">Order History</a>
+            <a href="/order-history" class="btn btn-secondary"><i class="fas fa-history" title="Order History"></i> Order History</a>
         </div>
     </div>
 

@@ -327,7 +327,33 @@ orderDetails :async (req,res) => {
         const order = await Order.findOne({ orderId: orderId }) 
         console.log(order);
         if (order) {
-            res.render('user/order-details', { order ,userHeader:true});
+
+             // Standard delivery time range in days
+          const minDeliveryDays = 3;
+          const maxDeliveryDays = 5;
+  
+          // Calculate the expected delivery dates
+          const calculateExpectedDeliveryDate = (daysToAdd) => {
+              const date = new Date();
+              let count = 0;
+              while (count < daysToAdd) {
+                  date.setDate(date.getDate() + 1);
+                  // Skip weekends
+                  if (date.getDay() !== 0 && date.getDay() !== 6) {
+                      count++;
+                  }
+              }
+              return date;
+          };
+  
+            const minDeliveryDate = calculateExpectedDeliveryDate(minDeliveryDays);
+            const maxDeliveryDate = calculateExpectedDeliveryDate(maxDeliveryDays);
+            res.render('user/order-details', { 
+                order ,
+                userHeader:true,
+                expectedDeliveryStartDate: minDeliveryDate,
+                expectedDeliveryEndDate: maxDeliveryDate,
+            });
         } else {
             res.render('user/order-details', { error: 'Order not found' ,userHeader:true,user});
         }

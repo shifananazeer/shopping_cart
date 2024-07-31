@@ -213,7 +213,7 @@ module.exports = {
                 discount: item.productId.discount
             };
         });
-        console.log(cartItems)
+        // console.log(cartItems)
     
         const summary = calculateCartSummary(cart.items);
         
@@ -282,7 +282,7 @@ cartCount : async (req,res)=> {
     try {
         const userId = req.session.user._id;
         const cart = await Cart.findOne({ userId });
-        console.log(cart)
+        // console.log(cart)
         const itemCount = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
         console.log("count",itemCount)
         res.json({ count: itemCount });

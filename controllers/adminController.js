@@ -66,7 +66,7 @@ const dashboardData = async (req, res) => {
       labels = generateDayLabels();
     }
 
-    console.log('Filter:', filter);
+    // console.log('Filter:', filter);
 
     const orders = await Order.find(filter).exec();
     console.log('Orders:', orders);
@@ -104,7 +104,7 @@ const dashboardData = async (req, res) => {
       acc.values.push(periodRevenue);
       return acc;
     }, { labels: [], values: [] });
-    console.log('Chart Data:', chartData);
+    // console.log('Chart Data:', chartData);
 
     res.json({
       totalSalesCount,
