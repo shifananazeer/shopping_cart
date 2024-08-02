@@ -47,7 +47,7 @@
                 <span class="mx-2">to</span>
                 <input type="date" id="end-date" class="form-control d-inline-block" style="width: auto; display: inline;">
                 <button onclick="filterReport()" class="btn btn-primary">Filter</button>
-                 <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
+                <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
             </div>
             <div class="filter mb-3">
                 <label for="preset-range" class="form-label">Preset Date Range:</label>
@@ -68,7 +68,6 @@
                         <th>Discount</th>
                         <th>Coupon Deduction</th>
                         <th>Final Amount</th>
-                      
                     </tr>
                 </thead>
                 <tbody id="orders-table-body">
@@ -81,7 +80,6 @@
                         <td>{{summary.totalDiscount}} ₹</td>
                         <td>{{#if coupon.discountAmount}}{{coupon.discountAmount}}{{else}}0.00{{/if}} ₹</td>
                         <td>{{summary.discountedPrice}} ₹</td>
-                       
                     </tr>
                     {{/each}}
                 </tbody>
@@ -97,52 +95,46 @@
             </div>
             <div class="text-center mt-4">
                 <button onclick="downloadPDF()" class="btn btn-danger">Download PDF</button>
-    <button onclick="downloadExcel()" class="btn btn-warning">Download as Excel</button>
+                <button onclick="downloadExcel()" class="btn btn-warning">Download as Excel</button>
             </div>
         </div>
     </main>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.18/jspdf.plugin.autotable.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.18/jspdf.plugin.autotable.min.js"></script>
     <script>
-       
-          function getQueryParams() {
-        const params = new URLSearchParams(window.location.search);
-        return {
-            startDate: params.get('startDate') || '',
-            endDate: params.get('endDate') || '',
-            presetRange: params.get('presetRange') || ''
-        };
-    }
-
-    // Function to set filter values on page load
-    function setFilterValues() {
-        const { startDate, endDate, presetRange } = getQueryParams();
-
-        if (startDate) {
-            document.getElementById('start-date').value = startDate;
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                startDate: params.get('startDate') || '',
+                endDate: params.get('endDate') || '',
+                presetRange: params.get('presetRange') || ''
+            };
         }
-        if (endDate) {
-            document.getElementById('end-date').value = endDate;
-        }
-        if (presetRange) {
-            document.getElementById('preset-range').value = presetRange;
-        }
-    }
 
-    // Call setFilterValues on page load
-    window.onload = setFilterValues;
+        function setFilterValues() {
+            const { startDate, endDate, presetRange } = getQueryParams();
 
-         function clearFilters() {
-        // Clear filter fields
-        document.getElementById('start-date').value = '';
-        document.getElementById('end-date').value = '';
-        document.getElementById('preset-range').value = '';
-        
-        // Redirect to the page without query parameters
-        window.location.href = '/admin/salesReport';
-    }
+            if (startDate) {
+                document.getElementById('start-date').value = startDate;
+            }
+            if (endDate) {
+                document.getElementById('end-date').value = endDate;
+            }
+            if (presetRange) {
+                document.getElementById('preset-range').value = presetRange;
+            }
+        }
+
+        window.onload = setFilterValues;
+
+        function clearFilters() {
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
+            document.getElementById('preset-range').value = '';
+            window.location.href = '/admin/salesReport';
+        }
+
         function filterReport() {
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
@@ -157,135 +149,72 @@
             }
         }
 
-     function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-    // Title
-    doc.setFontSize(18);
-    doc.text('Sales Report', 14, 22);
+            doc.setFontSize(18);
+            doc.text('Sales Report', 14, 22);
 
-    // Column headers
-    const headers = ['Order ID', 'Date', 'Customer Name', 'Order Amount', 'Discount', 'Coupon Deduction', 'Final Amount'];
-    const data = [];
+            const headers = ['Order ID', 'Date', 'Customer Name', 'Order Amount', 'Discount', 'Coupon Deduction', 'Final Amount'];
+            const data = [];
 
-    // Get table data
-    const rows = document.querySelectorAll('#orders-table-body tr');
-    let totalSalesCount = 0;
-    let totalOrderAmount = 0;
-    let totalDiscount = 0;
-    let totalCouponDiscount = 0;
-    let totalFinalAmount = 0;
+            const rows = document.querySelectorAll('#orders-table-body tr');
+            let totalSalesCount = 0;
+            let totalOrderAmount = 0;
+            let totalDiscount = 0;
+            let totalCouponDiscount = 0;
+            let totalFinalAmount = 0;
 
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const orderAmount = parseFloat(cells[3].textContent.replace(' ₹', ''));
-        const discount = parseFloat(cells[4].textContent.replace(' ₹', ''));
-        const couponDeduction = parseFloat(cells[5].textContent.replace(' ₹', ''));
-        const finalAmount = parseFloat(cells[6].textContent.replace(' ₹', ''));
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const orderAmount = parseFloat(cells[3].textContent.replace(' ₹', ''));
+                const discount = parseFloat(cells[4].textContent.replace(' ₹', ''));
+                const couponDeduction = parseFloat(cells[5].textContent.replace(' ₹', ''));
+                const finalAmount = parseFloat(cells[6].textContent.replace(' ₹', ''));
 
-        data.push([
-            cells[0].textContent,
-            cells[1].textContent,
-            cells[2].textContent,
-            cells[3].textContent,
-            cells[4].textContent,
-            cells[5].textContent,
-            cells[6].textContent
-        ]);
+                data.push([
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent,
+                    cells[5].textContent,
+                    cells[6].textContent
+                ]);
 
-        totalSalesCount++;
-        totalOrderAmount += orderAmount;
-        totalDiscount += discount;
-        totalCouponDiscount += couponDeduction;
-        totalFinalAmount += finalAmount;
-    });
+                totalSalesCount++;
+                totalOrderAmount += orderAmount;
+                totalDiscount += discount;
+                totalCouponDiscount += couponDeduction;
+                totalFinalAmount += finalAmount;
+            });
 
-    doc.autoTable({
-        head: [headers],
-        body: data,
-        startY: 30,
-        styles: { fontSize: 10 },
-        columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 30 }, 2: { cellWidth: 50 }, 3: { cellWidth: 30 }, 4: { cellWidth: 30 }, 5: { cellWidth: 40 }, 6: { cellWidth: 30 } }
-    });
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 30,
+                styles: { fontSize: 10 },
+                columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 30 }, 2: { cellWidth: 50 }, 3: { cellWidth: 30 }, 4: { cellWidth: 30 }, 5: { cellWidth: 40 }, 6: { cellWidth: 30 } }
+            });
 
-    // Summary
-    let startY = doc.autoTable.previous.finalY + 10;
-    doc.text('Summary:', 14, startY);
-    doc.text(`Total Sales Count: ${totalSalesCount}`, 14, startY + 10);
-    doc.text(`Overall Order Amount: ${totalOrderAmount.toFixed(2)} ₹`, 14, startY + 20);
-    doc.text(`Overall Discount: ${totalDiscount.toFixed(2)} ₹`, 14, startY + 30);
-    doc.text(`Overall Coupon Discount: ${totalCouponDiscount.toFixed(2)} ₹`, 14, startY + 40);
-    doc.text(`Overall Final Amount: ${totalFinalAmount.toFixed(2)} ₹`, 14, startY + 50);
+            let startY = doc.autoTable.previous.finalY + 10;
+            doc.text('Summary:', 14, startY);
+            doc.text(`Total Sales Count: ${totalSalesCount}`, 14, startY + 10);
+            doc.text(`Overall Order Amount: ${totalOrderAmount.toFixed(2)} ₹`, 14, startY + 20);
+            doc.text(`Overall Discount: ${totalDiscount.toFixed(2)} ₹`, 14, startY + 30);
+            doc.text(`Overall Coupon Discount: ${totalCouponDiscount.toFixed(2)} ₹`, 14, startY + 40);
+            doc.text(`Overall Final Amount: ${totalFinalAmount.toFixed(2)} ₹`, 14, startY + 50);
 
-    doc.save('sales-report.pdf');
-}
+            doc.save('SalesReport.pdf');
+        }
 
-function downloadExcel() {
-    const wb = XLSX.utils.book_new();
-    wb.Props = {
-        Title: "Sales Report",
-        Subject: "Sales Data",
-        Author: "Your Company",
-        CreatedDate: new Date()
-    };
-
-    // Create a worksheet
-    const ws_data = [
-        ["Sales Report"],
-        [],
-        ["Order ID", "Date", "Customer Name", "Order Amount", "Discount", "Coupon Deduction", "Final Amount"],
-    ];
-
-    // Get table data
-    const rows = document.querySelectorAll('#orders-table-body tr');
-    let totalSalesCount = 0;
-    let totalOrderAmount = 0;
-    let totalDiscount = 0;
-    let totalCouponDiscount = 0;
-    let totalFinalAmount = 0;
-
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const orderAmount = parseFloat(cells[3].textContent.replace(' ₹', ''));
-        const discount = parseFloat(cells[4].textContent.replace(' ₹', ''));
-        const couponDeduction = parseFloat(cells[5].textContent.replace(' ₹', ''));
-        const finalAmount = parseFloat(cells[6].textContent.replace(' ₹', ''));
-
-        ws_data.push([
-            cells[0].textContent,
-            cells[1].textContent,
-            cells[2].textContent,
-            cells[3].textContent,
-            cells[4].textContent,
-            cells[5].textContent,
-            cells[6].textContent
-        ]);
-
-        totalSalesCount++;
-        totalOrderAmount += orderAmount;
-        totalDiscount += discount;
-        totalCouponDiscount += couponDeduction;
-        totalFinalAmount += finalAmount;
-    });
-
-    ws_data.push([]);
-    ws_data.push(["Summary"]);
-    ws_data.push(["Total Sales Count", totalSalesCount]);
-    ws_data.push(["Overall Order Amount", `${totalOrderAmount.toFixed(2)} ₹`]);
-    ws_data.push(["Overall Discount", `${totalDiscount.toFixed(2)} ₹`]);
-    ws_data.push(["Overall Coupon Discount", `${totalCouponDiscount.toFixed(2)} ₹`]);
-    ws_data.push(["Overall Final Amount", `${totalFinalAmount.toFixed(2)} ₹`]);
-
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-    // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-
-    // Save to file
-    XLSX.writeFile(wb, "sales-report.xlsx");
-}
-
+        function downloadExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(document.querySelector('table'));
+            XLSX.utils.book_append_sheet(wb, ws, 'Sales Report');
+            XLSX.writeFile(wb, 'SalesReport.xlsx');
+        }
     </script>
 </body>
 </html>
