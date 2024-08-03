@@ -278,11 +278,17 @@ const postLogin = async (req, res) => {
 //logout user----------------------------------------------------------
 const logout = async (req, res) => {
   try {
+
+    if (!req.session.user) {
+      return res.redirect('/');
+    }
+
       const userId = req.session.user._id;
       const user = await User.findById(userId);
 
       if (!user) {
           return res.status(404).send('User not found');
+
       }
 
       user.is_verified = false;
