@@ -460,6 +460,7 @@ createOrder : async (req, res) => {
                 console.error(`Product not found: ${item.productId}`);
             }
         }
+        const user = req.session.user; 
         await Cart.deleteMany({ userId: req.session.user._id });
         res.json({
             success: true,
@@ -467,7 +468,13 @@ createOrder : async (req, res) => {
             razorpayOrderId: order.id,
             totalAmountToBePaid: orderSummary.totalAmountToBePaid,
             orderId: uniqueOrderId,
-            razorpayKeyId: process.env.RAZORPAY_KEY_ID
+            razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+            user: {
+                name: user.name,
+                email: user.email,
+                number: user.number,
+            },
+            
         });
     } catch (error) {
         console.error('Error creating order:', error);
@@ -547,13 +554,18 @@ repay : async (req,res) => {
         // Create the order with Razorpay
         const razorpayOrder = await razorpay.orders.create(options);
         console.log('Razorpay Order:', razorpayOrder);
-
+        const user = req.session.user; 
         res.json({
             success: true,
             orderId:order.orderId,
             razorpayKeyId: process.env.RAZORPAY_KEY_ID,
             razorpayOrderId: razorpayOrder.id,
-            totalAmountToBePaid: order.summary.totalAmountToBePaid
+            totalAmountToBePaid: order.summary.totalAmountToBePaid,
+            user: {
+                name: user.name,
+                email: user.email,
+                number: user.number,
+            },
         });
     } catch (error) {
         console.error('Error initiating repayment:', error);
