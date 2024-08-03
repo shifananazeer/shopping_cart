@@ -34,8 +34,20 @@
 </head>
 
 <style>
-   
+    /* Add custom CSS here */
+    @media (max-width: 767px) {
+        .header-right {
+            display: none;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .mobile-cart-wishlist {
+            display: none;
+        }
+    }
 </style>
+
 
 <header class="header header-intro-clearance header-4">
     <div class="header-top">
@@ -227,8 +239,12 @@
 
                         </li>
                         <li>
-                            <a href="/wishlistProducts" class="sf-with-ul">wishlist</a>
+                            <a href="/wishlist" class="sf-with-ul">wishlist</a>
 
+                        </li>
+
+                        <li>
+                            <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
                         </li>
 
 
