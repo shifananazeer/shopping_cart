@@ -279,7 +279,7 @@ const postLogin = async (req, res) => {
 const logout = async (req, res) => {
   try {
 
-    if (!req.session.user) {
+    if (!req.session || !req.session.user) {
       return res.redirect('/');
     }
 
