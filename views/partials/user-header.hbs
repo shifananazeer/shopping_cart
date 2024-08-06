@@ -34,18 +34,8 @@
 </head>
 
 <style>
-    /* Add custom CSS here */
-    @media (max-width: 767px) {
-        .header-right {
-            display: none;
-        }
-    }
+ 
 
-    @media (min-width: 768px) {
-        .mobile-cart-wishlist {
-            display: none;
-        }
-    }
 </style>
 
 
@@ -112,7 +102,7 @@
             </div><!-- End .header-center -->
 
             <div class="header-right">
-                <div class="dropdown compare-dropdown">
+                <div class="dropdown d-none d-md-block compare-dropdown">
                     <a href="/profile">
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
@@ -128,7 +118,7 @@
 
                 </div><!-- End .compare-dropdown -->
 
-                <div class="wishlist ">
+                <div class="wishlist  d-none d-md-block">
                   
                     <a href="/wishlist" title="Wishlist">
                         <div class="icon">
@@ -139,7 +129,7 @@
                     </a>
                 </div><!-- End .compare-dropdown -->
 
-                <div class="dropdown cart-dropdown">
+                <div class="dropdown  d-none d-md-block cart-dropdown">
                     <a href="/cart" class="dropdown-toggle">
                         <div class="icon">
                             
@@ -246,8 +236,12 @@
                         <li>
                             <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
                         </li>
-
-
+                          <li>
+                            <a href="/order-history">Order History</a>
+                        </li>
+                        <li>
+                            <a href="/my-account">My Account</a>
+                        </li>
                     </ul>
                 </nav><!-- End .mobile-nav -->
             </div><!-- .End .tab-pane -->
