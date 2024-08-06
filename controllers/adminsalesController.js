@@ -45,7 +45,7 @@ module.exports = {
             
             const totalRevenue = totalOrderAmount - totalDiscount - totalCouponDiscount - totalGst;
     
-            res.render('admin/salesReport', {
+            res.render('admin/salesreport', {
                 orders: orders,
                 totalSalesCount,
                 totalOrderAmount,

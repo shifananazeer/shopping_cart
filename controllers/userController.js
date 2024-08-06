@@ -10,7 +10,7 @@ const crypto = require('crypto');
 
 //Get Home with newly arrived products ,category ,brand--------------------------------------------------
 const getHomePage = async (req, res) => {
- const user = req.session.user;
+ const user = req.session.user||null;
  const popularCategories = await Category.find({ is_deleted: false })
  .sort({ saleCount: -1 })
  .limit(6);
