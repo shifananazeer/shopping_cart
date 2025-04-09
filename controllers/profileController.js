@@ -1,6 +1,6 @@
 const User = require('../models/usermodel')
 const Address = require('../models/addressmodel')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 const Wallet = require('../models/walletmodel')
