@@ -7,6 +7,7 @@ const helpers = require('./hbsHelpers')
 const path = require('path');
 const passport = require('./config/passport');
 const connectDB = require('./config/db');
+const MongoStore = require('connect-mongo');
 
 
 
@@ -23,15 +24,20 @@ const app = express();
 // Middleware setup
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+const MONGODB_URI = process.env.MONGODB_URL
 
 app.use(session({
-  secret: 'secret', 
-  resave: false,    
-  saveUninitialized: true, 
+  secret: process.env.SESSION_SECRET || 'secret', 
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: MONGODB_URI,
+    collectionName: 'sessions',
+  }),
   cookie: {
-    maxAge: 72 * 60 * 60 * 1000, 
-    httpOnly: true,  
-    sameSite: 'strict'
+    maxAge: 72 * 60 * 60 * 1000, // 72 hours
+    httpOnly: true,
+    sameSite: 'strict',
   }
 }));
 
