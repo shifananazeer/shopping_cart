@@ -48,7 +48,7 @@
       <!-- Search Bar -->
       <form id="searchForm" action="/admin/coupons" method="GET" class="mb-3">
         <input type="text" id="search-query" name="query" placeholder="Search coupons..." value="{{searchQuery}}">
-    <button type="submit" class="btn btn-primary ml-2">Search</button>
+        <button type="submit" class="btn btn-primary ml-2">Search</button>
       </form>
 
       <a href="/admin/coupons/add" class="btn btn-primary mb-3">Add Coupon</a>
@@ -64,7 +64,7 @@
               <th scope="col">Expiration Date</th>
               <th scope="col">Is Active</th>
               <th scope="col">Action</th>
-               <th scope="col">Edit</th>
+              <th scope="col">Edit</th>
               <th scope="col">Created At</th>
             </tr>
           </thead>
@@ -83,18 +83,15 @@
                   <p style="color: red;">Inactive</p>
                 {{/if}}
               </td>
-              
-                <td>
-                      {{#if this.isActive}}
-            <button class="btn btn-danger" onclick="deactivateCoupon('{{this._id}}')">Deactivate</button>
-        {{else}}
-            <button class="btn btn-success" onclick="activateCoupon('{{this._id}}')">Activate</button>
-        {{/if}}
-      
-    </td>
-    <td>
-        <a href="/admin/coupons/edit/{{this.id}}" class="btn btn-warning">EDIT</a>
-    </td>
+              <td>
+                {{#if this.isActive}}
+                  <button class="btn btn-danger" onclick="deactivateCoupon('{{this._id}}')">Deactivate</button>
+                {{else}}
+                  <button class="btn btn-success" onclick="activateCoupon('{{this._id}}')">Activate</button>
+                {{/if}}
+              </td>
+              <td>
+                <a href="/admin/coupons/edit/{{this.id}}" class="btn btn-warning">EDIT</a>
               </td>
               <td>{{formatDate this.createdAt}}</td>
             </tr>
@@ -120,49 +117,54 @@
     </div>
   </section>
 </main>
+
 <script>
     function deactivateCoupon(id) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "Do you want to deactivate this coupon?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, deactivate it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin/coupons/deactivate/${id}`;
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-}
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to deactivate this coupon?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, deactivate it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/coupons/deactivate/${id}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 
-function activateCoupon(id) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "Do you want to activate this coupon?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, activate it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin/coupons/activate/${id}`;
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-}
+    function activateCoupon(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to activate this coupon?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, activate it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/coupons/activate/${id}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 </script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+<!-- Full jQuery version -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<!-- Bootstrap JS -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
