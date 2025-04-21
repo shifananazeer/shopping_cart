@@ -67,7 +67,10 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 connectDB();
-
+app.use((req, res, next) => {
+  console.log('Requested:', req.url);
+  next();
+});
 // Routes
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
