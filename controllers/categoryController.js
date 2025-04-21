@@ -1,6 +1,7 @@
 const Category = require('../models/categorymodel')
 const Product = require('../models/productmodel')
 const mongoose = require('mongoose');
+const cloudinary = require('../config/cloudinary');
 const fs = require('fs')
 const path = require('path')
 module.exports = {
@@ -41,39 +42,44 @@ categoryPage: async (req, res) => {
     },
 
 //add category posting---------------------------------------------------------------
-    postAddCategory : async (req, res) => {
-      try {
-        const { name,discount } = req.body;
-        const image = req.file;
-          
-          if (!name || !image ) {
-            req.flash('error', 'Name and image are required');
-            return res.redirect('/admin/add-category'); 
-          }
-          const existingCategory = await Category.findOne({ name });
-          if (existingCategory) {
-            req.flash('error', 'Category with this name already exists');
-            return res.redirect('/admin/add-category'); 
-          }
-          const imagePath = image.path.replace(/^public[\/\\]/, '');
-          
-          const newCategory = new Category({
-           name: name,
-           discount:discount,
-           image : imagePath
-           
-          });
-      
-          await newCategory.save();
-      
-          req.flash('success', 'Category added successfully');
-          res.redirect('/admin/view-category'); 
-        } catch (err) {
-          console.error('Error adding category:', err);
-          req.flash('error', 'Failed to add category');
-          res.redirect('/admin/add-category'); 
-        }
-      },
+postAddCategory: async (req, res) => {
+  try {
+    const { name, discount } = req.body;
+    const image = req.file; // This is the image uploaded via multer
+
+    if (!name || !image) {
+      req.flash('error', 'Name and image are required');
+      return res.redirect('/admin/add-category');
+    }
+
+    const existingCategory = await Category.findOne({ name });
+    if (existingCategory) {
+      req.flash('error', 'Category with this name already exists');
+      return res.redirect('/admin/add-category');
+    }
+
+    // Upload the image to Cloudinary
+    const result = await cloudinary.uploader.upload(image.path, {
+      folder: 'categories', 
+    });
+
+    const imageUrl = result.secure_url; 
+    const newCategory = new Category({
+      name: name,
+      discount: discount,
+      image: imageUrl, 
+    });
+
+    await newCategory.save();
+
+    req.flash('success', 'Category added successfully');
+    res.redirect('/admin/view-category');
+  } catch (err) {
+    console.error('Error adding category:', err);
+    req.flash('error', 'Failed to add category');
+    res.redirect('/admin/add-category');
+  }
+},
     
       // edit category page render with category details--------------------------------------------------------
      getEditCategory : async (req, res) => {

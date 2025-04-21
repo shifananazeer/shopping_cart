@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 const Wallet = require('../models/walletmodel')
+const cloudinary = require('../config/cloudinary');
 
 module.exports = {
 
@@ -57,50 +58,48 @@ module.exports = {
         },
 
         //update user edited information and profile pic----------------------------------------------------
-        updateProfile:async(req,res) => {
-            try {
-                if (req.session && req.session.user) {
-                  const userId = req.session.user._id;
-                  const { name, number } = req.body;
-                  const updateData = {
-                    name,
-                    number,
-                  };
-                  const currentUser = await User.findById(userId);
-                  if (req.file) {
-                    // Delete the old profile photo if it exists
-                    if (currentUser.profilePhoto) {
-                      const oldImagePath = path.join(__dirname, '..', 'public', currentUser.profilePhoto);
-                      fs.unlink(oldImagePath, (err) => {
-                        if (err) {
-                          console.error('Error deleting old profile photo:', err.message);
-                        } else {
-                          console.log('Old profile photo deleted successfully');
-                        }
-                      });
-                    }
-                    updateData.profilePhoto = `/images/profilepic/${req.file.filename}`;
-                  }
-            
-                  await User.findByIdAndUpdate(userId, updateData, { new: true });
-            
-                  // Update session data
-                  req.session.user.name = name;
-                  req.session.user.number = number;
-                  if (req.file) {
-                    req.session.user.profilePhoto = updateData.profilePhoto;
-                  }
-            
-                  res.redirect('/profile');
-                } else {
-                  res.redirect('/login');
+        updateProfile: async (req, res) => {
+          try {
+            if (req.session && req.session.user) {
+              const userId = req.session.user._id;
+              const { name, number } = req.body;
+              const updateData = { name, number };
+              const currentUser = await User.findById(userId);
+        
+              if (req.file) {
+                // Upload new profile photo to Cloudinary
+                const result = await cloudinary.uploader.upload(req.file.path, {
+                  folder: 'profile_pics',
+                });
+        
+                // Delete the old image from Cloudinary if public_id is stored
+                if (currentUser.profilePhotoPublicId) {
+                  await cloudinary.uploader.destroy(currentUser.profilePhotoPublicId);
                 }
-              } catch (error) {
-                console.error('Error updating profile:', error.message);
-                res.redirect('/error');
+        
+                updateData.profilePhoto = result.secure_url;
+                updateData.profilePhotoPublicId = result.public_id;
               }
-    },
-
+        
+              // Update user in DB
+              const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        
+              // Update session
+              req.session.user.name = updatedUser.name;
+              req.session.user.number = updatedUser.number;
+              if (req.file) {
+                req.session.user.profilePhoto = updatedUser.profilePhoto;
+              }
+        
+              res.redirect('/profile');
+            } else {
+              res.redirect('/login');
+            }
+          } catch (error) {
+            console.error('Error updating profile:', error.message);
+            res.redirect('/error');
+          }
+        },
     //address adding in profile--------------------------------------------------------------
     addAddress : (req,res)=>{
       const user = req.session.user

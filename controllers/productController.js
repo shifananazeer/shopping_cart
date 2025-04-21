@@ -3,6 +3,7 @@ const Category = require('../models/categorymodel')
 const Brand = require('../models/brandmodel')
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('../config/cloudinary');
 module.exports ={
   //get all products in admin------------------------------------------------------------
   adminProduct: async (req, res) => {
@@ -53,36 +54,53 @@ module.exports ={
   },
 
 //product updation -------------------------------------------------------------
-  updateProduct : async (req, res) => {
-    try {
-      const { name,description, price, discount,stock, category,brand } = req.body;
-      const images = req.files; 
-      console.log( req.body);
-      console.log( images);
-      if (!name || !description || !price || !discount || !category || !brand|| !stock || images.length === 0) {
-        req.flash('error', 'All fields are required');
-        return res.redirect('/admin/add-product');
-      }
-      const imagePaths = images.map(image => image.path.replace(/^public[\/\\]/, ''));
-      const newProduct = new Product({
-        name,
-        description,
-        price,
-        discount,
-        category,
-        brand,
-        stock,
-        images: imagePaths
-      });
-      await newProduct.save();
-      req.flash('success', 'Product added successfully');
-      res.redirect('/admin/viewproducts');
-    } catch (err) {
-      console.error( err);
-      req.flash('error', 'Failed to add product');
-      res.redirect('/admin/add-product');
+updateProduct: async (req, res) => {
+  try {
+    const { name, description, price, discount, stock, category, brand } = req.body;
+    const images = req.files;
+
+    console.log(req.body);
+    console.log(images);
+
+    if (!name || !description || !price || !discount || !category || !brand || !stock || images.length === 0) {
+      req.flash('error', 'All fields are required');
+      return res.redirect('/admin/add-product');
     }
-  },
+
+    // Upload each file to Cloudinary and get URLs
+    const uploadPromises = images.map(file =>
+      cloudinary.uploader.upload(file.path, {
+        folder: 'products'  // Cloudinary folder
+      })
+    );
+
+    const uploadResults = await Promise.all(uploadPromises);
+    const imageUrls = uploadResults.map(result => result.secure_url);
+
+    // Delete local files after upload
+    images.forEach(file => fs.unlinkSync(file.path));
+
+    const newProduct = new Product({
+      name,
+      description,
+      price,
+      discount,
+      category,
+      brand,
+      stock,
+      images: imageUrls
+    });
+
+    await newProduct.save();
+
+    req.flash('success', 'Product added successfully');
+    res.redirect('/admin/viewproducts');
+  } catch (err) {
+    console.error(err);
+    req.flash('error', 'Failed to add product');
+    res.redirect('/admin/add-product');
+  }
+},
 
 //edit product page render with current product information----------------------------------------------------
   editProductPage :async (req,res) =>{
@@ -105,48 +123,61 @@ module.exports ={
   },
 
 //post the edited product details-------------------------------------------------------
-  editproduct : async(req,res) => {
-    const proId = req.params.id
-    const { name, category, description, price, discount, stock,brand, deletedImages } = req.body;
-        const newImages = req.files; 
-        console.log(newImages)
+editproduct: async (req, res) => {
+  const proId = req.params.id;
+  const { name, category, description, price, discount, stock, brand, deletedImages } = req.body;
+  const newImages = req.files;
 
+  try {
     const product = await Product.findById(proId);
-        if (!product) {
-            return res.status(404).send('Product not found');
-        }
-        let updatedImages = product.images;
-        if (deletedImages) {
-        const imagesToDelete = JSON.parse(deletedImages);
-      const imagesFolderPath = path.join(__dirname, '../public');
+    if (!product) {
+      return res.status(404).send('Product not found');
+    }
 
-      imagesToDelete.forEach(image => {
-        const imagePath = path.join(imagesFolderPath, image);
-        fs.unlink(imagePath, (err) => {
-          if (err) {
-            console.error(`Failed to delete image: ${imagePath}`, err);
-          } else {
-            console.log(`Deleted image: ${imagePath}`);
-          }
-        });
-      });
+    let updatedImages = product.images;
+
+    // Handle deleted images
+    if (deletedImages) {
+      const imagesToDelete = JSON.parse(deletedImages);
+      
+      // Optionally delete from Cloudinary if you stored the public_id as well
       updatedImages = updatedImages.filter(img => !imagesToDelete.includes(img));
     }
-        if (newImages && newImages.length > 0) {
-            const imagePaths = newImages.map(image => image.path.replace(/^public[\/\\]/, ''));
-            updatedImages = updatedImages.concat(imagePaths);
-        }
-        product.name = name;
-        product.category = category;
-        product.brand = brand;
-        product.description = description;
-        product.price = price;
-        product.discount = discount;
-        product.stock = stock;
-        product.images = updatedImages;
-        await product.save();
-        res.redirect('/admin/viewproducts');
-  },
+
+    // Handle newly uploaded images
+    if (newImages && newImages.length > 0) {
+      const uploadPromises = newImages.map(file =>
+        cloudinary.uploader.upload(file.path, {
+          folder: 'products'
+        })
+      );
+
+      const uploadResults = await Promise.all(uploadPromises);
+      const imageUrls = uploadResults.map(result => result.secure_url);
+
+      // Delete temp files
+      newImages.forEach(file => fs.unlinkSync(file.path));
+
+      updatedImages = updatedImages.concat(imageUrls);
+    }
+
+    // Update product fields
+    product.name = name;
+    product.category = category;
+    product.brand = brand;
+    product.description = description;
+    product.price = price;
+    product.discount = discount;
+    product.stock = stock;
+    product.images = updatedImages;
+
+    await product.save();
+    res.redirect('/admin/viewproducts');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+},
 
   //delete product-----------------------------------------------------------------------
   deleteProduct: async (req, res) => {

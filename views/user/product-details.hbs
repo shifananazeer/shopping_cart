@@ -124,12 +124,12 @@
         <!-- Left Side: Images -->
         <div class="col-md-6">
             <div class="main-img mb-3">
-                <img class="img-fluid" src="/{{product.images.[0]}}" alt="{{product.name}}">
+                <img class="img-fluid" src="{{product.images.[0]}}" alt="{{product.name}}">
             </div>
             <div class="row my-3 previews">
                 {{#each product.images}}
                     <div class="col-3">
-                        <img class="img-thumbnail thumbnail-image" src="/{{this}}" alt="Thumbnail" data-src="/{{this}}">
+                        <img class="img-thumbnail thumbnail-image" src="{{this}}" alt="Thumbnail" data-src="{{this}}">
                     </div>
                 {{/each}}
             </div>
@@ -230,7 +230,7 @@
                 {{#each relatedProducts}}
                     <div class="col-md-3 mb-4">
                         <div class="card">
-                            <img class="card-img-top" src="/{{this.images.[0]}}" alt="{{this.name}}">
+                            <img class="card-img-top" src="{{this.images.[0]}}" alt="{{this.name}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{this.name}}</h5>
                                 <p class="card-text" style="color: green;">Rs {{this.discount}}%Off</p>
